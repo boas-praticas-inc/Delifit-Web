@@ -2,8 +2,6 @@
 
 Backend do Delifit, um sistema academico de entrega de comidas fitness. Esta base usa FastAPI, PostgreSQL, SQLAlchemy, Alembic e uma organizacao inspirada em Clean Architecture.
 
-Docker nao sera usado nesta etapa. O projeto foi preparado para rodar localmente com um PostgreSQL ja instalado na maquina do desenvolvedor.
-
 ## Stack
 
 - Python 3.11+
