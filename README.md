@@ -210,25 +210,6 @@ npm run lint
 npm run build
 ```
 
-## Documentação para agentes
-
-O projeto possui arquivos de orientação para uso com Codex e outros assistentes:
-
-* `prompts.md`: prompts prontos para implementação, revisão, testes, documentação e integração.
-* `Back/AGENTS.md`: regras para trabalhar no backend.
-* `Front/AGENTS.md`: regras para trabalhar no frontend.
-
-Esses arquivos ajudam a manter consistência arquitetural e reduzir decisões improvisadas durante o desenvolvimento.
-
-## Cuidados importantes
-
-* Não versionar `.env`, `.venv`, `node_modules`, `dist` ou caches.
-* Não retornar ou exibir `senha_hash`.
-* Não persistir senha em texto puro.
-* Não inventar endpoints no frontend sem verificar o backend.
-* Não alterar estrutura de banco sem migration Alembic.
-* Preservar a separação entre backend e frontend.
-
 ## Status do projeto
 
 O projeto ainda está em evolução. A base inicial já possui:
