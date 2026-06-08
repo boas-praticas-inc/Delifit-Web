@@ -1,19 +1,30 @@
 ---
-name: Sugestão de Funcionalidade
-about: Sugira uma nova ideia para o projeto DeliFit
-title: '[Feature] '
+name: Nova Feature
+about: Adicionar uma nova funcionalidade ao Delifit
+title: '[FEATURE] - <Título da Feature>'
 labels: enhancement
-assignees: ''
 ---
 
-## 🚀 O Problema
-A sua solicitação está relacionada a um problema ou necessidade específica? Descreva de forma clara e concisa. (Ex: Como Admin do DeliFit, sinto dificuldade em visualizar os relatórios filtrados por data).
+## 🎯 O que é essa feature?
+*Descreva de forma simples o que precisa ser feito e qual o objetivo dessa funcionalidade no sistema.*
 
-## 💡 A Solução Proposta
-Descreva de forma clara como você imagina a solução. Quais seriam as novas regras de negócio ou interfaces?
+## 📝 Lista de Tarefas (Checklist)
+Marque o que for necessário para essa entrega:
 
-## 🔄 Alternativas Consideradas
-Você pensou em alguma outra forma de resolver isso? Se sim, descreva as alternativas que você considerou.
+**Backend:**
+- [ ] Criar Entidade / Model do banco.
+- [ ] Criar a regra de negócio (Use Case).
+- [ ] Criar a rota no FastAPI e testar.
 
-## 📝 Contexto Adicional
-Adicione qualquer outro contexto, wireframes ou mockups sobre a requisição de funcionalidade aqui.
+**Front-end (Web / Mobile):**
+- [ ] Criar a interface/tela.
+- [ ] Fazer a integração com a API.
+
+## ✅ Quando está pronto?
+*Liste as condições para a tarefa ser considerada finalizada (Ex: "O usuário consegue clicar no botão de comprar e o pedido aparece no banco de dados").*
+- [ ] Ação 1 funciona corretamente.
+- [ ] Ação 2 funciona corretamente.
+
+## 🔗 Links e Anexos
+- **Figma:** [Cole o link da tela aqui]
+- **Documentação extra:** [Se houver]
