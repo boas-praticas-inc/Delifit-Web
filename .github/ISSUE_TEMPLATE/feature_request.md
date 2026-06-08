@@ -1,20 +1,19 @@
 ---
-name: Feature request
-about: Suggest an idea for this project
-title: ''
-labels: ''
+name: Sugestão de Funcionalidade
+about: Sugira uma nova ideia para o projeto DeliFit
+title: '[Feature] '
+labels: enhancement
 assignees: ''
-
 ---
 
-**Is your feature request related to a problem? Please describe.**
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+## 🚀 O Problema
+A sua solicitação está relacionada a um problema ou necessidade específica? Descreva de forma clara e concisa. (Ex: Como Admin do DeliFit, sinto dificuldade em visualizar os relatórios filtrados por data).
 
-**Describe the solution you'd like**
-A clear and concise description of what you want to happen.
+## 💡 A Solução Proposta
+Descreva de forma clara como você imagina a solução. Quais seriam as novas regras de negócio ou interfaces?
 
-**Describe alternatives you've considered**
-A clear and concise description of any alternative solutions or features you've considered.
+## 🔄 Alternativas Consideradas
+Você pensou em alguma outra forma de resolver isso? Se sim, descreva as alternativas que você considerou.
 
-**Additional context**
-Add any other context or screenshots about the feature request here.
+## 📝 Contexto Adicional
+Adicione qualquer outro contexto, wireframes ou mockups sobre a requisição de funcionalidade aqui.

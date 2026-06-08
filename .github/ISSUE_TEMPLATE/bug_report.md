@@ -1,38 +1,31 @@
 ---
-name: Bug report
-about: Create a report to help us improve
-title: ''
-labels: ''
+name: Reporte de Bug
+about: Crie um reporte para nos ajudar a melhorar o DeliFit
+title: '[Bug] '
+labels: bug
 assignees: ''
-
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+## 🐛 Descrição do Bug
+Descreva de forma clara e concisa o que está acontecendo. (Ex: O sistema permite que um Manager acesse uma página restrita de Admin).
 
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+## 🔄 Passos para Reproduzir
+Liste o passo a passo exato para reproduzir o comportamento:
+1. Ir para '...'
+2. Clicar em '...'
+3. Preencher '...'
+4. Rolar para baixo até '...'
+5. Ver o erro
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+## ✔️ Comportamento Esperado
+Descreva o que deveria ter acontecido. (Ex: O sistema deveria redirecionar o usuário e exibir uma mensagem de "Acesso Negado").
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+## 📸 Capturas de Tela / Logs
+Se aplicável, adicione prints, GIFs ou logs do console de erro para ajudar a explicar o problema.
 
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
+## 🖥️ Ambiente
+- **Navegador:** [Ex: Chrome, Firefox, Safari]
+- **Dispositivo:** [Ex: Desktop, Smartphone]
 
-**Smartphone (please complete the following information):**
- - Device: [e.g. iPhone6]
- - OS: [e.g. iOS8.1]
- - Browser [e.g. stock browser, safari]
- - Version [e.g. 22]
-
-**Additional context**
-Add any other context about the problem here.
+## 📝 Contexto Adicional
+Adicione qualquer outro contexto sobre o problema aqui.
