@@ -29,9 +29,11 @@ export function getApiErrorMessage(error: unknown) {
       return 'Acesso nao autorizado. Faca login novamente.';
     case 404:
       return 'Recurso nao encontrado na API.';
+    case 409:
+      return detail ?? 'Ja existe um registro com essas informacoes.';
     case 422:
       return (
-        detail ?? 'Alguns dados enviados nao passaram na validacao da API.'
+        detail ?? 'Os dados informados nao passaram na validacao da API.'
       );
     case 500:
       return 'Erro interno no servidor. Tente novamente em alguns instantes.';

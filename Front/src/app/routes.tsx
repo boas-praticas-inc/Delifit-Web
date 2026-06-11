@@ -5,6 +5,8 @@ import { LoginPage } from '../features/auth/pages/LoginPage';
 import { RegisterPage } from '../features/auth/pages/RegisterPage';
 import { DashboardPage } from '../features/dashboard/pages/DashboardPage';
 import { PedidosPage } from '../features/pedidos/pages/PedidosPage';
+import { CriarRestaurantePage } from '../features/restaurantes/pages/CriarRestaurantePage';
+import { EditarRestaurantePage } from '../features/restaurantes/pages/EditarRestaurantePage';
 import { RestaurantesPage } from '../features/restaurantes/pages/RestaurantesPage';
 import { CriarUsuarioPage } from '../features/usuarios/pages/CriarUsuarioPage';
 import { UsuariosListPage } from '../features/usuarios/pages/UsuariosListPage';
@@ -23,6 +25,11 @@ export function AppRoutes() {
         <Route path="/usuarios" element={<UsuariosListPage />} />
         <Route path="/usuarios/novo" element={<CriarUsuarioPage />} />
         <Route path="/restaurantes" element={<RestaurantesPage />} />
+        <Route path="/restaurantes/novo" element={<CriarRestaurantePage />} />
+        <Route
+          path="/restaurantes/:restauranteId/editar"
+          element={<EditarRestaurantePage />}
+        />
         <Route path="/pedidos" element={<PedidosPage />} />
       </Route>
 
