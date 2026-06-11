@@ -11,6 +11,8 @@ export interface Usuario {
   atualizado_em: string | null;
 }
 
+export interface UsuarioDetalhado extends Usuario {}
+
 export interface CriarUsuarioPayload {
   email: string;
   senha: string;

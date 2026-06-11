@@ -7,6 +7,11 @@ export const usuarioService = {
     return response.data;
   },
 
+  async buscarUsuarioPorId(usuarioId: number) {
+    const response = await api.get<Usuario>(`/usuarios/${usuarioId}`);
+    return response.data;
+  },
+
   async criarUsuario(payload: CriarUsuarioPayload) {
     const response = await api.post<Usuario>('/usuarios', payload);
     return response.data;
