@@ -21,7 +21,7 @@ O backend **Delifit** atende uma aplicação de entrega de comidas fitness. A ba
 O schema do banco vem do arquivo SQL:
 
 ```text
-delifit_schema_portugues.sql
+delifit_schema_remodelado_portugues.sql
 ```
 
 Esse arquivo é a fonte da verdade do modelo de dados.
@@ -33,6 +33,7 @@ Regras importantes:
 * Não invente colunas.
 * Não altere o modelo sem necessidade clara.
 * Ao criar models SQLAlchemy, respeite os nomes reais do PostgreSQL.
+* Quando o banco usar nomes físicos diferentes dos nomes de domínio, mapeie o atributo do ORM para a coluna real sem mudar o contrato da API.
 * Para mudanças estruturais no banco, crie ou atualize migrations do Alembic.
 * Migrations não devem conter comandos destrutivos como `DROP TABLE`, `DROP TYPE` ou limpeza de dados, salvo pedido explícito.
 
@@ -93,13 +94,13 @@ A tabela `usuarios` possui:
 * `senha_hash`
 * `tipo_usuario`
 * `status`
-* `criado_em`
-* `atualizado_em`
+* `data_cadastro`
+* `ultimo_login_em`
 
 Enums relacionados:
 
-* `TipoUsuarioEnum`: `CLIENTE`, `RESTAURANTE`, `ENTREGADOR`, `ADMIN`
-* `StatusUsuarioEnum`: `ATIVO`, `INATIVO`, `BANIDO`
+* `TipoUsuarioEnum`: `CLIENTE`, `GESTOR`, `ADMIN`
+* `StatusUsuarioEnum`: `ATIVO`, `INATIVO`, `BLOQUEADO`
 
 A entrada de criação de usuário deve receber apenas:
 
@@ -111,10 +112,18 @@ Não aceite do cliente:
 
 * `senha_hash`
 * `status`
-* `criado_em`
-* `atualizado_em`
+* `data_cadastro`
+* `ultimo_login_em`
 
 A senha recebida deve ser transformada em hash antes de ser persistida.
+
+Pontos importantes do schema remodelado:
+
+* `usuarios` continua sendo a tabela-base de autenticação e identidade.
+* `clientes`, `gestores` e `admins` referenciam `usuarios` via `usuario_id`.
+* `restaurantes` agora dependem de `gestores` e `enderecos`.
+* `solicitacoes_adesao_restaurante` guarda o fluxo de aprovação antes da criação do restaurante.
+* Em tabelas como `itens_cardapio` e `pedidos`, preserve os campos de data exatamente como estão no SQL.
 
 ## Boas práticas
 
