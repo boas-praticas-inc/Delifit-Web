@@ -1,56 +1,94 @@
 import { Link } from 'react-router-dom';
 
-const highlights = [
-  'Entrega de comidas fitness',
-  'Perfis de cliente, restaurante, entregador e administrador',
-  'Frontend pronto para API REST versionada',
-];
+import { adminData } from '../features/admin/adminData';
 
 export function HomePage() {
+  const clientes = adminData.listarClientes();
+  const restaurantes = adminData.listarRestaurantes();
+  const clientesAtivos = clientes.filter((cliente) => cliente.status === 'ATIVO');
+  const restaurantesAtivos = restaurantes.filter(
+    (restaurante) => restaurante.status === 'ATIVO',
+  );
+
   return (
-    <main className="min-h-screen bg-brand-50">
-      <section className="mx-auto grid min-h-screen max-w-6xl content-center gap-10 px-4 py-10 md:grid-cols-[1fr_0.85fr] md:items-center">
-        <div>
-          <p className="text-sm font-semibold uppercase text-brand-700">
-            Delifit web
-          </p>
-          <h1 className="mt-4 text-4xl font-bold leading-tight text-slate-950 sm:text-5xl">
-            Sistema web para entrega de comidas fitness
-          </h1>
-          <p className="mt-5 max-w-2xl text-base leading-7 text-slate-700">
-            Estrutura inicial em React preparada para crescer junto com o
-            backend, mantendo rotas, services, validacoes e telas organizadas
-            por funcionalidade.
-          </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+    <section className="grid gap-6">
+      <div>
+        <p className="text-sm font-semibold uppercase text-brand-700">
+          Inicio
+        </p>
+        <h1 className="mt-1 text-2xl font-bold text-slate-950">
+          Home do ADM
+        </h1>
+        <p className="mt-2 max-w-3xl text-sm text-slate-600">
+          Gerencie clientes e restaurantes cadastrados no Delifit.
+        </p>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <Metric label="Clientes" value={clientes.length} />
+        <Metric label="Clientes ativos" value={clientesAtivos.length} />
+        <Metric label="Restaurantes" value={restaurantes.length} />
+        <Metric label="Restaurantes ativos" value={restaurantesAtivos.length} />
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <section className="rounded-lg border border-slate-200 bg-white p-5">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-lg font-bold text-slate-950">Clientes</h2>
+              <p className="mt-1 text-sm text-slate-600">
+                Liste, cadastre, edite e remova clientes.
+              </p>
+            </div>
             <Link
-              to="/dashboard"
-              className="inline-flex min-h-10 items-center justify-center rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2"
+              to="/clientes/novo"
+              className="inline-flex min-h-10 items-center justify-center rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-700"
             >
-              Abrir painel
-            </Link>
-            <Link
-              to="/login"
-              className="inline-flex min-h-10 items-center justify-center rounded-md border border-brand-200 bg-white px-4 py-2 text-sm font-semibold text-brand-900 transition hover:bg-brand-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2"
-            >
-              Entrar
+              Adicionar
             </Link>
           </div>
-        </div>
+          <Link
+            to="/clientes"
+            className="mt-4 inline-flex text-sm font-semibold text-brand-700"
+          >
+            Abrir lista de clientes
+          </Link>
+        </section>
 
-        <div className="rounded-lg border border-brand-100 bg-white p-6 shadow-soft">
-          <ul className="grid gap-3">
-            {highlights.map((item) => (
-              <li
-                key={item}
-                className="border-b border-slate-100 pb-3 text-sm font-medium text-slate-700 last:border-b-0 last:pb-0"
-              >
-                {item}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-    </main>
+        <section className="rounded-lg border border-slate-200 bg-white p-5">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-lg font-bold text-slate-950">
+                Restaurantes
+              </h2>
+              <p className="mt-1 text-sm text-slate-600">
+                Liste, cadastre, edite e remova restaurantes.
+              </p>
+            </div>
+            <Link
+              to="/restaurantes/novo"
+              className="inline-flex min-h-10 items-center justify-center rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-700"
+            >
+              Adicionar
+            </Link>
+          </div>
+          <Link
+            to="/restaurantes"
+            className="mt-4 inline-flex text-sm font-semibold text-brand-700"
+          >
+            Abrir lista de restaurantes
+          </Link>
+        </section>
+      </div>
+    </section>
+  );
+}
+
+function Metric({ label, value }: { label: string; value: number }) {
+  return (
+    <article className="rounded-lg border border-slate-200 bg-white p-5">
+      <p className="text-sm text-slate-500">{label}</p>
+      <p className="mt-2 text-2xl font-bold text-slate-950">{value}</p>
+    </article>
   );
 }
