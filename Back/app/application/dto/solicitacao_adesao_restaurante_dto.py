@@ -1,18 +1,21 @@
 from dataclasses import dataclass
-from datetime import datetime
 
 
 @dataclass(slots=True)
-class Restaurante:
-    id: int | None
+class CriarSolicitacaoAdesaoRestauranteDTO:
     gestor_id: int
-    endereco_id: int
-    solicitacao_adesao_id: int | None
     nome_fantasia: str
     razao_social: str
     cnpj: str
     telefone: str
+    cep: str
+    logradouro: str
+    numero: str
+    bairro: str
+    cidade: str
+    estado: str
+    complemento: str | None = None
+    referencia: str | None = None
     descricao: str | None = None
     foto_url: str | None = None
-    status: str = "ATIVO"
-    criado_em: datetime | None = None
+

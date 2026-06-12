@@ -31,13 +31,15 @@ def criar_restaurante(
 ) -> RestauranteResponse:
     restaurante = use_case.executar(
         CriarRestauranteDTO(
-            usuario_dono_id=payload.usuario_dono_id,
+            gestor_id=payload.gestor_id,
+            endereco_id=payload.endereco_id,
+            solicitacao_adesao_id=payload.solicitacao_adesao_id,
             nome_fantasia=payload.nome_fantasia,
             razao_social=payload.razao_social,
             cnpj=payload.cnpj,
             telefone=payload.telefone,
-            validado=payload.validado,
-            logo_url=payload.logo_url,
+            descricao=payload.descricao,
+            foto_url=payload.foto_url,
         )
     )
     return RestauranteResponse.model_validate(restaurante)
@@ -69,12 +71,15 @@ def atualizar_restaurante(
     restaurante = use_case.executar(
         restaurante_id,
         AtualizarRestauranteDTO(
+            gestor_id=payload.gestor_id,
+            endereco_id=payload.endereco_id,
+            solicitacao_adesao_id=payload.solicitacao_adesao_id,
             nome_fantasia=payload.nome_fantasia,
             razao_social=payload.razao_social,
             cnpj=payload.cnpj,
             telefone=payload.telefone,
-            validado=payload.validado,
-            logo_url=payload.logo_url,
+            descricao=payload.descricao,
+            foto_url=payload.foto_url,
         ),
     )
     return RestauranteResponse.model_validate(restaurante)

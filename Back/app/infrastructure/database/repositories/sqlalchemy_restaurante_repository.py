@@ -13,13 +13,16 @@ class SQLAlchemyRestauranteRepository(RestauranteRepository):
 
     def criar(self, restaurante: Restaurante) -> Restaurante:
         model = RestauranteModel(
-            usuario_dono_id=restaurante.usuario_dono_id,
+            gestor_id=restaurante.gestor_id,
+            endereco_id=restaurante.endereco_id,
+            solicitacao_adesao_id=restaurante.solicitacao_adesao_id,
             nome_fantasia=restaurante.nome_fantasia,
             razao_social=restaurante.razao_social,
             cnpj=restaurante.cnpj,
             telefone=restaurante.telefone,
-            validado=restaurante.validado,
-            logo_url=restaurante.logo_url,
+            descricao=restaurante.descricao,
+            foto_url=restaurante.foto_url,
+            status=restaurante.status,
         )
         self.session.add(model)
         try:
@@ -43,13 +46,16 @@ class SQLAlchemyRestauranteRepository(RestauranteRepository):
         if model is None:
             raise ValueError("Restaurante nao encontrado.")
 
-        model.usuario_dono_id = restaurante.usuario_dono_id
+        model.gestor_id = restaurante.gestor_id
+        model.endereco_id = restaurante.endereco_id
+        model.solicitacao_adesao_id = restaurante.solicitacao_adesao_id
         model.nome_fantasia = restaurante.nome_fantasia
         model.razao_social = restaurante.razao_social
         model.cnpj = restaurante.cnpj
         model.telefone = restaurante.telefone
-        model.validado = restaurante.validado
-        model.logo_url = restaurante.logo_url
+        model.descricao = restaurante.descricao
+        model.foto_url = restaurante.foto_url
+        model.status = restaurante.status
         try:
             self.session.commit()
         except IntegrityError as exc:
@@ -73,13 +79,15 @@ class SQLAlchemyRestauranteRepository(RestauranteRepository):
     def _to_entity(model: RestauranteModel) -> Restaurante:
         return Restaurante(
             id=model.id,
-            usuario_dono_id=model.usuario_dono_id,
+            gestor_id=model.gestor_id,
+            endereco_id=model.endereco_id,
+            solicitacao_adesao_id=model.solicitacao_adesao_id,
             nome_fantasia=model.nome_fantasia,
             razao_social=model.razao_social,
             cnpj=model.cnpj,
             telefone=model.telefone,
-            validado=model.validado,
-            logo_url=model.logo_url,
+            descricao=model.descricao,
+            foto_url=model.foto_url,
+            status=model.status,
             criado_em=model.criado_em,
-            atualizado_em=model.atualizado_em,
         )

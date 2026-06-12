@@ -20,6 +20,9 @@ class AtualizarRestauranteUseCase:
         restaurante.razao_social = dto.razao_social
         restaurante.cnpj = dto.cnpj
         restaurante.telefone = dto.telefone
-        restaurante.validado = dto.validado
-        restaurante.logo_url = dto.logo_url
+        restaurante.gestor_id = dto.gestor_id
+        restaurante.endereco_id = dto.endereco_id
+        restaurante.solicitacao_adesao_id = dto.solicitacao_adesao_id
+        restaurante.descricao = dto.descricao
+        restaurante.foto_url = dto.foto_url
         return self.repository.atualizar(restaurante)

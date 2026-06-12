@@ -14,12 +14,14 @@ class CriarRestauranteUseCase:
 
         restaurante = Restaurante(
             id=None,
-            usuario_dono_id=dto.usuario_dono_id,
+            gestor_id=dto.gestor_id,
+            endereco_id=dto.endereco_id,
+            solicitacao_adesao_id=dto.solicitacao_adesao_id,
             nome_fantasia=dto.nome_fantasia,
             razao_social=dto.razao_social,
             cnpj=dto.cnpj,
             telefone=dto.telefone,
-            validado=dto.validado,
-            logo_url=dto.logo_url,
+            descricao=dto.descricao,
+            foto_url=dto.foto_url,
         )
         return self.repository.criar(restaurante)

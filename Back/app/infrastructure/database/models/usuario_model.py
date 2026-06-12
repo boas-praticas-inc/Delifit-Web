@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import BigInteger, CheckConstraint, DateTime, String, func
+from sqlalchemy import BigInteger, CheckConstraint, DateTime, String, func, text
 from sqlalchemy.dialects.postgresql import ENUM
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -42,11 +42,12 @@ class UsuarioModel(Base):
         status_usuario_pg_enum,
         nullable=False,
         default=StatusUsuarioEnum.ATIVO,
-        server_default=StatusUsuarioEnum.ATIVO.value,
+        server_default=text("'ATIVO'::status_usuario_enum"),
     )
     criado_em: Mapped[datetime] = mapped_column(
+        "data_cadastro",
         DateTime,
         nullable=False,
         server_default=func.current_timestamp(),
     )
-    atualizado_em: Mapped[datetime | None] = mapped_column(DateTime)
+    atualizado_em: Mapped[datetime | None] = mapped_column("ultimo_login_em", DateTime)
