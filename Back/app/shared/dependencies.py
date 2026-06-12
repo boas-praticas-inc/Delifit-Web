@@ -10,6 +10,9 @@ from app.application.use_cases.usuario.listar_usuarios import ListarUsuariosUseC
 from app.application.use_cases.cliente.buscar_cliente_por_id import BuscarClientePorIdUseCase
 from app.application.use_cases.cliente.criar_cliente import CriarClienteUseCase
 from app.application.use_cases.cliente.listar_clientes import ListarClientesUseCase
+from app.application.use_cases.gestor.buscar_gestor_por_id import BuscarGestorPorIdUseCase
+from app.application.use_cases.gestor.criar_gestor import CriarGestorUseCase
+from app.application.use_cases.gestor.listar_gestores import ListarGestoresUseCase
 from app.application.use_cases.solicitacao_adesao_restaurante.buscar_solicitacao_adesao_restaurante_por_id import (
     BuscarSolicitacaoAdesaoRestaurantePorIdUseCase,
 )
@@ -34,6 +37,9 @@ from app.infrastructure.database.repositories.sqlalchemy_solicitacao_adesao_rest
 )
 from app.infrastructure.database.repositories.sqlalchemy_cliente_repository import (
     SQLAlchemyClienteRepository,
+)
+from app.infrastructure.database.repositories.sqlalchemy_gestor_repository import (
+    SQLAlchemyGestorRepository,
 )
 from app.infrastructure.database.repositories.sqlalchemy_endereco_repository import (
     SQLAlchemyEnderecoRepository,
@@ -193,3 +199,28 @@ def get_buscar_cliente_por_id_use_case(
 ) -> BuscarClientePorIdUseCase:
     repository = SQLAlchemyClienteRepository(session)
     return BuscarClientePorIdUseCase(repository=repository)
+
+
+def get_gestor_repository(session: Session) -> SQLAlchemyGestorRepository:
+    return SQLAlchemyGestorRepository(session)
+
+
+def get_criar_gestor_use_case(
+    session: Annotated[Session, Depends(get_session)],
+) -> CriarGestorUseCase:
+    repository = SQLAlchemyGestorRepository(session)
+    return CriarGestorUseCase(repository=repository)
+
+
+def get_listar_gestores_use_case(
+    session: Annotated[Session, Depends(get_session)],
+) -> ListarGestoresUseCase:
+    repository = SQLAlchemyGestorRepository(session)
+    return ListarGestoresUseCase(repository=repository)
+
+
+def get_buscar_gestor_por_id_use_case(
+    session: Annotated[Session, Depends(get_session)],
+) -> BuscarGestorPorIdUseCase:
+    repository = SQLAlchemyGestorRepository(session)
+    return BuscarGestorPorIdUseCase(repository=repository)
