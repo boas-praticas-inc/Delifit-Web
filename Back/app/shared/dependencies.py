@@ -10,6 +10,9 @@ from app.application.use_cases.usuario.listar_usuarios import ListarUsuariosUseC
 from app.application.use_cases.cliente.buscar_cliente_por_id import BuscarClientePorIdUseCase
 from app.application.use_cases.cliente.criar_cliente import CriarClienteUseCase
 from app.application.use_cases.cliente.listar_clientes import ListarClientesUseCase
+from app.application.use_cases.admin.buscar_admin_por_id import BuscarAdminPorIdUseCase
+from app.application.use_cases.admin.criar_admin import CriarAdminUseCase
+from app.application.use_cases.admin.listar_admins import ListarAdminsUseCase
 from app.application.use_cases.gestor.buscar_gestor_por_id import BuscarGestorPorIdUseCase
 from app.application.use_cases.gestor.criar_gestor import CriarGestorUseCase
 from app.application.use_cases.gestor.listar_gestores import ListarGestoresUseCase
@@ -37,6 +40,9 @@ from app.infrastructure.database.repositories.sqlalchemy_solicitacao_adesao_rest
 )
 from app.infrastructure.database.repositories.sqlalchemy_cliente_repository import (
     SQLAlchemyClienteRepository,
+)
+from app.infrastructure.database.repositories.sqlalchemy_admin_repository import (
+    SQLAlchemyAdminRepository,
 )
 from app.infrastructure.database.repositories.sqlalchemy_gestor_repository import (
     SQLAlchemyGestorRepository,
@@ -224,3 +230,28 @@ def get_buscar_gestor_por_id_use_case(
 ) -> BuscarGestorPorIdUseCase:
     repository = SQLAlchemyGestorRepository(session)
     return BuscarGestorPorIdUseCase(repository=repository)
+
+
+def get_admin_repository(session: Session) -> SQLAlchemyAdminRepository:
+    return SQLAlchemyAdminRepository(session)
+
+
+def get_criar_admin_use_case(
+    session: Annotated[Session, Depends(get_session)],
+) -> CriarAdminUseCase:
+    repository = SQLAlchemyAdminRepository(session)
+    return CriarAdminUseCase(repository=repository)
+
+
+def get_listar_admins_use_case(
+    session: Annotated[Session, Depends(get_session)],
+) -> ListarAdminsUseCase:
+    repository = SQLAlchemyAdminRepository(session)
+    return ListarAdminsUseCase(repository=repository)
+
+
+def get_buscar_admin_por_id_use_case(
+    session: Annotated[Session, Depends(get_session)],
+) -> BuscarAdminPorIdUseCase:
+    repository = SQLAlchemyAdminRepository(session)
+    return BuscarAdminPorIdUseCase(repository=repository)
