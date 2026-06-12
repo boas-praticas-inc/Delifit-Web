@@ -16,3 +16,11 @@ class ClienteRepository(ABC):
     def buscar_por_id(self, cliente_id: int) -> Cliente | None:
         raise NotImplementedError
 
+    @abstractmethod
+    def atualizar(self, cliente_id: int, cliente: Cliente) -> Cliente | None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def excluir(self, cliente_id: int) -> bool:
+        raise NotImplementedError
+

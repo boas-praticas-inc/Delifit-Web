@@ -11,11 +11,11 @@ export const api = axios.create({
 
 export function getApiErrorMessage(error: unknown) {
   if (!axios.isAxiosError(error)) {
-    return 'Nao foi possivel concluir a operacao. Tente novamente.';
+    return 'Não foi possível concluir a operação. Tente novamente.';
   }
 
   if (!error.response) {
-    return 'Nao foi possivel conectar com a API. Verifique se o backend esta em execucao.';
+    return 'Não foi possível conectar com a API. Verifique se o backend está em execução.';
   }
 
   const detail = getResponseDetail(error.response.data);
@@ -23,17 +23,17 @@ export function getApiErrorMessage(error: unknown) {
   switch (error.response.status) {
     case 400:
       return (
-        detail ?? 'Dados invalidos. Revise as informacoes e tente novamente.'
+        detail ?? 'Dados inválidos. Revise as informações e tente novamente.'
       );
     case 401:
-      return 'Acesso nao autorizado. Faca login novamente.';
+      return 'Acesso não autorizado. Faça login novamente.';
     case 404:
-      return 'Recurso nao encontrado na API.';
+      return 'Recurso não encontrado na API.';
     case 409:
-      return detail ?? 'Ja existe um registro com essas informacoes.';
+      return detail ?? 'Já existe um registro com essas informações.';
     case 422:
       return (
-        detail ?? 'Os dados informados nao passaram na validacao da API.'
+        detail ?? 'Os dados informados não passaram na validação da API.'
       );
     case 500:
       return 'Erro interno no servidor. Tente novamente em alguns instantes.';

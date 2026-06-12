@@ -28,19 +28,6 @@ export function RestaurantesPage() {
     void carregarRestaurantes();
   }, []);
 
-  async function handleExcluir(restauranteId: number) {
-    if (!window.confirm('Deseja excluir este restaurante?')) {
-      return;
-    }
-
-    try {
-      await restauranteService.excluirRestaurante(restauranteId);
-      await carregarRestaurantes();
-    } catch (requestError) {
-      setError(getApiErrorMessage(requestError));
-    }
-  }
-
   const totalPaginas = Math.max(1, Math.ceil(restaurantes.length / itensPorPagina));
   const paginaSegurada = Math.min(paginaAtual, totalPaginas);
   const inicio = (paginaSegurada - 1) * itensPorPagina;
@@ -58,7 +45,7 @@ export function RestaurantesPage() {
             Restaurantes
           </p>
           <h1 className="mt-1 text-2xl font-bold text-slate-950">
-            Restaurantes parceiros
+            Listar Restaurantes
           </h1>
         </div>
         <Link
@@ -88,48 +75,41 @@ export function RestaurantesPage() {
           <div className="grid">
             <div className="overflow-x-auto">
               <table className="w-full min-w-[960px] text-left text-sm">
-              <thead className="bg-slate-50 text-xs uppercase text-slate-500">
-                <tr>
-                  <th className="px-4 py-3">ID</th>
-                  <th className="px-4 py-3">Nome fantasia</th>
-                  <th className="px-4 py-3">Razao social</th>
-                  <th className="px-4 py-3">CNPJ</th>
-                  <th className="px-4 py-3">Telefone</th>
-                  <th className="px-4 py-3">Validado</th>
-                  <th className="px-4 py-3">Ações</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {restaurantesPagina.map((restaurante) => (
-                  <tr key={restaurante.id} className="text-slate-700">
-                    <td className="px-4 py-3 font-medium text-slate-950">
-                      {restaurante.id}
-                    </td>
-                    <td className="px-4 py-3">{restaurante.nome_fantasia}</td>
-                    <td className="px-4 py-3">{restaurante.razao_social}</td>
-                    <td className="px-4 py-3">{restaurante.cnpj}</td>
-                    <td className="px-4 py-3">{restaurante.telefone}</td>
-                    <td className="px-4 py-3">{restaurante.validado ? 'Sim' : 'Nao'}</td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-3">
+                <thead className="bg-slate-50 text-xs uppercase text-slate-500">
+                  <tr>
+                    <th className="px-4 py-3">ID</th>
+                    <th className="px-4 py-3">Gestor</th>
+                    <th className="px-4 py-3">Nome fantasia</th>
+                    <th className="px-4 py-3">Razão Social</th>
+                    <th className="px-4 py-3">CNPJ</th>
+                    <th className="px-4 py-3">Telefone</th>
+                    <th className="px-4 py-3">Status</th>
+                    <th className="px-4 py-3">Ações</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {restaurantesPagina.map((restaurante) => (
+                    <tr key={restaurante.id} className="text-slate-700">
+                      <td className="px-4 py-3 font-medium text-slate-950">
+                        {restaurante.id}
+                      </td>
+                      <td className="px-4 py-3">{restaurante.gestor_id}</td>
+                      <td className="px-4 py-3">{restaurante.nome_fantasia}</td>
+                      <td className="px-4 py-3">{restaurante.razao_social}</td>
+                      <td className="px-4 py-3">{restaurante.cnpj}</td>
+                      <td className="px-4 py-3">{restaurante.telefone}</td>
+                      <td className="px-4 py-3">{restaurante.status}</td>
+                      <td className="px-4 py-3">
                         <Link
-                          to={`/restaurantes/${restaurante.id}/editar`}
+                          to={`/restaurantes/${restaurante.id}`}
                           className="font-semibold text-brand-700 hover:text-brand-900"
                         >
-                          Editar
+                          Ver Detalhes
                         </Link>
-                        <button
-                          type="button"
-                          className="font-semibold text-red-600 hover:text-red-800"
-                          onClick={() => void handleExcluir(restaurante.id)}
-                        >
-                          Excluir
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
               </table>
             </div>
 

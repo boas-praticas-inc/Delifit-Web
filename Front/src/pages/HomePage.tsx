@@ -1,56 +1,103 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-const highlights = [
-  'Entrega de comidas fitness',
-  'Perfis de cliente, restaurante, entregador e administrador',
-  'Frontend pronto para API REST versionada',
-];
+import { clienteService } from '../features/clientes/services/clienteService';
+import { restauranteService } from '../features/restaurantes/services/restauranteService';
+import { solicitacaoService } from '../features/solicitacoes/services/solicitacaoService';
+import { getApiErrorMessage } from '../lib/api';
 
 export function HomePage() {
-  return (
-    <main className="min-h-screen bg-brand-50">
-      <section className="mx-auto grid min-h-screen max-w-6xl content-center gap-10 px-4 py-10 md:grid-cols-[1fr_0.85fr] md:items-center">
-        <div>
-          <p className="text-sm font-semibold uppercase text-brand-700">
-            Delifit web
-          </p>
-          <h1 className="mt-4 text-4xl font-bold leading-tight text-slate-950 sm:text-5xl">
-            Sistema web para entrega de comidas fitness
-          </h1>
-          <p className="mt-5 max-w-2xl text-base leading-7 text-slate-700">
-            Estrutura inicial em React preparada para crescer junto com o
-            backend, mantendo rotas, services, validacoes e telas organizadas
-            por funcionalidade.
-          </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Link
-              to="/dashboard"
-              className="inline-flex min-h-10 items-center justify-center rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2"
-            >
-              Abrir painel
-            </Link>
-            <Link
-              to="/login"
-              className="inline-flex min-h-10 items-center justify-center rounded-md border border-brand-200 bg-white px-4 py-2 text-sm font-semibold text-brand-900 transition hover:bg-brand-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2"
-            >
-              Entrar
-            </Link>
-          </div>
-        </div>
+  const [resumo, setResumo] = useState({
+    clientes: 0,
+    restaurantes: 0,
+    solicitacoes: 0,
+    pendentes: 0,
+  });
+  const [error, setError] = useState<string | null>(null);
 
-        <div className="rounded-lg border border-brand-100 bg-white p-6 shadow-soft">
-          <ul className="grid gap-3">
-            {highlights.map((item) => (
-              <li
-                key={item}
-                className="border-b border-slate-100 pb-3 text-sm font-medium text-slate-700 last:border-b-0 last:pb-0"
-              >
-                {item}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-    </main>
+  useEffect(() => {
+    async function carregarResumo() {
+      try {
+        const [clientes, restaurantes, solicitacoes] = await Promise.all([
+          clienteService.listarClientes(),
+          restauranteService.listarRestaurantes(),
+          solicitacaoService.listarSolicitacoes(),
+        ]);
+
+        setResumo({
+          clientes: clientes.length,
+          restaurantes: restaurantes.length,
+          solicitacoes: solicitacoes.length,
+          pendentes: solicitacoes.filter(
+            (item) => item.status_solicitacao === 'EM_ANALISE',
+          ).length,
+        });
+      } catch (requestError) {
+        setError(getApiErrorMessage(requestError));
+      }
+    }
+
+    void carregarResumo();
+  }, []);
+
+  return (
+    <section className="grid gap-6">
+      <div className="rounded-2xl bg-slate-900 px-6 py-8 text-white shadow-soft">
+        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brand-200">
+          Painel administrativo
+        </p>
+        <h1 className="mt-3 text-3xl font-bold">Home do administrador</h1>
+        <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-200">
+          Gerencie clientes, restaurantes e solicitações de adesão a partir da
+          tela principal do sistema.
+        </p>
+      </div>
+
+      {error ? (
+        <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </p>
+      ) : null}
+
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <Link to="/clientes" className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <p className="text-sm text-slate-600">Clientes cadastrados</p>
+          <p className="mt-3 text-3xl font-bold text-slate-950">{resumo.clientes}</p>
+        </Link>
+        <Link to="/restaurantes" className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <p className="text-sm text-slate-600">Restaurantes cadastrados</p>
+          <p className="mt-3 text-3xl font-bold text-slate-950">{resumo.restaurantes}</p>
+        </Link>
+        <Link to="/solicitacoes" className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <p className="text-sm text-slate-600">Solicitações Recebidas</p>
+          <p className="mt-3 text-3xl font-bold text-slate-950">{resumo.solicitacoes}</p>
+        </Link>
+        <Link to="/solicitacoes" className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <p className="text-sm text-slate-600">Solicitações Pendentes</p>
+          <p className="mt-3 text-3xl font-bold text-slate-950">{resumo.pendentes}</p>
+        </Link>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-3">
+        <Link to="/solicitacoes" className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <h2 className="text-lg font-bold text-slate-950">Analisar Solicitações</h2>
+          <p className="mt-2 text-sm text-slate-600">
+            Aprove ou recuse pedidos de adesão de novos restaurantes.
+          </p>
+        </Link>
+        <Link to="/clientes/novo" className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <h2 className="text-lg font-bold text-slate-950">Adicionar Cliente</h2>
+          <p className="mt-2 text-sm text-slate-600">
+            Cadastre novos clientes com usuário e dados pessoais.
+          </p>
+        </Link>
+        <Link to="/restaurantes/novo" className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <h2 className="text-lg font-bold text-slate-950">Adicionar Restaurante</h2>
+          <p className="mt-2 text-sm text-slate-600">
+            Crie restaurantes vinculando gestor, endereço e solicitação.
+          </p>
+        </Link>
+      </div>
+    </section>
   );
 }

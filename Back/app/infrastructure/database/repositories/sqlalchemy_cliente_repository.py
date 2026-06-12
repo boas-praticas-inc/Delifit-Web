@@ -30,6 +30,29 @@ class SQLAlchemyClienteRepository(ClienteRepository):
         model = self.session.get(ClienteModel, cliente_id)
         return self._to_entity(model) if model is not None else None
 
+    def atualizar(self, cliente_id: int, cliente: Cliente) -> Cliente | None:
+        model = self.session.get(ClienteModel, cliente_id)
+        if model is None:
+            return None
+
+        model.usuario_id = cliente.usuario_id
+        model.nome_completo = cliente.nome_completo
+        model.cpf = cliente.cpf
+        model.telefone = cliente.telefone
+        model.data_nascimento = cliente.data_nascimento
+        self.session.commit()
+        self.session.refresh(model)
+        return self._to_entity(model)
+
+    def excluir(self, cliente_id: int) -> bool:
+        model = self.session.get(ClienteModel, cliente_id)
+        if model is None:
+            return False
+
+        self.session.delete(model)
+        self.session.commit()
+        return True
+
     @staticmethod
     def _to_entity(model: ClienteModel) -> Cliente:
         return Cliente(

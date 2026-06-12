@@ -1,31 +1,28 @@
 export interface Restaurante {
   id: number;
-  usuario_dono_id: number;
+  gestor_id: number;
+  endereco_id: number;
+  solicitacao_adesao_id: number | null;
   nome_fantasia: string;
   razao_social: string;
   cnpj: string;
   telefone: string;
-  validado: boolean;
-  logo_url: string | null;
+  descricao: string | null;
+  foto_url: string | null;
+  status: string;
   criado_em: string;
-  atualizado_em: string | null;
 }
 
 export interface CriarRestaurantePayload {
-  usuario_dono_id: number;
+  gestor_id: number;
+  endereco_id: number;
+  solicitacao_adesao_id: number | null;
   nome_fantasia: string;
   razao_social: string;
   cnpj: string;
   telefone: string;
-  validado: boolean;
-  logo_url: string | null;
+  descricao: string | null;
+  foto_url: string | null;
 }
 
-export interface AtualizarRestaurantePayload {
-  nome_fantasia: string;
-  razao_social: string;
-  cnpj: string;
-  telefone: string;
-  validado: boolean;
-  logo_url: string | null;
-}
+export interface AtualizarRestaurantePayload extends CriarRestaurantePayload {}

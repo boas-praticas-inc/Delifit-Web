@@ -16,3 +16,11 @@ class SolicitacaoAdesaoRestauranteRepository(ABC):
     def buscar_por_id(self, solicitacao_id: int) -> SolicitacaoAdesaoRestaurante | None:
         raise NotImplementedError
 
+    @abstractmethod
+    def atualizar(
+        self,
+        solicitacao_id: int,
+        solicitacao: SolicitacaoAdesaoRestaurante,
+    ) -> SolicitacaoAdesaoRestaurante | None:
+        raise NotImplementedError
+

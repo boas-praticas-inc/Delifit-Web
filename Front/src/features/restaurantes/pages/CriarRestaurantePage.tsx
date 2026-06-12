@@ -3,8 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import { getApiErrorMessage } from '../../../lib/api';
 import { RestauranteForm } from '../components/RestauranteForm';
-import { restauranteService } from '../services/restauranteService';
 import type { CriarRestauranteFormData } from '../schemas/restauranteSchemas';
+import { restauranteService } from '../services/restauranteService';
 
 export function CriarRestaurantePage() {
   const navigate = useNavigate();
@@ -18,7 +18,8 @@ export function CriarRestaurantePage() {
     try {
       await restauranteService.criarRestaurante({
         ...data,
-        logo_url: data.logo_url || null,
+        descricao: data.descricao || null,
+        foto_url: data.foto_url || null,
       });
       setFeedback('Restaurante criado com sucesso.');
       navigate('/restaurantes');
@@ -31,10 +32,10 @@ export function CriarRestaurantePage() {
     <section className="mx-auto grid max-w-2xl gap-6">
       <div>
         <Link to="/restaurantes" className="text-sm font-semibold text-brand-700">
-          Voltar para restaurantes
+          Voltar para Restaurantes
         </Link>
         <h1 className="mt-3 text-2xl font-bold text-slate-950">
-          Criar restaurante
+          Adicionar Restaurante
         </h1>
       </div>
 

@@ -11,6 +11,14 @@ class ClienteCreate(BaseModel):
     data_nascimento: date | None = None
 
 
+class ClienteUpdate(BaseModel):
+    usuario_id: int = Field(gt=0)
+    nome_completo: str = Field(min_length=1, max_length=150)
+    cpf: str = Field(pattern=r"^[0-9]{11}$")
+    telefone: str = Field(min_length=1, max_length=20)
+    data_nascimento: date | None = None
+
+
 class ClienteResponse(BaseModel):
     id: int
     usuario_id: int
