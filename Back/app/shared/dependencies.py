@@ -7,6 +7,9 @@ from sqlalchemy.orm import Session
 from app.application.use_cases.usuario.buscar_usuario_por_id import BuscarUsuarioPorIdUseCase
 from app.application.use_cases.usuario.criar_usuario import CriarUsuarioUseCase
 from app.application.use_cases.usuario.listar_usuarios import ListarUsuariosUseCase
+from app.application.use_cases.cliente.buscar_cliente_por_id import BuscarClientePorIdUseCase
+from app.application.use_cases.cliente.criar_cliente import CriarClienteUseCase
+from app.application.use_cases.cliente.listar_clientes import ListarClientesUseCase
 from app.application.use_cases.solicitacao_adesao_restaurante.buscar_solicitacao_adesao_restaurante_por_id import (
     BuscarSolicitacaoAdesaoRestaurantePorIdUseCase,
 )
@@ -28,6 +31,9 @@ from app.core.database import get_db_session
 from app.core.security import gerar_hash_senha
 from app.infrastructure.database.repositories.sqlalchemy_solicitacao_adesao_restaurante_repository import (
     SQLAlchemySolicitacaoAdesaoRestauranteRepository,
+)
+from app.infrastructure.database.repositories.sqlalchemy_cliente_repository import (
+    SQLAlchemyClienteRepository,
 )
 from app.infrastructure.database.repositories.sqlalchemy_endereco_repository import (
     SQLAlchemyEnderecoRepository,
@@ -162,3 +168,28 @@ def get_buscar_endereco_por_id_use_case(
 ) -> BuscarEnderecoPorIdUseCase:
     repository = SQLAlchemyEnderecoRepository(session)
     return BuscarEnderecoPorIdUseCase(repository=repository)
+
+
+def get_cliente_repository(session: Session) -> SQLAlchemyClienteRepository:
+    return SQLAlchemyClienteRepository(session)
+
+
+def get_criar_cliente_use_case(
+    session: Annotated[Session, Depends(get_session)],
+) -> CriarClienteUseCase:
+    repository = SQLAlchemyClienteRepository(session)
+    return CriarClienteUseCase(repository=repository)
+
+
+def get_listar_clientes_use_case(
+    session: Annotated[Session, Depends(get_session)],
+) -> ListarClientesUseCase:
+    repository = SQLAlchemyClienteRepository(session)
+    return ListarClientesUseCase(repository=repository)
+
+
+def get_buscar_cliente_por_id_use_case(
+    session: Annotated[Session, Depends(get_session)],
+) -> BuscarClientePorIdUseCase:
+    repository = SQLAlchemyClienteRepository(session)
+    return BuscarClientePorIdUseCase(repository=repository)
