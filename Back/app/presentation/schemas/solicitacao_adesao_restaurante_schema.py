@@ -46,3 +46,12 @@ class SolicitacaoAdesaoRestauranteResponse(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+
+class AprovarSolicitacaoAdesaoRestauranteRequest(BaseModel):
+    analisado_por_admin_id: int = Field(gt=0)
+
+
+class RecusarSolicitacaoAdesaoRestauranteRequest(BaseModel):
+    analisado_por_admin_id: int = Field(gt=0)
+    motivo_reprovacao: str = Field(min_length=1)
+

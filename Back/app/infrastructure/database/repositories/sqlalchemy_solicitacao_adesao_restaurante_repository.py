@@ -46,6 +46,38 @@ class SQLAlchemySolicitacaoAdesaoRestauranteRepository(SolicitacaoAdesaoRestaura
         model = self.session.get(SolicitacaoAdesaoRestauranteModel, solicitacao_id)
         return self._to_entity(model) if model is not None else None
 
+    def atualizar(
+        self,
+        solicitacao_id: int,
+        solicitacao: SolicitacaoAdesaoRestaurante,
+    ) -> SolicitacaoAdesaoRestaurante | None:
+        model = self.session.get(SolicitacaoAdesaoRestauranteModel, solicitacao_id)
+        if model is None:
+            return None
+
+        model.gestor_id = solicitacao.gestor_id
+        model.nome_fantasia = solicitacao.nome_fantasia
+        model.razao_social = solicitacao.razao_social
+        model.cnpj = solicitacao.cnpj
+        model.telefone = solicitacao.telefone
+        model.descricao = solicitacao.descricao
+        model.foto_url = solicitacao.foto_url
+        model.cep = solicitacao.cep
+        model.logradouro = solicitacao.logradouro
+        model.numero = solicitacao.numero
+        model.bairro = solicitacao.bairro
+        model.cidade = solicitacao.cidade
+        model.estado = solicitacao.estado
+        model.complemento = solicitacao.complemento
+        model.referencia = solicitacao.referencia
+        model.status_solicitacao = solicitacao.status_solicitacao
+        model.motivo_reprovacao = solicitacao.motivo_reprovacao
+        model.analisado_em = solicitacao.analisado_em
+        model.analisado_por_admin_id = solicitacao.analisado_por_admin_id
+        self.session.commit()
+        self.session.refresh(model)
+        return self._to_entity(model)
+
     @staticmethod
     def _to_entity(model: SolicitacaoAdesaoRestauranteModel) -> SolicitacaoAdesaoRestaurante:
         return SolicitacaoAdesaoRestaurante(

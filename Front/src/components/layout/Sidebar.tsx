@@ -3,10 +3,12 @@ import { NavLink } from 'react-router-dom';
 import { cn } from '../../utils/cn';
 
 const links = [
-  { to: '/dashboard', label: 'Dashboard' },
-  { to: '/usuarios', label: 'Usuarios' },
-  { to: '/restaurantes', label: 'Restaurantes' },
-  { to: '/pedidos', label: 'Pedidos' },
+  { to: '/', label: 'Início' },
+  { to: '/solicitacoes', label: 'Solicitações' },
+  { to: '/clientes', label: 'Listar Clientes' },
+  { to: '/clientes/novo', label: 'Adicionar Cliente' },
+  { to: '/restaurantes', label: 'Listar Restaurantes' },
+  { to: '/restaurantes/novo', label: 'Adicionar Restaurante' },
 ];
 
 export function Sidebar() {

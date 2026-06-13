@@ -6,7 +6,7 @@ export function NotFoundPage() {
       <section className="max-w-md text-center">
         <p className="text-sm font-semibold uppercase text-brand-700">404</p>
         <h1 className="mt-3 text-3xl font-bold text-slate-950">
-          Pagina nao encontrada
+          Página não encontrada
         </h1>
         <p className="mt-3 text-sm text-slate-600">
           A rota acessada nao existe no frontend do Delifit.

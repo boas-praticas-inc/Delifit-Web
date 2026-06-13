@@ -3,7 +3,11 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, status
 
 from app.application.dto.solicitacao_adesao_restaurante_dto import (
+    AnalisarSolicitacaoAdesaoRestauranteDTO,
     CriarSolicitacaoAdesaoRestauranteDTO,
+)
+from app.application.use_cases.solicitacao_adesao_restaurante.analisar_solicitacao_adesao_restaurante import (
+    AnalisarSolicitacaoAdesaoRestauranteUseCase,
 )
 from app.application.use_cases.solicitacao_adesao_restaurante.buscar_solicitacao_adesao_restaurante_por_id import (
     BuscarSolicitacaoAdesaoRestaurantePorIdUseCase,
@@ -15,10 +19,13 @@ from app.application.use_cases.solicitacao_adesao_restaurante.listar_solicitacoe
     ListarSolicitacoesAdesaoRestauranteUseCase,
 )
 from app.presentation.schemas.solicitacao_adesao_restaurante_schema import (
+    AprovarSolicitacaoAdesaoRestauranteRequest,
+    RecusarSolicitacaoAdesaoRestauranteRequest,
     SolicitacaoAdesaoRestauranteCreate,
     SolicitacaoAdesaoRestauranteResponse,
 )
 from app.shared.dependencies import (
+    get_analisar_solicitacao_adesao_restaurante_use_case,
     get_buscar_solicitacao_adesao_restaurante_por_id_use_case,
     get_criar_solicitacao_adesao_restaurante_use_case,
     get_listar_solicitacoes_adesao_restaurante_use_case,
@@ -77,5 +84,44 @@ def buscar_solicitacao_por_id(
     ],
 ) -> SolicitacaoAdesaoRestauranteResponse:
     solicitacao = use_case.executar(solicitacao_id)
+    return SolicitacaoAdesaoRestauranteResponse.model_validate(solicitacao)
+
+
+@router.patch("/{solicitacao_id}/aprovar", response_model=SolicitacaoAdesaoRestauranteResponse)
+def aprovar_solicitacao(
+    solicitacao_id: int,
+    payload: AprovarSolicitacaoAdesaoRestauranteRequest,
+    use_case: Annotated[
+        AnalisarSolicitacaoAdesaoRestauranteUseCase,
+        Depends(get_analisar_solicitacao_adesao_restaurante_use_case),
+    ],
+) -> SolicitacaoAdesaoRestauranteResponse:
+    solicitacao = use_case.executar(
+        solicitacao_id,
+        AnalisarSolicitacaoAdesaoRestauranteDTO(
+            status_solicitacao="APROVADO",
+            analisado_por_admin_id=payload.analisado_por_admin_id,
+        ),
+    )
+    return SolicitacaoAdesaoRestauranteResponse.model_validate(solicitacao)
+
+
+@router.patch("/{solicitacao_id}/recusar", response_model=SolicitacaoAdesaoRestauranteResponse)
+def recusar_solicitacao(
+    solicitacao_id: int,
+    payload: RecusarSolicitacaoAdesaoRestauranteRequest,
+    use_case: Annotated[
+        AnalisarSolicitacaoAdesaoRestauranteUseCase,
+        Depends(get_analisar_solicitacao_adesao_restaurante_use_case),
+    ],
+) -> SolicitacaoAdesaoRestauranteResponse:
+    solicitacao = use_case.executar(
+        solicitacao_id,
+        AnalisarSolicitacaoAdesaoRestauranteDTO(
+            status_solicitacao="REPROVADO",
+            analisado_por_admin_id=payload.analisado_por_admin_id,
+            motivo_reprovacao=payload.motivo_reprovacao,
+        ),
+    )
     return SolicitacaoAdesaoRestauranteResponse.model_validate(solicitacao)
 

@@ -7,8 +7,10 @@ from sqlalchemy.orm import Session
 from app.application.use_cases.usuario.buscar_usuario_por_id import BuscarUsuarioPorIdUseCase
 from app.application.use_cases.usuario.criar_usuario import CriarUsuarioUseCase
 from app.application.use_cases.usuario.listar_usuarios import ListarUsuariosUseCase
+from app.application.use_cases.cliente.atualizar_cliente import AtualizarClienteUseCase
 from app.application.use_cases.cliente.buscar_cliente_por_id import BuscarClientePorIdUseCase
 from app.application.use_cases.cliente.criar_cliente import CriarClienteUseCase
+from app.application.use_cases.cliente.excluir_cliente import ExcluirClienteUseCase
 from app.application.use_cases.cliente.listar_clientes import ListarClientesUseCase
 from app.application.use_cases.admin.buscar_admin_por_id import BuscarAdminPorIdUseCase
 from app.application.use_cases.admin.criar_admin import CriarAdminUseCase
@@ -18,6 +20,9 @@ from app.application.use_cases.gestor.criar_gestor import CriarGestorUseCase
 from app.application.use_cases.gestor.listar_gestores import ListarGestoresUseCase
 from app.application.use_cases.solicitacao_adesao_restaurante.buscar_solicitacao_adesao_restaurante_por_id import (
     BuscarSolicitacaoAdesaoRestaurantePorIdUseCase,
+)
+from app.application.use_cases.solicitacao_adesao_restaurante.analisar_solicitacao_adesao_restaurante import (
+    AnalisarSolicitacaoAdesaoRestauranteUseCase,
 )
 from app.application.use_cases.solicitacao_adesao_restaurante.criar_solicitacao_adesao_restaurante import (
     CriarSolicitacaoAdesaoRestauranteUseCase,
@@ -157,6 +162,13 @@ def get_buscar_solicitacao_adesao_restaurante_por_id_use_case(
     return BuscarSolicitacaoAdesaoRestaurantePorIdUseCase(repository=repository)
 
 
+def get_analisar_solicitacao_adesao_restaurante_use_case(
+    session: Annotated[Session, Depends(get_session)],
+) -> AnalisarSolicitacaoAdesaoRestauranteUseCase:
+    repository = SQLAlchemySolicitacaoAdesaoRestauranteRepository(session)
+    return AnalisarSolicitacaoAdesaoRestauranteUseCase(repository=repository)
+
+
 def get_endereco_repository(session: Session) -> SQLAlchemyEnderecoRepository:
     return SQLAlchemyEnderecoRepository(session)
 
@@ -205,6 +217,20 @@ def get_buscar_cliente_por_id_use_case(
 ) -> BuscarClientePorIdUseCase:
     repository = SQLAlchemyClienteRepository(session)
     return BuscarClientePorIdUseCase(repository=repository)
+
+
+def get_atualizar_cliente_use_case(
+    session: Annotated[Session, Depends(get_session)],
+) -> AtualizarClienteUseCase:
+    repository = SQLAlchemyClienteRepository(session)
+    return AtualizarClienteUseCase(repository=repository)
+
+
+def get_excluir_cliente_use_case(
+    session: Annotated[Session, Depends(get_session)],
+) -> ExcluirClienteUseCase:
+    repository = SQLAlchemyClienteRepository(session)
+    return ExcluirClienteUseCase(repository=repository)
 
 
 def get_gestor_repository(session: Session) -> SQLAlchemyGestorRepository:
