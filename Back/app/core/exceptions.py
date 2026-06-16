@@ -22,6 +22,11 @@ class EmailJaCadastradoError(AppError):
     detail = "Email ja cadastrado."
 
 
+class CredenciaisInvalidasError(AppError):
+    status_code = status.HTTP_401_UNAUTHORIZED
+    detail = "Email ou senha invalidos."
+
+
 async def app_error_handler(_request: Request, exc: AppError) -> JSONResponse:
     return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
 

@@ -15,3 +15,7 @@ export interface AuthUser {
   email: string;
   tipo_usuario: Usuario['tipo_usuario'];
 }
+
+export interface LoginResponse {
+  usuario: Usuario;
+}
