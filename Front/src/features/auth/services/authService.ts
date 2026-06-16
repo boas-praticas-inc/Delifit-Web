@@ -6,7 +6,7 @@ export const authService = {
   async login(payload: LoginPayload) {
     void payload;
     throw new Error(
-      'Endpoint de login ainda nao configurado no backend. Ajuste authService.login quando a rota existir.',
+      'Endpoint de login ainda não configurado no backend. Ajuste authService.login quando a rota existir.',
     );
   },
 

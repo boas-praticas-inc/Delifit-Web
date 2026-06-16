@@ -9,13 +9,13 @@ export function NotFoundPage() {
           Página não encontrada
         </h1>
         <p className="mt-3 text-sm text-slate-600">
-          A rota acessada nao existe no frontend do Delifit.
+          A rota acessada não existe no frontend do Delifit.
         </p>
         <Link
           to="/"
           className="mt-6 inline-flex min-h-10 items-center justify-center rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2"
         >
-          Voltar ao inicio
+          Voltar ao início
         </Link>
       </section>
     </main>

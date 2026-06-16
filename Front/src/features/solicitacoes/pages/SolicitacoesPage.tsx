@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Button } from '../../../components/common/Button';
 import { Loading } from '../../../components/common/Loading';
 import { getApiErrorMessage } from '../../../lib/api';
+import { formatarTelefone } from '../../../utils/masks';
 import { solicitacaoService } from '../services/solicitacaoService';
 import type { Solicitacao } from '../types/solicitacaoTypes';
 
@@ -70,7 +71,7 @@ export function SolicitacoesPage() {
           Solicitações
         </p>
         <h1 className="mt-1 text-2xl font-bold text-slate-950">
-          Solicitações de Adesão
+          Solicitações de adesão
         </h1>
       </div>
 
@@ -83,15 +84,14 @@ export function SolicitacoesPage() {
         {error ? <div className="p-6 text-sm text-red-700">{error}</div> : null}
         {!isLoading && !error && solicitacoes.length === 0 ? (
           <div className="p-6 text-sm text-slate-600">
-            Nenhuma solicitacao encontrada.
+            Nenhuma solicitação encontrada.
           </div>
         ) : null}
         {!isLoading && !error && solicitacoes.length > 0 ? (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[1200px] text-left text-sm">
+            <table className="w-full min-w-[1120px] text-left text-sm">
               <thead className="bg-slate-50 text-xs uppercase text-slate-500">
                 <tr>
-                  <th className="px-4 py-3">ID</th>
                   <th className="px-4 py-3">Restaurante</th>
                   <th className="px-4 py-3">Gestor</th>
                   <th className="px-4 py-3">Telefone</th>
@@ -103,9 +103,6 @@ export function SolicitacoesPage() {
               <tbody className="divide-y divide-slate-100">
                 {solicitacoes.map((solicitacao) => (
                   <tr key={solicitacao.id}>
-                    <td className="px-4 py-3 font-medium text-slate-950">
-                      {solicitacao.id}
-                    </td>
                     <td className="px-4 py-3">
                       <div className="font-medium text-slate-950">
                         {solicitacao.nome_fantasia}
@@ -115,7 +112,9 @@ export function SolicitacoesPage() {
                       </div>
                     </td>
                     <td className="px-4 py-3">{solicitacao.gestor_id}</td>
-                    <td className="px-4 py-3">{solicitacao.telefone}</td>
+                    <td className="px-4 py-3">
+                      {formatarTelefone(solicitacao.telefone)}
+                    </td>
                     <td className="px-4 py-3">
                       {solicitacao.cidade}/{solicitacao.estado}
                     </td>

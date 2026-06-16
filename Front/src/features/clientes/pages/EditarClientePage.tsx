@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
+import { Alert } from '../../../components/common/Alert';
 import { Loading } from '../../../components/common/Loading';
 import { getApiErrorMessage } from '../../../lib/api';
 import { ClienteForm } from '../components/ClienteForm';
@@ -56,21 +57,22 @@ export function EditarClientePage() {
   }
 
   if (!cliente) {
-    return <p className="text-sm text-red-700">{error}</p>;
+    return <Alert variant="error">{error}</Alert>;
   }
 
   return (
     <section className="mx-auto grid max-w-2xl gap-6">
       <div>
         <Link to={`/clientes/${cliente.id}`} className="text-sm font-semibold text-brand-700">
-          Voltar para Detalhes
+          Voltar para detalhes
         </Link>
-        <h1 className="mt-3 text-2xl font-bold text-slate-950">Editar Cliente</h1>
+        <h1 className="mt-3 text-2xl font-bold text-slate-950">Editar cliente</h1>
       </div>
 
       <ClienteForm
         mode="edit"
-        submitLabel="Salvar Alterações"
+        submitLabel="Salvar alterações"
+        formError={error}
         defaultValues={{
           usuario_id: cliente.usuario_id,
           nome_completo: cliente.nome_completo,
@@ -80,8 +82,6 @@ export function EditarClientePage() {
         }}
         onSubmit={onSubmit}
       />
-
-      {error ? <p className="text-sm text-red-700">{error}</p> : null}
     </section>
   );
 }

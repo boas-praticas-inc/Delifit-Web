@@ -25,7 +25,7 @@ export function LoginPage() {
       await authService.login(data);
     } catch (error) {
       setMessage(
-        error instanceof Error ? error.message : 'Nao foi possivel entrar.',
+        error instanceof Error ? error.message : 'Não foi possível entrar.',
       );
     }
   }
@@ -39,14 +39,14 @@ export function LoginPage() {
           </Link>
           <h1 className="mt-3 text-2xl font-bold text-slate-950">Entrar</h1>
           <p className="mt-2 text-sm text-slate-600">
-            Acesse o painel web para acompanhar usuarios, pedidos e
+            Acesse o painel web para acompanhar usuários, pedidos e
             restaurantes.
           </p>
         </div>
 
         <form className="grid gap-4" onSubmit={handleSubmit(onSubmit)}>
           <Input
-            label="Email"
+            label="E-mail"
             type="email"
             autoComplete="email"
             error={errors.email?.message}
@@ -72,7 +72,7 @@ export function LoginPage() {
         </form>
 
         <p className="mt-5 text-sm text-slate-600">
-          Ainda nao tem conta?{' '}
+          Ainda não tem conta?{' '}
           <Link to="/cadastro" className="font-semibold text-brand-700">
             Criar cadastro
           </Link>

@@ -1,29 +1,32 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 
+import { Alert } from '../../../components/common/Alert';
 import { Button } from '../../../components/common/Button';
 import { Input } from '../../../components/common/Input';
+import { Select } from '../../../components/common/Select';
+import { Textarea } from '../../../components/common/Textarea';
 import { getApiErrorMessage } from '../../../lib/api';
+import { formatarCnpj, formatarTelefone } from '../../../utils/masks';
 import { enderecoService } from '../../enderecos/services/enderecoService';
 import type { Endereco } from '../../enderecos/types/enderecoTypes';
 import { gestorService } from '../../gestores/services/gestorService';
 import type { Gestor } from '../../gestores/types/gestorTypes';
 import { solicitacaoService } from '../../solicitacoes/services/solicitacaoService';
 import type { Solicitacao } from '../../solicitacoes/types/solicitacaoTypes';
-import type {
-  AtualizarRestauranteFormData,
-  CriarRestauranteFormData,
-} from '../schemas/restauranteSchemas';
 import {
   atualizarRestauranteSchema,
   criarRestauranteSchema,
+  type AtualizarRestauranteFormData,
+  type CriarRestauranteFormData,
 } from '../schemas/restauranteSchemas';
 
 type Props =
   | {
       mode: 'create';
       defaultValues?: Partial<CriarRestauranteFormData>;
+      formError?: string | null;
       submitLabel: string;
       onSubmit: (data: CriarRestauranteFormData) => Promise<void>;
       onReset?: () => void;
@@ -31,10 +34,15 @@ type Props =
   | {
       mode: 'edit';
       defaultValues?: Partial<AtualizarRestauranteFormData>;
+      formError?: string | null;
       submitLabel: string;
       onSubmit: (data: AtualizarRestauranteFormData) => Promise<void>;
       onReset?: () => void;
     };
+
+type RestauranteFormValues = Partial<
+  CriarRestauranteFormData & AtualizarRestauranteFormData
+>;
 
 export function RestauranteForm(props: Props) {
   const [gestores, setGestores] = useState<Gestor[]>([]);
@@ -49,12 +57,12 @@ export function RestauranteForm(props: Props) {
       : atualizarRestauranteSchema;
 
   const {
-    formState: { errors },
-    formState,
+    control,
+    formState: { errors, isSubmitting },
     handleSubmit,
     register,
     reset,
-  } = useForm<any>({
+  } = useForm<RestauranteFormValues>({
     resolver: zodResolver(schema),
     defaultValues: props.defaultValues,
   });
@@ -93,76 +101,55 @@ export function RestauranteForm(props: Props) {
   return (
     <form
       className="grid gap-4 rounded-lg border border-slate-200 bg-white p-5"
-      onSubmit={handleSubmit(props.onSubmit)}
+      onSubmit={handleSubmit((data) =>
+        props.mode === 'create'
+          ? props.onSubmit(data as CriarRestauranteFormData)
+          : props.onSubmit(data as AtualizarRestauranteFormData),
+      )}
     >
-      <label className="grid gap-1.5 text-sm font-medium text-slate-700">
-        <span>Gestor</span>
-        <select
-          className="min-h-11 rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none transition focus:border-brand-600 focus:ring-2 focus:ring-brand-100"
-          disabled={isLoadingOptions}
-          {...register('gestor_id')}
-        >
-          <option value="">Selecione um gestor</option>
-          {gestores.map((gestor) => (
-            <option key={gestor.id} value={gestor.id}>
-              {gestor.nome_completo} - ID {gestor.id}
-            </option>
-          ))}
-        </select>
-        {getErrorMessage(errors.gestor_id?.message) ? (
-          <span className="text-xs text-red-600">
-            {getErrorMessage(errors.gestor_id?.message)}
-          </span>
-        ) : null}
-      </label>
+      <Select
+        label="Gestor"
+        disabled={isLoadingOptions}
+        error={getErrorMessage(errors.gestor_id?.message)}
+        {...register('gestor_id')}
+      >
+        <option value="">Selecione um gestor</option>
+        {gestores.map((gestor) => (
+          <option key={gestor.id} value={gestor.id}>
+            {gestor.nome_completo} - ID {gestor.id}
+          </option>
+        ))}
+      </Select>
 
-      <label className="grid gap-1.5 text-sm font-medium text-slate-700">
-        <span>Endereço</span>
-        <select
-          className="min-h-11 rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none transition focus:border-brand-600 focus:ring-2 focus:ring-brand-100"
-          disabled={isLoadingOptions}
-          {...register('endereco_id')}
-        >
-          <option value="">Selecione um endereço</option>
-          {enderecos.map((endereco) => (
-            <option key={endereco.id} value={endereco.id}>
-              {endereco.logradouro}, {endereco.numero} - {endereco.bairro}
-            </option>
-          ))}
-        </select>
-        {getErrorMessage(errors.endereco_id?.message) ? (
-          <span className="text-xs text-red-600">
-            {getErrorMessage(errors.endereco_id?.message)}
-          </span>
-        ) : null}
-      </label>
+      <Select
+        label="Endereço"
+        disabled={isLoadingOptions}
+        error={getErrorMessage(errors.endereco_id?.message)}
+        {...register('endereco_id')}
+      >
+        <option value="">Selecione um endereço</option>
+        {enderecos.map((endereco) => (
+          <option key={endereco.id} value={endereco.id}>
+            {endereco.logradouro}, {endereco.numero} - {endereco.bairro}
+          </option>
+        ))}
+      </Select>
 
-      <label className="grid gap-1.5 text-sm font-medium text-slate-700">
-        <span>Solicitação de Adesão</span>
-        <select
-          className="min-h-11 rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none transition focus:border-brand-600 focus:ring-2 focus:ring-brand-100"
-          disabled={isLoadingOptions}
-          {...register('solicitacao_adesao_id')}
-        >
-          <option value="">Sem Vinculação</option>
-          {solicitacoes.map((solicitacao) => (
-            <option key={solicitacao.id} value={solicitacao.id}>
-              {solicitacao.nome_fantasia} - {solicitacao.status_solicitacao}
-            </option>
-          ))}
-        </select>
-        {getErrorMessage(errors.solicitacao_adesao_id?.message) ? (
-          <span className="text-xs text-red-600">
-            {getErrorMessage(errors.solicitacao_adesao_id?.message)}
-          </span>
-        ) : null}
-      </label>
+      <Select
+        label="Solicitação de adesão"
+        disabled={isLoadingOptions}
+        error={getErrorMessage(errors.solicitacao_adesao_id?.message)}
+        {...register('solicitacao_adesao_id')}
+      >
+        <option value="">Sem vinculação</option>
+        {solicitacoes.map((solicitacao) => (
+          <option key={solicitacao.id} value={solicitacao.id}>
+            {solicitacao.nome_fantasia} - {solicitacao.status_solicitacao}
+          </option>
+        ))}
+      </Select>
 
-      {optionsError ? (
-        <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
-          {optionsError}
-        </p>
-      ) : null}
+      {optionsError ? <Alert variant="error">{optionsError}</Alert> : null}
 
       <Input
         label="Nome fantasia"
@@ -170,38 +157,62 @@ export function RestauranteForm(props: Props) {
         {...register('nome_fantasia')}
       />
       <Input
-        label="Razão Social"
+        label="Razão social"
         error={getErrorMessage(errors.razao_social?.message)}
         {...register('razao_social')}
       />
-      <Input
-        label="CNPJ"
-        inputMode="numeric"
-        maxLength={14}
-        error={getErrorMessage(errors.cnpj?.message)}
-        {...register('cnpj')}
+      <Controller
+        control={control}
+        name="cnpj"
+        render={({ field }) => (
+          <Input
+            label="CNPJ"
+            inputMode="numeric"
+            maxLength={18}
+            placeholder="00.000.000/0000-00"
+            error={getErrorMessage(errors.cnpj?.message)}
+            {...field}
+            value={formatarCnpj(field.value ?? '')}
+            onChange={(event) =>
+              field.onChange(formatarCnpj(event.target.value))
+            }
+          />
+        )}
+      />
+      <Controller
+        control={control}
+        name="telefone"
+        render={({ field }) => (
+          <Input
+            label="Telefone"
+            inputMode="tel"
+            maxLength={15}
+            placeholder="(00) 00000-0000"
+            error={getErrorMessage(errors.telefone?.message)}
+            {...field}
+            value={formatarTelefone(field.value ?? '')}
+            onChange={(event) =>
+              field.onChange(formatarTelefone(event.target.value))
+            }
+          />
+        )}
       />
       <Input
-        label="Telefone"
-        error={getErrorMessage(errors.telefone?.message)}
-        {...register('telefone')}
-      />
-      <Input
-        label="Foto URL"
+        label="URL da foto"
         type="url"
         error={getErrorMessage(errors.foto_url?.message)}
         {...register('foto_url')}
       />
-      <label className="grid gap-1.5 text-sm font-medium text-slate-700">
-        <span>Descrição</span>
-        <textarea
-          className="min-h-28 rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none transition focus:border-brand-600 focus:ring-2 focus:ring-brand-100"
-          {...register('descricao')}
-        />
-      </label>
+      <Textarea
+        label="Descrição"
+        error={getErrorMessage(errors.descricao?.message)}
+        {...register('descricao')}
+      />
+
+      {props.formError ? <Alert variant="error">{props.formError}</Alert> : null}
 
       <div className="flex flex-col gap-3 sm:flex-row">
-        <Button type="submit" isLoading={formState.isSubmitting}>
+        <Button type="submit" isLoading={isSubmitting}>
           {props.submitLabel}
         </Button>
         <Button

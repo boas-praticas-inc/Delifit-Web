@@ -42,13 +42,16 @@ export function CriarClientePage() {
           Voltar para Clientes
         </Link>
         <h1 className="mt-3 text-2xl font-bold text-slate-950">
-          Adicionar Cliente
+          Adicionar cliente
         </h1>
       </div>
 
-      <ClienteForm mode="create" submitLabel="Salvar cliente" onSubmit={onSubmit} />
-
-      {error ? <p className="text-sm text-red-700">{error}</p> : null}
+      <ClienteForm
+        mode="create"
+        submitLabel="Salvar cliente"
+        formError={error}
+        onSubmit={onSubmit}
+      />
     </section>
   );
 }

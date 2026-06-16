@@ -8,11 +8,9 @@ import { restauranteService } from '../services/restauranteService';
 
 export function CriarRestaurantePage() {
   const navigate = useNavigate();
-  const [feedback, setFeedback] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   async function onSubmit(data: CriarRestauranteFormData) {
-    setFeedback(null);
     setError(null);
 
     try {
@@ -21,7 +19,6 @@ export function CriarRestaurantePage() {
         descricao: data.descricao || null,
         foto_url: data.foto_url || null,
       });
-      setFeedback('Restaurante criado com sucesso.');
       navigate('/restaurantes');
     } catch (requestError) {
       setError(getApiErrorMessage(requestError));
@@ -35,18 +32,16 @@ export function CriarRestaurantePage() {
           Voltar para Restaurantes
         </Link>
         <h1 className="mt-3 text-2xl font-bold text-slate-950">
-          Adicionar Restaurante
+          Adicionar restaurante
         </h1>
       </div>
 
       <RestauranteForm
         mode="create"
+        formError={error}
         submitLabel="Salvar restaurante"
         onSubmit={onSubmit}
       />
-
-      {feedback ? <p className="text-sm text-brand-800">{feedback}</p> : null}
-      {error ? <p className="text-sm text-red-700">{error}</p> : null}
     </section>
   );
 }

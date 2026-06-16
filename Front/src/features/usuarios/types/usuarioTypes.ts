@@ -1,6 +1,6 @@
-export type TipoUsuario = 'CLIENTE' | 'RESTAURANTE' | 'ENTREGADOR' | 'ADMIN';
+export type TipoUsuario = 'CLIENTE' | 'GESTOR' | 'ADMIN';
 
-export type StatusUsuario = 'ATIVO' | 'INATIVO' | 'BANIDO';
+export type StatusUsuario = 'ATIVO' | 'INATIVO' | 'BLOQUEADO';
 
 export interface Usuario {
   id: number;
@@ -11,7 +11,7 @@ export interface Usuario {
   atualizado_em: string | null;
 }
 
-export interface UsuarioDetalhado extends Usuario {}
+export type UsuarioDetalhado = Usuario;
 
 export interface CriarUsuarioPayload {
   email: string;

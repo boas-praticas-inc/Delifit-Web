@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 
 import { Button } from '../../../components/common/Button';
 import { Input } from '../../../components/common/Input';
+import { Select } from '../../../components/common/Select';
 import { getApiErrorMessage } from '../../../lib/api';
 import { tipoUsuarioValues } from '../../usuarios/schemas/usuarioSchemas';
 import { authService } from '../services/authService';
@@ -49,13 +50,13 @@ export function RegisterPage() {
             Criar cadastro
           </h1>
           <p className="mt-2 text-sm text-slate-600">
-            Cadastre um usuario inicial para testar a integracao com a API.
+            Cadastre um usuário inicial para testar a integração com a API.
           </p>
         </div>
 
         <form className="grid gap-4" onSubmit={handleSubmit(onSubmit)}>
           <Input
-            label="Email"
+            label="E-mail"
             type="email"
             autoComplete="email"
             error={errors.email?.message}
@@ -69,24 +70,17 @@ export function RegisterPage() {
             {...register('senha')}
           />
 
-          <label className="grid gap-1.5 text-sm font-medium text-slate-700">
-            <span>Tipo de usuario</span>
-            <select
-              className="min-h-11 rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none transition focus:border-brand-600 focus:ring-2 focus:ring-brand-100"
-              {...register('tipo_usuario')}
-            >
-              {tipoUsuarioValues.map((tipo) => (
-                <option key={tipo} value={tipo}>
-                  {tipo}
-                </option>
-              ))}
-            </select>
-            {errors.tipo_usuario?.message ? (
-              <span className="text-xs text-red-600">
-                {errors.tipo_usuario.message}
-              </span>
-            ) : null}
-          </label>
+          <Select
+            label="Tipo de usuário"
+            error={errors.tipo_usuario?.message}
+            {...register('tipo_usuario')}
+          >
+            {tipoUsuarioValues.map((tipo) => (
+              <option key={tipo} value={tipo}>
+                {tipo}
+              </option>
+            ))}
+          </Select>
 
           {feedback ? (
             <p className="rounded-md bg-brand-50 px-3 py-2 text-sm text-brand-900">
