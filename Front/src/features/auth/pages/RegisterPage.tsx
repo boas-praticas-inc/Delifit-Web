@@ -1,17 +1,22 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
+import { Alert } from '../../../components/common/Alert';
 import { Button } from '../../../components/common/Button';
 import { Input } from '../../../components/common/Input';
-import { Select } from '../../../components/common/Select';
 import { getApiErrorMessage } from '../../../lib/api';
-import { tipoUsuarioValues } from '../../usuarios/schemas/usuarioSchemas';
-import { authService } from '../services/authService';
-import { registerSchema, type RegisterFormData } from '../schemas/authSchemas';
+import { somenteDigitos } from '../../../utils/masks';
+import { gestorService } from '../../gestores/services/gestorService';
+import {
+  registerSchema,
+  type RegisterFormData,
+} from '../schemas/authSchemas';
+import { usuarioService } from '../../usuarios/services/usuarioService';
 
 export function RegisterPage() {
+  const navigate = useNavigate();
   const [feedback, setFeedback] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const {
@@ -22,7 +27,7 @@ export function RegisterPage() {
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      tipo_usuario: 'CLIENTE',
+      tipo_usuario: 'GESTOR',
     },
   });
 
@@ -31,9 +36,25 @@ export function RegisterPage() {
     setFeedback(null);
 
     try {
-      await authService.register(data);
-      setFeedback('Cadastro criado com sucesso.');
-      reset({ email: '', senha: '', tipo_usuario: 'CLIENTE' });
+      const usuario = await usuarioService.criarUsuario(data);
+      const gestor = await gestorService.criarGestor({
+        usuario_id: usuario.id,
+        nome_completo: data.nome_completo,
+        cpf: somenteDigitos(data.cpf),
+        telefone: somenteDigitos(data.telefone),
+      });
+      setFeedback('Cadastro de gestor criado com sucesso.');
+      reset({
+        email: '',
+        senha: '',
+        tipo_usuario: 'GESTOR',
+        nome_completo: '',
+        cpf: '',
+        telefone: '',
+      });
+      navigate('/solicitar-adesao', {
+        state: { gestorId: gestor.id },
+      });
     } catch (requestError) {
       setError(getApiErrorMessage(requestError));
     }
@@ -46,15 +67,35 @@ export function RegisterPage() {
           <Link to="/" className="text-sm font-semibold text-brand-700">
             Delifit
           </Link>
-          <h1 className="mt-3 text-2xl font-bold text-slate-950">
-            Criar cadastro
-          </h1>
+          <h1 className="mt-3 text-2xl font-bold text-slate-950">Cadastre-se</h1>
           <p className="mt-2 text-sm text-slate-600">
-            Cadastre um usuário inicial para testar a integração com a API.
+            Crie seu usuário de gestor para iniciar a solicitação de adesão do
+            restaurante.
           </p>
         </div>
 
         <form className="grid gap-4" onSubmit={handleSubmit(onSubmit)}>
+          <Input
+            label="Nome completo"
+            error={errors.nome_completo?.message}
+            {...register('nome_completo')}
+          />
+          <Input
+            label="CPF"
+            inputMode="numeric"
+            maxLength={14}
+            placeholder="000.000.000-00"
+            error={errors.cpf?.message}
+            {...register('cpf')}
+          />
+          <Input
+            label="Telefone"
+            inputMode="tel"
+            maxLength={15}
+            placeholder="(00) 00000-0000"
+            error={errors.telefone?.message}
+            {...register('telefone')}
+          />
           <Input
             label="E-mail"
             type="email"
@@ -69,32 +110,17 @@ export function RegisterPage() {
             error={errors.senha?.message}
             {...register('senha')}
           />
-
-          <Select
-            label="Tipo de usuário"
-            error={errors.tipo_usuario?.message}
-            {...register('tipo_usuario')}
-          >
-            {tipoUsuarioValues.map((tipo) => (
-              <option key={tipo} value={tipo}>
-                {tipo}
-              </option>
-            ))}
-          </Select>
+          <Input label="Tipo de usuário" readOnly value="GESTOR" />
 
           {feedback ? (
-            <p className="rounded-md bg-brand-50 px-3 py-2 text-sm text-brand-900">
-              {feedback}
-            </p>
+            <Alert variant="success">{feedback}</Alert>
           ) : null}
           {error ? (
-            <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
-              {error}
-            </p>
+            <Alert variant="error">{error}</Alert>
           ) : null}
 
           <Button type="submit" isLoading={isSubmitting}>
-            Cadastrar
+            Continuar
           </Button>
         </form>
       </section>

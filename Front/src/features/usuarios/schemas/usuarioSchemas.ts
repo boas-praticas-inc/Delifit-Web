@@ -1,8 +1,23 @@
 import { z } from 'zod';
 
-export const tipoUsuarioValues = ['CLIENTE', 'GESTOR', 'ADMIN'] as const;
+export const tipoUsuarioValues = ['GESTOR'] as const;
 
 export const criarUsuarioSchema = z.object({
+  nome_completo: z.string().trim().min(3, 'Informe o nome completo.'),
+  cpf: z
+    .string()
+    .trim()
+    .transform((value) => value.replace(/\D/g, ''))
+    .refine((value) => value.length === 11, {
+      message: 'O CPF deve conter 11 dígitos.',
+    }),
+  telefone: z
+    .string()
+    .trim()
+    .transform((value) => value.replace(/\D/g, ''))
+    .refine((value) => value.length >= 10 && value.length <= 11, {
+      message: 'Informe um telefone válido com DDD.',
+    }),
   email: z
     .string()
     .trim()

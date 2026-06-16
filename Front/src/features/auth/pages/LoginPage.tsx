@@ -27,17 +27,12 @@ export function LoginPage() {
       const { usuario } = await authService.login(data);
       localStorage.setItem('delifit_usuario', JSON.stringify(usuario));
 
-      if (usuario.tipo_usuario === 'ADMIN') {
-        navigate('/dashboard');
-        return;
-      }
-
       if (usuario.tipo_usuario === 'GESTOR') {
         navigate('/gestor');
         return;
       }
 
-      setMessage('Este perfil ainda nao possui area web configurada.');
+      setMessage('Este perfil ainda não possui área web configurada.');
     } catch (error) {
       setMessage(getApiErrorMessage(error));
     }
@@ -88,7 +83,7 @@ export function LoginPage() {
             to="/cadastro"
             className="inline-flex min-h-10 w-full items-center justify-center rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700"
           >
-            Cadastrar-se
+            Cadastre-se
           </Link>
         </div>
       </section>

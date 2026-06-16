@@ -1,4 +1,4 @@
-export type TipoUsuario = 'CLIENTE' | 'GESTOR' | 'ADMIN';
+export type TipoUsuario = 'GESTOR';
 
 export type StatusUsuario = 'ATIVO' | 'INATIVO' | 'BLOQUEADO';
 
