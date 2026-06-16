@@ -1,7 +1,18 @@
 import { api } from '../../../lib/api';
-import type { Solicitacao } from '../types/solicitacaoTypes';
+import type {
+  CriarSolicitacaoPayload,
+  Solicitacao,
+} from '../types/solicitacaoTypes';
 
 export const solicitacaoService = {
+  async criarSolicitacao(payload: CriarSolicitacaoPayload) {
+    const response = await api.post<Solicitacao>(
+      '/solicitacoes-adesao-restaurante',
+      payload,
+    );
+    return response.data;
+  },
+
   async listarSolicitacoes() {
     const response = await api.get<Solicitacao[]>('/solicitacoes-adesao-restaurante');
     return response.data;

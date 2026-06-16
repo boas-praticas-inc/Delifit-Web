@@ -1,13 +1,15 @@
-import { api } from '../../../lib/api';
-import type { LoginPayload, RegisterPayload } from '../types/authTypes';
 import type { Usuario } from '../../usuarios/types/usuarioTypes';
+import { api } from '../../../lib/api';
+import type {
+  LoginPayload,
+  LoginResponse,
+  RegisterPayload,
+} from '../types/authTypes';
 
 export const authService = {
   async login(payload: LoginPayload) {
-    void payload;
-    throw new Error(
-      'Endpoint de login ainda não configurado no backend. Ajuste authService.login quando a rota existir.',
-    );
+    const response = await api.post<LoginResponse>('/auth/login', payload);
+    return response.data;
   },
 
   async register(payload: RegisterPayload) {

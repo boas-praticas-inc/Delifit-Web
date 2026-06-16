@@ -1,14 +1,16 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { Button } from '../../../components/common/Button';
 import { Input } from '../../../components/common/Input';
-import { authService } from '../services/authService';
+import { getApiErrorMessage } from '../../../lib/api';
 import { loginSchema, type LoginFormData } from '../schemas/authSchemas';
+import { authService } from '../services/authService';
 
 export function LoginPage() {
+  const navigate = useNavigate();
   const [message, setMessage] = useState<string | null>(null);
   const {
     formState: { errors, isSubmitting },
@@ -22,11 +24,22 @@ export function LoginPage() {
     setMessage(null);
 
     try {
-      await authService.login(data);
+      const { usuario } = await authService.login(data);
+      localStorage.setItem('delifit_usuario', JSON.stringify(usuario));
+
+      if (usuario.tipo_usuario === 'ADMIN') {
+        navigate('/dashboard');
+        return;
+      }
+
+      if (usuario.tipo_usuario === 'GESTOR') {
+        navigate('/gestor');
+        return;
+      }
+
+      setMessage('Este perfil ainda nao possui area web configurada.');
     } catch (error) {
-      setMessage(
-        error instanceof Error ? error.message : 'Não foi possível entrar.',
-      );
+      setMessage(getApiErrorMessage(error));
     }
   }
 
@@ -39,8 +52,7 @@ export function LoginPage() {
           </Link>
           <h1 className="mt-3 text-2xl font-bold text-slate-950">Entrar</h1>
           <p className="mt-2 text-sm text-slate-600">
-            Acesse o painel web para acompanhar usuários, pedidos e
-            restaurantes.
+            Acesse sua area usando e-mail e senha cadastrados.
           </p>
         </div>
 
@@ -71,12 +83,14 @@ export function LoginPage() {
           </Button>
         </form>
 
-        <p className="mt-5 text-sm text-slate-600">
-          Ainda não tem conta?{' '}
-          <Link to="/cadastro" className="font-semibold text-brand-700">
-            Criar cadastro
+        <div className="mt-5 border-t border-slate-200 pt-5">
+          <Link
+            to="/cadastro"
+            className="inline-flex min-h-10 w-full items-center justify-center rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700"
+          >
+            Cadastrar-se
           </Link>
-        </p>
+        </div>
       </section>
     </main>
   );

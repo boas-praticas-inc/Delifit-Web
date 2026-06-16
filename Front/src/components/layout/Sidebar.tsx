@@ -3,9 +3,9 @@ import { NavLink } from 'react-router-dom';
 import { cn } from '../../utils/cn';
 
 const links = [
-  { to: '/', label: 'Início' },
-  { to: '/solicitacoes', label: 'Solicitações' },
-  { to: '/usuarios/novo', label: 'Adicionar Usuário' },
+  { to: '/dashboard', label: 'Inicio' },
+  { to: '/solicitacoes', label: 'Solicitacoes' },
+  { to: '/usuarios/novo', label: 'Adicionar Usuario' },
   { to: '/clientes', label: 'Listar Clientes' },
   { to: '/restaurantes', label: 'Listar Restaurantes' },
 ];
