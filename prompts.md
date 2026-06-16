@@ -1,17 +1,24 @@
-# Prompts para o Projeto Delifit
+# Prompts Para O Projeto Delifit
 
 Este arquivo reúne prompts prontos para usar com assistentes de IA durante o desenvolvimento do Delifit. Use-os como ponto de partida e ajuste o trecho entre colchetes conforme a tarefa.
 
-## Contexto Base do Projeto
+## Contexto Base Do Projeto
 
 Use este contexto no início de prompts maiores:
 
 ```text
-Você está trabalhando no projeto Delifit, um sistema acadêmico de entrega de comidas fitness.
+Você está trabalhando no projeto Delifit, um sistema acadêmico de delivery de comidas fitness.
 
 O projeto é full stack:
 - Backend em Back/, usando Python 3.11+, FastAPI, PostgreSQL, SQLAlchemy 2.x, Alembic, Pydantic, pytest e ruff.
-- Frontend em Front/, usando React, TypeScript, Vite, React Router DOM, Axios, React Hook Form, Zod e Tailwind CSS.
+- Frontend em Front/, usando React 18, TypeScript, Vite, React Router DOM, Axios, React Hook Form, Zod e Tailwind CSS.
+
+Estado atual do frontend:
+- Rotas em src/app/routes.tsx.
+- Layout principal em src/components/layout/MainLayout.tsx.
+- Cliente HTTP em src/lib/api.ts.
+- Features já existentes: auth, dashboard, usuarios, clientes, restaurantes, solicitacoes, enderecos, gestores, admins, pedidos e gestor.
+- Não existe React Query ativo; src/lib/queryClient.ts é apenas preparação futura.
 
 Regras do backend:
 - Preserve a Clean Architecture.
@@ -34,11 +41,12 @@ Regras do frontend:
 - Use TypeScript com tipagem clara.
 - Use Zod para validações de formulário quando fizer sentido.
 - Use Axios a partir de src/lib/api.ts.
+- Não invente endpoints, payloads ou autenticação sem contrato real do backend.
 
 Antes de propor mudanças, leia os arquivos relevantes e siga os padrões já existentes.
 ```
 
-## Prompt Geral para Implementar Funcionalidade
+## Prompt Geral Para Implementar Funcionalidade
 
 ```text
 Implemente a funcionalidade [descrever funcionalidade] no projeto Delifit.
@@ -53,10 +61,11 @@ Regras:
 - Não invente campos de banco; consulte o schema, migrations e models atuais antes de alterar persistência.
 - Não coloque regra de negócio em routers ou components.
 - Mantenha os nomes do domínio em português quando o projeto já usar português.
+- No frontend, mantenha a integração concentrada em services da feature.
 - Ao final, informe os arquivos alterados e os comandos de verificação executados.
 ```
 
-## Prompt para Backend
+## Prompt Para Backend
 
 ```text
 Trabalhe apenas no backend em Back/.
@@ -86,7 +95,7 @@ Comandos de qualidade esperados, se as dependências estiverem instaladas:
 - pytest
 ```
 
-## Prompt para Frontend
+## Prompt Para Frontend
 
 ```text
 Trabalhe apenas no frontend em Front/.
@@ -94,13 +103,18 @@ Trabalhe apenas no frontend em Front/.
 Preciso implementar [descrever tela, fluxo ou componente].
 
 Siga os padrões atuais:
-- React com TypeScript.
+- React 18 com TypeScript.
 - Rotas em src/app/routes.tsx.
 - Features em src/features/[modulo].
 - Services usando src/lib/api.ts.
 - Validação com Zod quando houver formulário.
 - Componentes comuns em src/components/common.
 - Layout em src/components/layout.
+
+Estado atual do frontend:
+- Há páginas de login, cadastro, dashboard, clientes, restaurantes, solicitações, criação de usuário e fluxos auxiliares.
+- A navegação principal usa Header e Sidebar.
+- O cliente HTTP e o tratamento de erro central ficam em src/lib/api.ts.
 
 Requisitos de UX:
 - A tela deve ser funcional, direta e adequada a um sistema operacional de delivery fitness.
@@ -113,7 +127,7 @@ Comandos de qualidade esperados, se as dependências estiverem instaladas:
 - npm run build
 ```
 
-## Prompt para Integração Frontend e Backend
+## Prompt Para Integração Frontend E Backend
 
 ```text
 Integre o frontend e o backend para o fluxo [descrever fluxo].
@@ -136,7 +150,7 @@ Ao final, descreva:
 - Como testar manualmente o fluxo.
 ```
 
-## Prompt para Banco de Dados e Migrations
+## Prompt Para Banco De Dados E Migrations
 
 ```text
 Analise a necessidade de alteração no banco para [descrever mudança].
@@ -157,7 +171,7 @@ Explique o impacto da migration e como aplicá-la com:
 alembic upgrade head
 ```
 
-## Prompt para Testes
+## Prompt Para Testes
 
 ```text
 Crie ou ajuste testes para [descrever comportamento].
@@ -175,7 +189,7 @@ Ao final, rode ou indique:
 - ruff check .
 ```
 
-## Prompt para Revisão de Código
+## Prompt Para Revisão De Código
 
 ```text
 Faça uma revisão de código das alterações atuais do projeto Delifit.
@@ -196,7 +210,7 @@ Formato da resposta:
 - Depois informe dúvidas, riscos residuais e comandos de teste executados.
 ```
 
-## Prompt para Refatoração
+## Prompt Para Refatoração
 
 ```text
 Refatore [arquivo, módulo ou fluxo] no projeto Delifit.
@@ -214,7 +228,7 @@ Restrições:
 Ao final, explique o que mudou e como verificar.
 ```
 
-## Prompt para Autenticação
+## Prompt Para Autenticação
 
 ```text
 Implemente ou evolua o fluxo de autenticação do Delifit.
@@ -235,7 +249,7 @@ Antes de implementar, verifique:
 - Front/src/lib/api.ts
 ```
 
-## Prompt para Correção de Erro
+## Prompt Para Correção De Erro
 
 ```text
 Corrija o erro abaixo no projeto Delifit:
@@ -255,7 +269,7 @@ Depois:
 - Explique a causa raiz e a solução.
 ```
 
-## Prompt para Documentação
+## Prompt Para Documentação
 
 ```text
 Atualize a documentação do Delifit para [descrever assunto].
@@ -265,6 +279,7 @@ Considere:
 - Front/README.md para frontend.
 - prompts.md para prompts e orientações de uso de IA.
 - Back/AGENTS.md para regras de agentes no backend.
+- Front/AGENTS.md para regras de agentes no frontend.
 
 Mantenha a documentação prática:
 - Como rodar.
@@ -274,7 +289,7 @@ Mantenha a documentação prática:
 - Quais decisões importantes devem ser preservadas.
 ```
 
-## Checklist Antes de Finalizar Alterações
+## Checklist Antes De Finalizar Alterações
 
 Use este checklist em prompts de implementação:
 

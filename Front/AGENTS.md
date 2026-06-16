@@ -2,18 +2,21 @@
 
 Este arquivo orienta agentes e colaboradores automáticos sobre como trabalhar no frontend deste projeto.
 
-## Objetivo do projeto
+## Objetivo Do Projeto
 
-O frontend web **Delifit** atende uma aplicação acadêmica de entrega de comidas fitness com perfis de:
+O frontend web **Delifit** atende uma aplicação acadêmica de delivery de comidas fitness. O projeto hoje concentra fluxos para:
 
-* Cliente
-* Restaurante
-* Entregador
-* Administrador
+* Autenticação e cadastro inicial
+* Painel administrativo
+* Clientes
+* Restaurantes
+* Solicitações de adesão
+* Criação de usuários
+* Telas auxiliares por perfil
 
-A base foi desenhada com:
+A stack ativa é:
 
-* React
+* React 18
 * TypeScript
 * Vite
 * React Router DOM
@@ -24,8 +27,7 @@ A base foi desenhada com:
 * ESLint
 * Prettier
 
-
-## Fonte da verdade da API
+## Fonte Da Verdade Da API
 
 A API consumida pelo frontend vem do backend em:
 
@@ -35,33 +37,82 @@ Back/
 
 Regras importantes:
 
-* Não invente endpoints.
-* Consulte o backend antes de assumir método HTTP, URL, payload ou resposta.
+* Não invente endpoints, payloads ou status de resposta.
+* Consulte o backend antes de assumir método HTTP, URL, campos aceitos ou formato de erro.
 * Use `src/lib/api.ts` para chamadas HTTP.
 * Use `VITE_API_URL` para configurar a URL base da API.
-* Durante o desenvolvimento, o Vite redireciona `/api` para `http://127.0.0.1:8000`.
+* No desenvolvimento, o Vite encaminha `/api` para `http://127.0.0.1:8000`.
 * O frontend não deve enviar campos sensíveis ou controlados pelo backend, como `senha_hash`, `status`, `criado_em` ou `atualizado_em`.
-* O frontend não deve assumir JWT ou autenticação completa até que o backend exponha esse contrato de forma clara.
-* Se uma mudança exigir alteração no backend, trate isso como mudança full stack e siga também as regras de `Back/AGENTS.md`.
+* Não assuma JWT, refresh token, sessão persistida ou proteção de rotas privadas sem contrato explícito do backend.
+* Se uma mudança exigir backend, trate como alteração full stack e siga também `Back/AGENTS.md`.
 
-## Estrutura de pastas
+## Estrutura De Pastas
 
-Use a separação de responsabilidades abaixo como referência principal:
+Use a separação abaixo como referência principal:
 
-* `src/app`: configuração principal da aplicação, rotas e composição inicial
-* `src/assets`: imagens, ícones e recursos estáticos importados pela aplicação
+* `src/app`: composição principal da aplicação e rotas
 * `src/components/common`: componentes compartilhados e reutilizáveis
-* `src/components/layout`: componentes de layout e navegação
-* `src/config`: configuração de ambiente
-* `src/features`: módulos de domínio da interface, separados por funcionalidade
-* `src/hooks`: hooks compartilhados
-* `src/lib`: clientes, integrações e utilitários técnicos
-* `src/pages`: páginas gerais que não pertencem a uma feature específica
+* `src/components/layout`: header, sidebar e layout principal
+* `src/config`: variáveis e configurações de ambiente
+* `src/features`: módulos por domínio da interface
+* `src/lib`: cliente HTTP e utilitários técnicos
+* `src/pages`: páginas gerais fora de feature específica
 * `src/styles`: estilos globais
-* `src/types`: tipos compartilhados
 * `src/utils`: funções utilitárias
 
-## Regras de trabalho
+## Estado Atual Da Aplicação
+
+Arquivos e pontos já adotados no projeto:
+
+* Rotas em `src/app/routes.tsx`
+* App raiz em `src/app/App.tsx`
+* Bootstrap em `src/main.tsx`
+* Layout principal em `src/components/layout/MainLayout.tsx`
+* Header em `src/components/layout/Header.tsx`
+* Sidebar em `src/components/layout/Sidebar.tsx`
+* Cliente HTTP em `src/lib/api.ts`
+* Configuração de ambiente em `src/config/env.ts`
+* Estilos globais em `src/styles/globals.css`
+* Query client em `src/lib/queryClient.ts` apenas como base futura, sem React Query ativo
+
+Features existentes hoje:
+
+* `src/features/auth`
+* `src/features/dashboard`
+* `src/features/usuarios`
+* `src/features/clientes`
+* `src/features/restaurantes`
+* `src/features/solicitacoes`
+* `src/features/enderecos`
+* `src/features/gestores`
+* `src/features/admins`
+* `src/features/pedidos`
+* `src/features/gestor`
+
+## Rotas Atuais
+
+As rotas visíveis hoje estão concentradas em `src/app/routes.tsx`:
+
+* `/` login
+* `/login` redireciona para `/`
+* `/cadastro` cadastro
+* `/solicitar-adesao` solicitação de adesão
+* `/gestor` home do gestor
+* `/dashboard` painel principal
+* `/solicitacoes` lista de solicitações
+* `/usuarios/novo` criação de usuário
+* `/clientes` lista de clientes
+* `/clientes/novo` criação de cliente
+* `/clientes/:clienteId` detalhe de cliente
+* `/clientes/:clienteId/editar` edição de cliente
+* `/restaurantes` lista de restaurantes
+* `/restaurantes/novo` criação de restaurante
+* `/restaurantes/:restauranteId` detalhe de restaurante
+* `/restaurantes/:restauranteId/editar` edição de restaurante
+* `/home` redireciona para `/dashboard`
+* `*` página 404
+
+## Regras De Trabalho
 
 * Preserve a organização por features.
 * Não coloque regra de negócio complexa em componentes visuais.
@@ -69,10 +120,9 @@ Use a separação de responsabilidades abaixo como referência principal:
 * Não acesse `axios` diretamente nas páginas; prefira services usando `src/lib/api.ts`.
 * Não espalhe strings de URL da API pelos componentes.
 * Não envie ao backend campos que ele não espera.
-* Não invente autenticação, permissões ou tokens sem contrato real do backend.
 * Para mudanças em rotas, atualize `src/app/routes.tsx`.
 * Para formulários, prefira React Hook Form com Zod quando houver validação relevante.
-* Para estados de API, trate carregamento, erro e sucesso quando fizer sentido.
+* Para estados de API, trate carregamento, erro, sucesso e vazio quando fizer sentido.
 * Para mudanças visuais, mantenha consistência com os componentes e estilos existentes.
 
 Prefira adicionar novos fluxos começando por:
@@ -85,27 +135,21 @@ Prefira adicionar novos fluxos começando por:
 6. Rota em `src/app/routes.tsx`
 7. Estados de carregamento, erro e vazio
 8. Ajustes de layout ou navegação
-9. Testes, quando a infraestrutura de testes existir ou for solicitada
+9. Testes, quando a infraestrutura existir ou for solicitada
 10. Documentação, quando o fluxo mudar a forma de uso do projeto
 
-## Padrões já adotados
+## Padrões Já Adotados
 
-* A aplicação usa React 18 com TypeScript.
 * O bundler é Vite.
-* As rotas ficam em `src/app/routes.tsx`.
-* O layout principal fica em `src/components/layout/MainLayout.tsx`.
-* A navegação principal usa `Header` e `Sidebar`.
-* Componentes compartilhados iniciais incluem `Button`, `Input` e `Loading`.
-* Classes CSS são compostas com o utilitário `cn`.
-* A configuração de ambiente fica em `src/config/env.ts`.
-* O cliente HTTP fica em `src/lib/api.ts`.
 * A base da API vem de `VITE_API_URL`.
 * O proxy de desenvolvimento do Vite encaminha `/api` para o backend local.
-* A organização principal fica em `src/features`.
+* A navegação principal usa `Header` e `Sidebar`.
+* Componentes compartilhados incluem `Button`, `Input`, `Select`, `Textarea`, `Alert`, `Loading`, `LinkButton` e `CrudActions`.
+* Classes CSS são compostas com o utilitário `cn`.
 * Services, schemas, tipos e páginas devem ficar dentro da feature correspondente.
-* O projeto possui `src/lib/queryClient.ts` apenas como configuração futura; React Query ainda não faz parte da stack ativa.
+* O projeto ainda não usa React Query na camada ativa.
 
-## Padrões de usuário
+## Padrões De Usuário
 
 O fluxo inicial de usuários consome a API de `usuarios`.
 
@@ -115,7 +159,7 @@ Campos usados na criação de usuário:
 * `senha`
 * `tipo_usuario`
 
-Tipos de usuário esperados:
+Tipos de usuário esperados no frontend:
 
 * `CLIENTE`
 * `RESTAURANTE`
@@ -136,7 +180,7 @@ Orientações:
 * Não mostre `senha_hash` na interface.
 * Não assuma que campos opcionais existem na resposta sem tipar e tratar o caso.
 
-## Boas práticas
+## Boas Práticas
 
 * Use nomes descritivos em português quando o contexto do domínio pedir.
 * Mantenha componentes pequenos e coesos.
@@ -151,7 +195,7 @@ Orientações:
 * Evite textos longos explicando a aplicação dentro das telas operacionais.
 * Antes de adicionar dependências, verifique se elas realmente fazem parte do fluxo atual.
 
-## Integração com o backend
+## Integração Com O Backend
 
 O backend local roda por padrão em:
 
@@ -167,7 +211,7 @@ VITE_API_URL=/api/v1
 
 Com essa configuração, o Vite usa o proxy definido em `vite.config.ts`.
 
-Endpoints preparados inicialmente:
+Endpoints já presentes no contexto atual do Front:
 
 * `GET /usuarios`
 * `POST /usuarios`
@@ -182,7 +226,7 @@ Ao criar ou alterar integrações:
 * Trate erros com `getApiErrorMessage`.
 * Mantenha compatibilidade com o backend sempre que possível.
 
-## Execução local
+## Execução Local
 
 Trabalhe a partir da pasta do frontend:
 
@@ -208,7 +252,7 @@ Rodar aplicação:
 npm run dev
 ```
 
-## Comandos úteis
+## Comandos Úteis
 
 Rodar aplicação:
 
@@ -258,55 +302,3 @@ Orientações:
 * Não dependa do backend real em testes unitários de frontend.
 * Mocke chamadas HTTP quando testar páginas ou services.
 * Valide mensagens de erro e comportamento do usuário.
-* Garanta que formulários não enviem payload inválido.
-
-## Qualidade de código
-
-Antes de finalizar uma mudança, quando as dependências estiverem instaladas, rode:
-
-```bash
-npm run lint
-npm run build
-```
-
-Quando alterar formatação de código, rode:
-
-```bash
-npm run format
-```
-
-Não versione caches ou artefatos gerados, como:
-
-* `.env`
-* `node_modules`
-* `dist`
-* `.vite`
-* `.eslintcache`
-* arquivos de log
-
-## Ao evoluir o projeto
-
-Para novas funcionalidades:
-
-1. Crie ou ajuste os tipos da feature.
-2. Crie ou ajuste schemas de validação.
-3. Implemente services de API.
-4. Crie ou ajuste páginas e componentes.
-5. Atualize rotas e navegação.
-6. Trate estados de carregamento, erro, sucesso e vazio.
-7. Adicione testes proporcionais ao risco da mudança, se houver infraestrutura.
-8. Atualize documentação quando o fluxo mudar a forma de executar ou usar a aplicação.
-
-Preserve a separação entre features mesmo em funcionalidades pequenas.
-
-## Cuidados importantes
-
-* Não alterar a estrutura base sem necessidade.
-* Não alterar `Back/` em tarefas exclusivamente de frontend.
-* Não versionar `.env`, `node_modules`, `dist` ou caches.
-* Não enviar dados sensíveis para a API.
-* Não exibir dados sensíveis na interface.
-* Não assumir endpoints sem consultar o backend.
-* Não assumir autenticação completa sem contrato do backend.
-* Não adicionar dependências sem necessidade clara.
-* Se houver dúvida sobre payloads ou respostas, consulte primeiro os schemas e rotas do backend.
