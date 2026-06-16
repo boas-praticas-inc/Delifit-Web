@@ -15,4 +15,4 @@ export interface CriarClientePayload {
   data_nascimento: string | null;
 }
 
-export interface AtualizarClientePayload extends CriarClientePayload {}
+export type AtualizarClientePayload = CriarClientePayload;

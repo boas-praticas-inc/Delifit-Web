@@ -25,4 +25,4 @@ export interface CriarRestaurantePayload {
   foto_url: string | null;
 }
 
-export interface AtualizarRestaurantePayload extends CriarRestaurantePayload {}
+export type AtualizarRestaurantePayload = CriarRestaurantePayload;

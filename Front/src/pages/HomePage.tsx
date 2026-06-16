@@ -69,30 +69,30 @@ export function HomePage() {
           <p className="mt-3 text-3xl font-bold text-slate-950">{resumo.restaurantes}</p>
         </Link>
         <Link to="/solicitacoes" className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p className="text-sm text-slate-600">Solicitações Recebidas</p>
+          <p className="text-sm text-slate-600">Solicitações recebidas</p>
           <p className="mt-3 text-3xl font-bold text-slate-950">{resumo.solicitacoes}</p>
         </Link>
         <Link to="/solicitacoes" className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p className="text-sm text-slate-600">Solicitações Pendentes</p>
+          <p className="text-sm text-slate-600">Solicitações pendentes</p>
           <p className="mt-3 text-3xl font-bold text-slate-950">{resumo.pendentes}</p>
         </Link>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
         <Link to="/solicitacoes" className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="text-lg font-bold text-slate-950">Analisar Solicitações</h2>
+          <h2 className="text-lg font-bold text-slate-950">Analisar solicitações</h2>
           <p className="mt-2 text-sm text-slate-600">
             Aprove ou recuse pedidos de adesão de novos restaurantes.
           </p>
         </Link>
         <Link to="/clientes/novo" className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="text-lg font-bold text-slate-950">Adicionar Cliente</h2>
+          <h2 className="text-lg font-bold text-slate-950">Adicionar cliente</h2>
           <p className="mt-2 text-sm text-slate-600">
             Cadastre novos clientes com usuário e dados pessoais.
           </p>
         </Link>
         <Link to="/restaurantes/novo" className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="text-lg font-bold text-slate-950">Adicionar Restaurante</h2>
+          <h2 className="text-lg font-bold text-slate-950">Adicionar restaurante</h2>
           <p className="mt-2 text-sm text-slate-600">
             Crie restaurantes vinculando gestor, endereço e solicitação.
           </p>

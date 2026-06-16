@@ -5,3 +5,10 @@ export interface Gestor {
   cpf: string;
   telefone: string;
 }
+
+export interface CriarGestorPayload {
+  usuario_id: number;
+  nome_completo: string;
+  cpf: string;
+  telefone: string;
+}

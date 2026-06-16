@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
+import { Alert } from '../../../components/common/Alert';
 import { Loading } from '../../../components/common/Loading';
 import { getApiErrorMessage } from '../../../lib/api';
 import { RestauranteForm } from '../components/RestauranteForm';
@@ -13,15 +14,18 @@ export function EditarRestaurantePage() {
   const navigate = useNavigate();
   const [restaurante, setRestaurante] = useState<Restaurante | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [feedback, setFeedback] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function carregar() {
-      if (!restauranteId) return;
+      if (!restauranteId) {
+        return;
+      }
 
       try {
-        const data = await restauranteService.buscarRestaurantePorId(Number(restauranteId));
+        const data = await restauranteService.buscarRestaurantePorId(
+          Number(restauranteId),
+        );
         setRestaurante(data);
       } catch (requestError) {
         setError(getApiErrorMessage(requestError));
@@ -34,10 +38,11 @@ export function EditarRestaurantePage() {
   }, [restauranteId]);
 
   async function onSubmit(data: AtualizarRestauranteFormData) {
-    if (!restauranteId) return;
+    if (!restauranteId) {
+      return;
+    }
 
     setError(null);
-    setFeedback(null);
 
     try {
       await restauranteService.atualizarRestaurante(Number(restauranteId), {
@@ -45,7 +50,6 @@ export function EditarRestaurantePage() {
         descricao: data.descricao || null,
         foto_url: data.foto_url || null,
       });
-      setFeedback('Restaurante atualizado com sucesso.');
       navigate(`/restaurantes/${restauranteId}`);
     } catch (requestError) {
       setError(getApiErrorMessage(requestError));
@@ -64,9 +68,9 @@ export function EditarRestaurantePage() {
     return (
       <section className="grid gap-4">
         <Link to="/restaurantes" className="text-sm font-semibold text-brand-700">
-          Voltar para Restaurantes
+          Voltar para restaurantes
         </Link>
-        {error ? <p className="text-sm text-red-700">{error}</p> : null}
+        {error ? <Alert variant="error">{error}</Alert> : null}
       </section>
     );
   }
@@ -75,7 +79,7 @@ export function EditarRestaurantePage() {
     <section className="mx-auto grid max-w-2xl gap-6">
       <div>
         <Link to={`/restaurantes/${restaurante.id}`} className="text-sm font-semibold text-brand-700">
-          Voltar para Detalhes
+          Voltar para detalhes
         </Link>
         <h1 className="mt-3 text-2xl font-bold text-slate-950">
           Editar Restaurante
@@ -84,7 +88,8 @@ export function EditarRestaurantePage() {
 
       <RestauranteForm
         mode="edit"
-        submitLabel="Salvar Alterações"
+        submitLabel="Salvar alterações"
+        formError={error}
         defaultValues={{
           gestor_id: restaurante.gestor_id,
           endereco_id: restaurante.endereco_id,
@@ -98,9 +103,6 @@ export function EditarRestaurantePage() {
         }}
         onSubmit={onSubmit}
       />
-
-      {feedback ? <p className="text-sm text-brand-800">{feedback}</p> : null}
-      {error ? <p className="text-sm text-red-700">{error}</p> : null}
     </section>
   );
 }
