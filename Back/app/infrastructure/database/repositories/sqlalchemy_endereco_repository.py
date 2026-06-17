@@ -35,6 +35,25 @@ class SQLAlchemyEnderecoRepository(EnderecoRepository):
         model = self.session.get(EnderecoModel, endereco_id)
         return self._to_entity(model) if model is not None else None
 
+    def buscar_igual(self, endereco: Endereco) -> Endereco | None:
+        model = (
+            self.session.query(EnderecoModel)
+            .filter(
+                EnderecoModel.cep == endereco.cep,
+                EnderecoModel.logradouro == endereco.logradouro,
+                EnderecoModel.numero == endereco.numero,
+                EnderecoModel.bairro == endereco.bairro,
+                EnderecoModel.cidade == endereco.cidade,
+                EnderecoModel.estado == endereco.estado,
+                EnderecoModel.complemento == endereco.complemento,
+                EnderecoModel.referencia == endereco.referencia,
+                EnderecoModel.label == endereco.label,
+                EnderecoModel.cliente_id == endereco.cliente_id,
+            )
+            .first()
+        )
+        return self._to_entity(model) if model is not None else None
+
     @staticmethod
     def _to_entity(model: EnderecoModel) -> Endereco:
         return Endereco(
@@ -50,4 +69,3 @@ class SQLAlchemyEnderecoRepository(EnderecoRepository):
             label=model.label,
             cliente_id=model.cliente_id,
         )
-

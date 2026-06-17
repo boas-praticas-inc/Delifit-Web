@@ -16,3 +16,6 @@ class EnderecoRepository(ABC):
     def buscar_por_id(self, endereco_id: int) -> Endereco | None:
         raise NotImplementedError
 
+    @abstractmethod
+    def buscar_igual(self, endereco: Endereco) -> Endereco | None:
+        raise NotImplementedError

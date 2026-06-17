@@ -165,8 +165,14 @@ def get_buscar_solicitacao_adesao_restaurante_por_id_use_case(
 def get_analisar_solicitacao_adesao_restaurante_use_case(
     session: Annotated[Session, Depends(get_session)],
 ) -> AnalisarSolicitacaoAdesaoRestauranteUseCase:
-    repository = SQLAlchemySolicitacaoAdesaoRestauranteRepository(session)
-    return AnalisarSolicitacaoAdesaoRestauranteUseCase(repository=repository)
+    solicitacao_repository = SQLAlchemySolicitacaoAdesaoRestauranteRepository(session)
+    restaurante_repository = SQLAlchemyRestauranteRepository(session)
+    endereco_repository = SQLAlchemyEnderecoRepository(session)
+    return AnalisarSolicitacaoAdesaoRestauranteUseCase(
+        repository=solicitacao_repository,
+        restaurante_repository=restaurante_repository,
+        endereco_repository=endereco_repository,
+    )
 
 
 def get_endereco_repository(session: Session) -> SQLAlchemyEnderecoRepository:

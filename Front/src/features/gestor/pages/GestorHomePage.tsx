@@ -9,7 +9,7 @@ import { solicitacaoService } from '../../solicitacoes/services/solicitacaoServi
 import type { Solicitacao } from '../../solicitacoes/types/solicitacaoTypes';
 
 const statusLabels: Record<Solicitacao['status_solicitacao'], string> = {
-  EM_ANALISE: 'Em analise',
+  EM_ANALISE: 'Em análise',
   APROVADO: 'Aprovado',
   REPROVADO: 'Reprovado',
 };
@@ -106,6 +106,11 @@ export function GestorHomePage() {
         {isLoading ? <Loading label="Carregando solicitacoes" /> : null}
 
         {error ? <Alert variant="error">{error}</Alert> : null}
+        {!isLoading && !error && solicitacoes.some((item) => item.status_solicitacao === 'APROVADO') ? (
+          <Alert variant="success">
+            Sua solicitacao foi aprovada e o restaurante foi criado.
+          </Alert>
+        ) : null}
 
         {!isLoading && !error && solicitacoes.length === 0 ? (
           <Alert>Nenhuma solicitacao vinculada ao seu gestor foi encontrada.</Alert>
@@ -156,6 +161,26 @@ export function GestorHomePage() {
                       </dt>
                       <dd className="mt-1 text-slate-600">
                         {solicitacao.motivo_reprovacao}
+                      </dd>
+                    </div>
+                  ) : null}
+                  {solicitacao.status_solicitacao === 'APROVADO' ? (
+                    <div className="sm:col-span-2">
+                      <dt className="font-semibold text-slate-700">
+                        Resultado
+                      </dt>
+                      <dd className="mt-1 text-slate-600">
+                        Restaurante criado automaticamente após aprovação.
+                      </dd>
+                    </div>
+                  ) : null}
+                  {solicitacao.status_solicitacao === 'REPROVADO' ? (
+                    <div className="sm:col-span-2">
+                      <dt className="font-semibold text-slate-700">
+                        Resultado
+                      </dt>
+                      <dd className="mt-1 text-slate-600">
+                        A solicitação não foi aprovada. O restaurante não foi criado.
                       </dd>
                     </div>
                   ) : null}
