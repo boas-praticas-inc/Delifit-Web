@@ -14,19 +14,22 @@ import type { Solicitacao } from '../types/solicitacaoTypes';
 
 const statusMap: Record<
   Solicitacao['status_solicitacao'],
-  { label: string; className: string }
+  { label: string; className: string; order: number }
 > = {
   EM_ANALISE: {
     label: 'Em análise',
     className: 'border-amber-200 bg-amber-50 text-amber-700',
+    order: 0,
   },
   APROVADO: {
     label: 'Aprovado',
     className: 'border-emerald-200 bg-emerald-50 text-emerald-700',
+    order: 1,
   },
   REPROVADO: {
     label: 'Reprovado',
     className: 'border-red-200 bg-red-50 text-red-700',
+    order: 2,
   },
 };
 
@@ -149,12 +152,16 @@ export function SolicitacoesPage() {
         <DataTable
           items={solicitacoes}
           emptyMessage="Nenhuma solicitação encontrada."
+          initialSortBy="status"
+          initialSortDirection="asc"
           searchPlaceholder="Buscar por restaurante, cidade ou status"
           columns={[
             {
+              id: 'restaurante',
               header: 'Restaurante',
               searchValue: (solicitacao) =>
                 `${solicitacao.nome_fantasia} ${solicitacao.razao_social} ${solicitacao.cidade} ${solicitacao.status_solicitacao}`,
+              sortValue: (solicitacao) => solicitacao.nome_fantasia,
               render: (solicitacao) => (
                 <div>
                   <div className="font-medium text-slate-950">
@@ -167,20 +174,28 @@ export function SolicitacoesPage() {
               ),
             },
             {
+              id: 'contato',
               header: 'Contato',
               searchValue: (solicitacao) => solicitacao.telefone,
+              sortValue: (solicitacao) => solicitacao.telefone,
               render: (solicitacao) => formatarTelefone(solicitacao.telefone),
             },
             {
+              id: 'local',
               header: 'Local',
               searchValue: (solicitacao) =>
                 `${solicitacao.cidade} ${solicitacao.estado}`,
+              sortValue: (solicitacao) =>
+                `${solicitacao.estado}-${solicitacao.cidade}`,
               render: (solicitacao) =>
                 `${solicitacao.cidade}/${solicitacao.estado}`,
             },
             {
+              id: 'status',
               header: 'Status',
               searchValue: (solicitacao) => solicitacao.status_solicitacao,
+              sortValue: (solicitacao) =>
+                statusMap[solicitacao.status_solicitacao].order,
               render: (solicitacao) => {
                 const status = statusMap[solicitacao.status_solicitacao];
 

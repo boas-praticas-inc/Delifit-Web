@@ -52,11 +52,27 @@ export function ClientesListPage() {
           items={clientes}
           emptyMessage="Nenhum cliente encontrado."
           searchPlaceholder="Buscar cliente por nome, CPF ou telefone"
+          filters={[
+            {
+              id: 'nascimento',
+              label: 'Nascimento',
+              options: [
+                { label: 'Com data', value: 'com_data' },
+                { label: 'Sem data', value: 'sem_data' },
+              ],
+              predicate: (cliente, value) =>
+                value === 'com_data'
+                  ? Boolean(cliente.data_nascimento)
+                  : !cliente.data_nascimento,
+            },
+          ]}
           columns={[
             {
+              id: 'cliente',
               header: 'Cliente',
               searchValue: (cliente) =>
                 `${cliente.nome_completo} ${cliente.cpf} ${cliente.telefone}`,
+              sortValue: (cliente) => cliente.nome_completo,
               render: (cliente) => (
                 <div>
                   <div className="font-medium text-slate-950">
@@ -69,13 +85,17 @@ export function ClientesListPage() {
               ),
             },
             {
+              id: 'telefone',
               header: 'Telefone',
               searchValue: (cliente) => cliente.telefone,
+              sortValue: (cliente) => cliente.telefone,
               render: (cliente) => formatarTelefone(cliente.telefone),
             },
             {
+              id: 'data_nascimento',
               header: 'Nascimento',
               searchValue: (cliente) => cliente.data_nascimento ?? '',
+              sortValue: (cliente) => cliente.data_nascimento ?? '',
               render: (cliente) => formatarData(cliente.data_nascimento),
             },
             {

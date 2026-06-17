@@ -69,11 +69,25 @@ export function RestaurantesPage() {
           items={restaurantes}
           emptyMessage="Nenhum restaurante encontrado."
           searchPlaceholder="Buscar restaurante por nome, CNPJ ou status"
+          filters={[
+            {
+              id: 'status',
+              label: 'Status',
+              options: [
+                { label: 'Ativo', value: 'ATIVO' },
+                { label: 'Inativo', value: 'INATIVO' },
+                { label: 'Bloqueado', value: 'BLOQUEADO' },
+              ],
+              predicate: (restaurante, value) => restaurante.status === value,
+            },
+          ]}
           columns={[
             {
+              id: 'restaurante',
               header: 'Restaurante',
               searchValue: (restaurante) =>
                 `${restaurante.nome_fantasia} ${restaurante.razao_social} ${restaurante.cnpj}`,
+              sortValue: (restaurante) => restaurante.nome_fantasia,
               render: (restaurante) => (
                 <div>
                   <div className="font-medium text-slate-950">
@@ -86,18 +100,25 @@ export function RestaurantesPage() {
               ),
             },
             {
+              id: 'cnpj',
               header: 'CNPJ',
               searchValue: (restaurante) => restaurante.cnpj,
+              sortValue: (restaurante) => restaurante.cnpj,
               render: (restaurante) => formatarCnpj(restaurante.cnpj),
             },
             {
+              id: 'telefone',
               header: 'Telefone',
               searchValue: (restaurante) => restaurante.telefone,
+              sortValue: (restaurante) => restaurante.telefone,
               render: (restaurante) => formatarTelefone(restaurante.telefone),
             },
             {
+              id: 'status',
               header: 'Status',
               searchValue: (restaurante) => restaurante.status,
+              sortValue: (restaurante) =>
+                statusMap[restaurante.status]?.label ?? restaurante.status,
               render: (restaurante) => {
                 const status = statusMap[restaurante.status] ?? {
                   label: restaurante.status,
