@@ -69,18 +69,6 @@ export function RestaurantesPage() {
           items={restaurantes}
           emptyMessage="Nenhum restaurante encontrado."
           searchPlaceholder="Buscar restaurante por nome, CNPJ ou status"
-          filters={[
-            {
-              id: 'status',
-              label: 'Status',
-              options: [
-                { label: 'Ativo', value: 'ATIVO' },
-                { label: 'Inativo', value: 'INATIVO' },
-                { label: 'Bloqueado', value: 'BLOQUEADO' },
-              ],
-              predicate: (restaurante, value) => restaurante.status === value,
-            },
-          ]}
           columns={[
             {
               id: 'restaurante',

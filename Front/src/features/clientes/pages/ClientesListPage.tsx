@@ -52,20 +52,6 @@ export function ClientesListPage() {
           items={clientes}
           emptyMessage="Nenhum cliente encontrado."
           searchPlaceholder="Buscar cliente por nome, CPF ou telefone"
-          filters={[
-            {
-              id: 'nascimento',
-              label: 'Nascimento',
-              options: [
-                { label: 'Com data', value: 'com_data' },
-                { label: 'Sem data', value: 'sem_data' },
-              ],
-              predicate: (cliente, value) =>
-                value === 'com_data'
-                  ? Boolean(cliente.data_nascimento)
-                  : !cliente.data_nascimento,
-            },
-          ]}
           columns={[
             {
               id: 'cliente',
