@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import { Alert } from '../../../components/common/Alert';
 import { CrudActions } from '../../../components/common/CrudActions';
 import { DataTable } from '../../../components/common/DataTable';
-import { LinkButton } from '../../../components/common/LinkButton';
 import { Loading } from '../../../components/common/Loading';
 import { getApiErrorMessage } from '../../../lib/api';
 import { formatarCnpj, formatarTelefone } from '../../../utils/masks';
@@ -47,7 +46,7 @@ export function RestaurantesPage() {
 
   return (
     <section className="grid gap-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div>
         <div>
           <p className="text-sm font-semibold uppercase text-brand-700">
             Restaurantes
@@ -56,9 +55,6 @@ export function RestaurantesPage() {
             Listagem de restaurantes
           </h1>
         </div>
-        <LinkButton to="/restaurantes/novo" className="sm:w-auto">
-          Novo restaurante
-        </LinkButton>
       </div>
 
       {isLoading ? <Loading /> : null}
