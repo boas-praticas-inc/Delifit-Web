@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { Alert } from '../../../components/common/Alert';
 import { CrudActions } from '../../../components/common/CrudActions';
+import { DataTable } from '../../../components/common/DataTable';
 import { LinkButton } from '../../../components/common/LinkButton';
 import { Loading } from '../../../components/common/Loading';
 import { getApiErrorMessage } from '../../../lib/api';
@@ -37,65 +38,56 @@ export function ClientesListPage() {
             Clientes
           </p>
           <h1 className="mt-1 text-2xl font-bold text-slate-950">
-            Listar Clientes
+            Listagem de clientes
           </h1>
         </div>
-        <LinkButton to="/clientes/novo">Adicionar Cliente</LinkButton>
+        <LinkButton to="/clientes/novo">Adicionar cliente</LinkButton>
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-slate-200 bg-white">
-        {isLoading ? (
-          <div className="p-6">
-            <Loading />
-          </div>
-        ) : null}
-        {error ? (
-          <div className="p-6">
-            <Alert variant="error">{error}</Alert>
-          </div>
-        ) : null}
-        {!isLoading && !error && clientes.length === 0 ? (
-          <div className="p-6 text-sm text-slate-600">
-            Nenhum cliente encontrado.
-          </div>
-        ) : null}
-        {!isLoading && !error && clientes.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[920px] text-left text-sm">
-              <thead className="bg-slate-50 text-xs uppercase text-slate-500">
-                <tr>
-                  <th className="px-4 py-3">Usuário</th>
-                  <th className="px-4 py-3">Nome</th>
-                  <th className="px-4 py-3">CPF</th>
-                  <th className="px-4 py-3">Telefone</th>
-                  <th className="px-4 py-3">Nascimento</th>
-                  <th className="px-4 py-3">Ações</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {clientes.map((cliente) => (
-                  <tr key={cliente.id}>
-                    <td className="px-4 py-3">{cliente.usuario_id}</td>
-                    <td className="px-4 py-3 font-medium text-slate-950">
-                      {cliente.nome_completo}
-                    </td>
-                    <td className="px-4 py-3">{formatarCpf(cliente.cpf)}</td>
-                    <td className="px-4 py-3">
-                      {formatarTelefone(cliente.telefone)}
-                    </td>
-                    <td className="px-4 py-3">
-                      {formatarData(cliente.data_nascimento)}
-                    </td>
-                    <td className="px-4 py-3">
-                      <CrudActions viewTo={`/clientes/${cliente.id}`} />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : null}
-      </div>
+      {isLoading ? <Loading /> : null}
+      {error ? <Alert variant="error">{error}</Alert> : null}
+
+      {!isLoading && !error ? (
+        <DataTable
+          items={clientes}
+          emptyMessage="Nenhum cliente encontrado."
+          searchPlaceholder="Buscar cliente por nome, CPF ou telefone"
+          columns={[
+            {
+              header: 'Cliente',
+              searchValue: (cliente) =>
+                `${cliente.nome_completo} ${cliente.cpf} ${cliente.telefone}`,
+              render: (cliente) => (
+                <div>
+                  <div className="font-medium text-slate-950">
+                    {cliente.nome_completo}
+                  </div>
+                  <div className="text-xs text-slate-500">
+                    {formatarCpf(cliente.cpf)}
+                  </div>
+                </div>
+              ),
+            },
+            {
+              header: 'Telefone',
+              searchValue: (cliente) => cliente.telefone,
+              render: (cliente) => formatarTelefone(cliente.telefone),
+            },
+            {
+              header: 'Nascimento',
+              searchValue: (cliente) => cliente.data_nascimento ?? '',
+              render: (cliente) => formatarData(cliente.data_nascimento),
+            },
+            {
+              header: 'Ações',
+              render: (cliente) => (
+                <CrudActions viewTo={`/clientes/${cliente.id}`} />
+              ),
+              className: 'w-28',
+            },
+          ]}
+        />
+      ) : null}
     </section>
   );
 }

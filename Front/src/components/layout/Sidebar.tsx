@@ -3,11 +3,11 @@ import { NavLink } from 'react-router-dom';
 import { cn } from '../../utils/cn';
 
 const links = [
-  { to: '/dashboard', label: 'Inicio' },
-  { to: '/solicitacoes', label: 'Solicitacoes' },
-  { to: '/usuarios/novo', label: 'Adicionar Usuario' },
-  { to: '/clientes', label: 'Listar Clientes' },
-  { to: '/restaurantes', label: 'Listar Restaurantes' },
+  { to: '/dashboard', label: 'Início' },
+  { to: '/solicitacoes', label: 'Solicitações' },
+  { to: '/usuarios/novo', label: 'Adicionar usuário' },
+  { to: '/clientes', label: 'Listar clientes' },
+  { to: '/restaurantes', label: 'Listar restaurantes' },
 ];
 
 export function Sidebar() {

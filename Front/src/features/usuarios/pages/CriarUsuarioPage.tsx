@@ -4,15 +4,15 @@ import { Controller, useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
 import { z } from 'zod';
 
-import { adminService } from '../../admins/services/adminService';
-import { clienteService } from '../../clientes/services/clienteService';
-import { gestorService } from '../../gestores/services/gestorService';
 import { Alert } from '../../../components/common/Alert';
 import { Button } from '../../../components/common/Button';
 import { Input } from '../../../components/common/Input';
 import { Select } from '../../../components/common/Select';
 import { getApiErrorMessage } from '../../../lib/api';
 import { formatarCpf, formatarTelefone, somenteDigitos } from '../../../utils/masks';
+import { adminService } from '../../admins/services/adminService';
+import { clienteService } from '../../clientes/services/clienteService';
+import { gestorService } from '../../gestores/services/gestorService';
 import {
   criarUsuarioSchema,
   tipoUsuarioValues,

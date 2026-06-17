@@ -63,18 +63,24 @@ export function ClienteDetalhePage() {
         <Link to="/clientes" className="text-sm font-semibold text-brand-700">
           Voltar para clientes
         </Link>
-        <h1 className="mt-3 text-2xl font-bold text-slate-950">
-          Detalhes do Cliente
-        </h1>
+        <div className="mt-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brand-700">
+            Perfil do cliente
+          </p>
+          <h1 className="mt-3 text-3xl font-bold text-slate-950">
+            {cliente.nome_completo}
+          </h1>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Dados pessoais e contato do cliente cadastrado no Delifit.
+          </p>
+        </div>
       </div>
 
-      <div className="grid gap-3 rounded-lg border border-slate-200 bg-white p-5 text-sm text-slate-700">
-        <p><span className="font-semibold text-slate-950">ID:</span> {cliente.id}</p>
-        <p><span className="font-semibold text-slate-950">Usuário ID:</span> {cliente.usuario_id}</p>
-        <p><span className="font-semibold text-slate-950">Nome:</span> {cliente.nome_completo}</p>
-        <p><span className="font-semibold text-slate-950">CPF:</span> {formatarCpf(cliente.cpf)}</p>
-        <p><span className="font-semibold text-slate-950">Telefone:</span> {formatarTelefone(cliente.telefone)}</p>
-        <p><span className="font-semibold text-slate-950">Nascimento:</span> {formatarData(cliente.data_nascimento)}</p>
+      <div className="grid gap-4 md:grid-cols-2">
+        <InfoCard label="CPF" value={formatarCpf(cliente.cpf)} />
+        <InfoCard label="Telefone" value={formatarTelefone(cliente.telefone)} />
+        <InfoCard label="Data de nascimento" value={formatarData(cliente.data_nascimento)} />
+        <InfoCard label="Categoria" value="Cliente Delifit" />
       </div>
 
       <div className="flex flex-col gap-3 sm:flex-row">
@@ -86,5 +92,21 @@ export function ClienteDetalhePage() {
 
       {error ? <Alert variant="error">{error}</Alert> : null}
     </section>
+  );
+}
+
+type InfoCardProps = {
+  label: string;
+  value: string;
+};
+
+function InfoCard({ label, value }: InfoCardProps) {
+  return (
+    <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+        {label}
+      </p>
+      <p className="mt-3 text-lg font-semibold text-slate-950">{value}</p>
+    </article>
   );
 }

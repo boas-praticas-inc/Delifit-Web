@@ -53,7 +53,7 @@ export function RestauranteDetalhePage() {
   }
 
   if (!restaurante) {
-    return <Alert variant="error">{error}</Alert>;
+    return <Alert variant="error">{error ?? 'Restaurante não encontrado.'}</Alert>;
   }
 
   return (
@@ -62,23 +62,34 @@ export function RestauranteDetalhePage() {
         <Link to="/restaurantes" className="text-sm font-semibold text-brand-700">
           Voltar para restaurantes
         </Link>
-        <h1 className="mt-3 text-2xl font-bold text-slate-950">
-          Detalhes do Restaurante
-        </h1>
+        <div className="mt-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brand-700">
+            Perfil do restaurante
+          </p>
+          <h1 className="mt-3 text-3xl font-bold text-slate-950">
+            {restaurante.nome_fantasia}
+          </h1>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            {restaurante.razao_social}
+          </p>
+        </div>
       </div>
 
-      <div className="grid gap-3 rounded-lg border border-slate-200 bg-white p-5 text-sm text-slate-700">
-        <p><span className="font-semibold text-slate-950">ID:</span> {restaurante.id}</p>
-        <p><span className="font-semibold text-slate-950">Gestor ID:</span> {restaurante.gestor_id}</p>
-        <p><span className="font-semibold text-slate-950">Endereço ID:</span> {restaurante.endereco_id}</p>
-        <p><span className="font-semibold text-slate-950">Solicitação ID:</span> {restaurante.solicitacao_adesao_id ?? 'Não vinculada'}</p>
-        <p><span className="font-semibold text-slate-950">Nome fantasia:</span> {restaurante.nome_fantasia}</p>
-        <p><span className="font-semibold text-slate-950">Razão social:</span> {restaurante.razao_social}</p>
-        <p><span className="font-semibold text-slate-950">CNPJ:</span> {formatarCnpj(restaurante.cnpj)}</p>
-        <p><span className="font-semibold text-slate-950">Telefone:</span> {formatarTelefone(restaurante.telefone)}</p>
-        <p><span className="font-semibold text-slate-950">Status:</span> {restaurante.status}</p>
-        <p><span className="font-semibold text-slate-950">Descrição:</span> {restaurante.descricao ?? 'Não informada'}</p>
+      <div className="grid gap-4 md:grid-cols-2">
+        <InfoCard label="CNPJ" value={formatarCnpj(restaurante.cnpj)} />
+        <InfoCard label="Telefone" value={formatarTelefone(restaurante.telefone)} />
+        <InfoCard label="Status" value={restaurante.status} />
+        <InfoCard label="Categoria" value="Restaurante parceiro" />
       </div>
+
+      <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+          Descrição
+        </p>
+        <p className="mt-3 text-sm leading-7 text-slate-700">
+          {restaurante.descricao ?? 'Não informada.'}
+        </p>
+      </article>
 
       <div className="flex flex-col gap-3 sm:flex-row">
         <LinkButton to={`/restaurantes/${restaurante.id}/editar`}>
@@ -91,5 +102,21 @@ export function RestauranteDetalhePage() {
 
       {error ? <Alert variant="error">{error}</Alert> : null}
     </section>
+  );
+}
+
+type InfoCardProps = {
+  label: string;
+  value: string;
+};
+
+function InfoCard({ label, value }: InfoCardProps) {
+  return (
+    <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+        {label}
+      </p>
+      <p className="mt-3 text-lg font-semibold text-slate-950">{value}</p>
+    </article>
   );
 }

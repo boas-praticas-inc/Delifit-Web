@@ -1,13 +1,13 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { Link } from 'react-router-dom';
+import { Controller, useForm } from 'react-hook-form';
+import { Link, useNavigate } from 'react-router-dom';
 
-import { Alert } from '../../../components/common/Alert';
 import { Button } from '../../../components/common/Button';
 import { Input } from '../../../components/common/Input';
 import { Textarea } from '../../../components/common/Textarea';
 import { getApiErrorMessage } from '../../../lib/api';
+import { formatarCep, formatarCnpj, formatarCpf, formatarTelefone } from '../../../utils/masks';
 import {
   dadosEnderecoSchema,
   dadosGestorSchema,
@@ -21,14 +21,15 @@ import { solicitacaoService } from '../services/solicitacaoService';
 
 type Etapa = 1 | 2 | 3;
 
+const MENSAGEM_SUCESSO =
+  'Solicitação enviada com sucesso. Aguarde a análise do administrador.';
+
 export function SolicitarAdesaoPage() {
+  const navigate = useNavigate();
   const [etapaAtual, setEtapaAtual] = useState<Etapa>(1);
   const [dadosFormulario, setDadosFormulario] =
     useState<Partial<CriarSolicitacaoFormData>>({});
-  const [feedback, setFeedback] = useState<{
-    message: string;
-    variant: 'error' | 'success';
-  } | null>(null);
+  const [erro, setErro] = useState<string | null>(null);
 
   const gestorForm = useForm<DadosGestorFormData>({
     resolver: zodResolver(dadosGestorSchema),
@@ -67,33 +68,24 @@ export function SolicitarAdesaoPage() {
     },
   });
 
-  function avancarComDados(data: Partial<CriarSolicitacaoFormData>, proximaEtapa: Etapa) {
-    setFeedback(null);
+  function avancarComDados(
+    data: Partial<CriarSolicitacaoFormData>,
+    proximaEtapa: Etapa,
+  ) {
+    setErro(null);
     setDadosFormulario((current) => ({ ...current, ...data }));
     setEtapaAtual(proximaEtapa);
   }
 
   async function finalizarCadastro(data: DadosRestauranteFormData) {
-    setFeedback(null);
+    setErro(null);
     const payload = { ...dadosFormulario, ...data } as CriarSolicitacaoFormData;
 
     try {
       await solicitacaoService.solicitarAdesao(payload);
-      setDadosFormulario({});
-      gestorForm.reset();
-      enderecoForm.reset();
-      restauranteForm.reset();
-      setEtapaAtual(1);
-      setFeedback({
-        message:
-          'Solicitação enviada com sucesso. Aguarde a análise do administrador.',
-        variant: 'success',
-      });
+      navigate('/', { replace: true, state: { message: MENSAGEM_SUCESSO } });
     } catch (error) {
-      setFeedback({
-        message: getApiErrorMessage(error),
-        variant: 'error',
-      });
+      setErro(getApiErrorMessage(error));
     }
   }
 
@@ -127,7 +119,11 @@ export function SolicitarAdesaoPage() {
           <EtapaCard numero={3} titulo="Restaurante" ativa={etapaAtual === 3} />
         </div>
 
-        {feedback ? <Alert variant={feedback.variant}>{feedback.message}</Alert> : null}
+        {erro ? (
+          <div className="rounded-md bg-red-50 px-4 py-3 text-sm text-red-700">
+            {erro}
+          </div>
+        ) : null}
 
         {etapaAtual === 1 ? (
           <form
@@ -156,17 +152,41 @@ export function SolicitarAdesaoPage() {
                   error={gestorForm.formState.errors.nome_completo?.message}
                   {...gestorForm.register('nome_completo')}
                 />
-                <Input
-                  label="CPF"
-                  inputMode="numeric"
-                  placeholder="Somente números"
-                  error={gestorForm.formState.errors.cpf?.message}
-                  {...gestorForm.register('cpf')}
+                <Controller
+                  control={gestorForm.control}
+                  name="cpf"
+                  render={({ field }) => (
+                    <Input
+                      label="CPF"
+                      inputMode="numeric"
+                      maxLength={14}
+                      placeholder="000.000.000-00"
+                      error={gestorForm.formState.errors.cpf?.message}
+                      {...field}
+                      value={formatarCpf(field.value ?? '')}
+                      onChange={(event) =>
+                        field.onChange(formatarCpf(event.target.value))
+                      }
+                    />
+                  )}
                 />
-                <Input
-                  label="Telefone"
-                  error={gestorForm.formState.errors.telefone_gestor?.message}
-                  {...gestorForm.register('telefone_gestor')}
+                <Controller
+                  control={gestorForm.control}
+                  name="telefone_gestor"
+                  render={({ field }) => (
+                    <Input
+                      label="Telefone"
+                      inputMode="tel"
+                      maxLength={15}
+                      placeholder="(00) 00000-0000"
+                      error={gestorForm.formState.errors.telefone_gestor?.message}
+                      {...field}
+                      value={formatarTelefone(field.value ?? '')}
+                      onChange={(event) =>
+                        field.onChange(formatarTelefone(event.target.value))
+                      }
+                    />
+                  )}
                 />
               </div>
             </fieldset>
@@ -189,12 +209,23 @@ export function SolicitarAdesaoPage() {
                 Endereço do restaurante
               </legend>
               <div className="grid gap-4 md:grid-cols-2">
-                <Input
-                  label="CEP"
-                  inputMode="numeric"
-                  placeholder="Somente números"
-                  error={enderecoForm.formState.errors.cep?.message}
-                  {...enderecoForm.register('cep')}
+                <Controller
+                  control={enderecoForm.control}
+                  name="cep"
+                  render={({ field }) => (
+                    <Input
+                      label="CEP"
+                      inputMode="numeric"
+                      maxLength={9}
+                      placeholder="00000-000"
+                      error={enderecoForm.formState.errors.cep?.message}
+                      {...field}
+                      value={formatarCep(field.value ?? '')}
+                      onChange={(event) =>
+                        field.onChange(formatarCep(event.target.value))
+                      }
+                    />
+                  )}
                 />
                 <Input
                   label="Logradouro"
@@ -267,17 +298,43 @@ export function SolicitarAdesaoPage() {
                   error={restauranteForm.formState.errors.razao_social?.message}
                   {...restauranteForm.register('razao_social')}
                 />
-                <Input
-                  label="CNPJ"
-                  inputMode="numeric"
-                  placeholder="Somente números"
-                  error={restauranteForm.formState.errors.cnpj?.message}
-                  {...restauranteForm.register('cnpj')}
+                <Controller
+                  control={restauranteForm.control}
+                  name="cnpj"
+                  render={({ field }) => (
+                    <Input
+                      label="CNPJ"
+                      inputMode="numeric"
+                      maxLength={18}
+                      placeholder="00.000.000/0000-00"
+                      error={restauranteForm.formState.errors.cnpj?.message}
+                      {...field}
+                      value={formatarCnpj(field.value ?? '')}
+                      onChange={(event) =>
+                        field.onChange(formatarCnpj(event.target.value))
+                      }
+                    />
+                  )}
                 />
-                <Input
-                  label="Telefone"
-                  error={restauranteForm.formState.errors.telefone_restaurante?.message}
-                  {...restauranteForm.register('telefone_restaurante')}
+                <Controller
+                  control={restauranteForm.control}
+                  name="telefone_restaurante"
+                  render={({ field }) => (
+                    <Input
+                      label="Telefone"
+                      inputMode="tel"
+                      maxLength={15}
+                      placeholder="(00) 00000-0000"
+                      error={
+                        restauranteForm.formState.errors.telefone_restaurante?.message
+                      }
+                      {...field}
+                      value={formatarTelefone(field.value ?? '')}
+                      onChange={(event) =>
+                        field.onChange(formatarTelefone(event.target.value))
+                      }
+                    />
+                  )}
                 />
               </div>
             </fieldset>

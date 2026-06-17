@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 import { Button } from '../../../components/common/Button';
 import { Input } from '../../../components/common/Input';
@@ -10,8 +10,13 @@ import { loginSchema, type LoginFormData } from '../schemas/authSchemas';
 import { authService } from '../services/authService';
 import { salvarUsuarioLogado } from '../utils/session';
 
+type LoginLocationState = {
+  message?: string;
+};
+
 export function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [message, setMessage] = useState<string | null>(null);
   const {
     formState: { errors, isSubmitting },
@@ -20,6 +25,14 @@ export function LoginPage() {
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
+
+  useEffect(() => {
+    const state = location.state as LoginLocationState | null;
+    if (state?.message) {
+      setMessage(state.message);
+      navigate(location.pathname, { replace: true, state: null });
+    }
+  }, [location.pathname, location.state, navigate]);
 
   async function onSubmit(data: LoginFormData) {
     setMessage(null);
@@ -38,7 +51,7 @@ export function LoginPage() {
         return;
       }
 
-      setMessage('Este perfil ainda nao possui area web configurada.');
+      setMessage('Este perfil ainda não possui área web configurada.');
     } catch (error) {
       setMessage(getApiErrorMessage(error));
     }
@@ -53,7 +66,7 @@ export function LoginPage() {
           </Link>
           <h1 className="mt-3 text-2xl font-bold text-slate-950">Entrar</h1>
           <p className="mt-2 text-sm text-slate-600">
-            Acesse sua area usando e-mail e senha cadastrados.
+            Acesse sua área usando e-mail e senha cadastrados.
           </p>
         </div>
 
