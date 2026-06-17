@@ -4,6 +4,7 @@ import { Alert } from '../../../components/common/Alert';
 import { Button } from '../../../components/common/Button';
 import { DataTable } from '../../../components/common/DataTable';
 import { Loading } from '../../../components/common/Loading';
+import { Textarea } from '../../../components/common/Textarea';
 import { getApiErrorMessage } from '../../../lib/api';
 import { formatarTelefone } from '../../../utils/masks';
 import { adminService } from '../../admins/services/adminService';
@@ -11,7 +12,10 @@ import { getUsuarioLogado } from '../../auth/utils/session';
 import { solicitacaoService } from '../services/solicitacaoService';
 import type { Solicitacao } from '../types/solicitacaoTypes';
 
-const statusMap: Record<Solicitacao['status_solicitacao'], { label: string; className: string }> = {
+const statusMap: Record<
+  Solicitacao['status_solicitacao'],
+  { label: string; className: string }
+> = {
   EM_ANALISE: {
     label: 'Em análise',
     className: 'border-amber-200 bg-amber-50 text-amber-700',
@@ -31,6 +35,10 @@ export function SolicitacoesPage() {
   const [adminId, setAdminId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [motivoRecusa, setMotivoRecusa] = useState('');
+  const [solicitacaoSelecionada, setSolicitacaoSelecionada] =
+    useState<Solicitacao | null>(null);
+  const [isRecusando, setIsRecusando] = useState(false);
 
   async function carregarSolicitacoes() {
     try {
@@ -84,22 +92,42 @@ export function SolicitacoesPage() {
     }
   }
 
-  async function handleRecusar(solicitacaoId: number) {
-    if (!adminId) {
+  function abrirModalRecusa(solicitacao: Solicitacao) {
+    setError(null);
+    setMotivoRecusa('');
+    setSolicitacaoSelecionada(solicitacao);
+  }
+
+  function fecharModalRecusa() {
+    setMotivoRecusa('');
+    setSolicitacaoSelecionada(null);
+    setIsRecusando(false);
+  }
+
+  async function confirmarRecusa() {
+    if (!adminId || !solicitacaoSelecionada) {
       setError('Administrador logado não encontrado.');
       return;
     }
 
-    const motivo = window.prompt('Informe o motivo da recusa:');
+    const motivo = motivoRecusa.trim();
     if (!motivo) {
+      setError('Informe um motivo válido para recusar a solicitação.');
       return;
     }
 
     try {
-      await solicitacaoService.recusarSolicitacao(solicitacaoId, adminId, motivo);
+      setIsRecusando(true);
+      await solicitacaoService.recusarSolicitacao(
+        solicitacaoSelecionada.id,
+        adminId,
+        motivo,
+      );
+      fecharModalRecusa();
       await carregarSolicitacoes();
     } catch (requestError) {
       setError(getApiErrorMessage(requestError));
+      setIsRecusando(false);
     }
   }
 
@@ -179,7 +207,7 @@ export function SolicitacoesPage() {
                   <Button
                     variant="ghost"
                     disabled={solicitacao.status_solicitacao !== 'EM_ANALISE'}
-                    onClick={() => void handleRecusar(solicitacao.id)}
+                    onClick={() => abrirModalRecusa(solicitacao)}
                   >
                     Recusar
                   </Button>
@@ -189,6 +217,40 @@ export function SolicitacoesPage() {
             },
           ]}
         />
+      ) : null}
+
+      {solicitacaoSelecionada ? (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/40 px-4">
+          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
+            <h2 className="text-xl font-bold text-slate-950">
+              Recusar solicitação
+            </h2>
+            <p className="mt-2 text-sm text-slate-600">
+              Informe o motivo da recusa para o restaurante{' '}
+              <span className="font-semibold text-slate-900">
+                {solicitacaoSelecionada.nome_fantasia}
+              </span>
+              .
+            </p>
+
+            <div className="mt-5">
+              <Textarea
+                label="Motivo da recusa"
+                value={motivoRecusa}
+                onChange={(event) => setMotivoRecusa(event.target.value)}
+              />
+            </div>
+
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
+              <Button variant="secondary" onClick={fecharModalRecusa}>
+                Cancelar
+              </Button>
+              <Button isLoading={isRecusando} onClick={() => void confirmarRecusa()}>
+                Confirmar recusa
+              </Button>
+            </div>
+          </div>
+        </div>
       ) : null}
     </section>
   );

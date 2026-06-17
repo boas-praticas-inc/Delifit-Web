@@ -73,4 +73,11 @@ export const solicitacaoService = {
     );
     return response.data;
   },
+
+  async solicitarNovaAnalise(solicitacaoId: number) {
+    const response = await api.patch<Solicitacao>(
+      `/solicitacoes-adesao-restaurante/${solicitacaoId}/solicitar-nova-analise`,
+    );
+    return response.data;
+  },
 };

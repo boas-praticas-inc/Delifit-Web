@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { Alert } from '../../../components/common/Alert';
+import { Button } from '../../../components/common/Button';
 import { Loading } from '../../../components/common/Loading';
+import { getApiErrorMessage } from '../../../lib/api';
 import { formatarCnpj } from '../../../utils/masks';
 import {
   getUsuarioLogado,
@@ -28,43 +30,56 @@ export function GestorHomePage() {
   const [solicitacoes, setSolicitacoes] = useState<Solicitacao[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<string | null>(null);
+
+  async function carregarSolicitacoes() {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const usuario = getUsuarioLogado();
+
+      if (!usuario || usuario.tipo_usuario !== 'GESTOR') {
+        setError('Faça login como gestor para visualizar suas solicitações.');
+        return;
+      }
+
+      const [gestores, todasSolicitacoes] = await Promise.all([
+        gestorService.listarGestores(),
+        solicitacaoService.listarSolicitacoes(),
+      ]);
+      const gestor = gestores.find((item) => item.usuario_id === usuario.id);
+
+      if (!gestor) {
+        setSolicitacoes([]);
+        return;
+      }
+
+      setSolicitacoes(
+        todasSolicitacoes.filter((item) => item.gestor_id === gestor.id),
+      );
+    } catch {
+      setError('Não foi possível carregar as solicitações.');
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   useEffect(() => {
-    async function carregarSolicitacoes() {
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        const usuario = getUsuarioLogado();
-
-        if (!usuario || usuario.tipo_usuario !== 'GESTOR') {
-          setError('Faça login como gestor para visualizar suas solicitações.');
-          return;
-        }
-
-        const [gestores, todasSolicitacoes] = await Promise.all([
-          gestorService.listarGestores(),
-          solicitacaoService.listarSolicitacoes(),
-        ]);
-        const gestor = gestores.find((item) => item.usuario_id === usuario.id);
-
-        if (!gestor) {
-          setSolicitacoes([]);
-          return;
-        }
-
-        setSolicitacoes(
-          todasSolicitacoes.filter((item) => item.gestor_id === gestor.id),
-        );
-      } catch {
-        setError('Não foi possível carregar as solicitações.');
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
     void carregarSolicitacoes();
   }, []);
+
+  async function handleSolicitarNovaAnalise(solicitacaoId: number) {
+    try {
+      setFeedback(null);
+      setError(null);
+      await solicitacaoService.solicitarNovaAnalise(solicitacaoId);
+      setFeedback('Nova análise solicitada com sucesso.');
+      await carregarSolicitacoes();
+    } catch (requestError) {
+      setError(getApiErrorMessage(requestError));
+    }
+  }
 
   return (
     <main className="min-h-screen bg-slate-50">
@@ -100,7 +115,7 @@ export function GestorHomePage() {
         </div>
 
         {isLoading ? <Loading label="Carregando solicitações" /> : null}
-
+        {feedback ? <Alert variant="success">{feedback}</Alert> : null}
         {error ? <Alert variant="error">{error}</Alert> : null}
 
         {!isLoading && !error && solicitacoes.length === 0 ? (
@@ -156,6 +171,17 @@ export function GestorHomePage() {
                     </div>
                   ) : null}
                 </dl>
+
+                {solicitacao.status_solicitacao === 'REPROVADO' ? (
+                  <div className="mt-5 border-t border-slate-200 pt-4">
+                    <Button
+                      variant="secondary"
+                      onClick={() => void handleSolicitarNovaAnalise(solicitacao.id)}
+                    >
+                      Solicitar nova análise
+                    </Button>
+                  </div>
+                ) : null}
               </article>
             ))}
           </div>
