@@ -11,6 +11,21 @@ import { getUsuarioLogado } from '../../auth/utils/session';
 import { solicitacaoService } from '../services/solicitacaoService';
 import type { Solicitacao } from '../types/solicitacaoTypes';
 
+const statusMap: Record<Solicitacao['status_solicitacao'], { label: string; className: string }> = {
+  EM_ANALISE: {
+    label: 'Em análise',
+    className: 'border-amber-200 bg-amber-50 text-amber-700',
+  },
+  APROVADO: {
+    label: 'Aprovado',
+    className: 'border-emerald-200 bg-emerald-50 text-emerald-700',
+  },
+  REPROVADO: {
+    label: 'Reprovado',
+    className: 'border-red-200 bg-red-50 text-red-700',
+  },
+};
+
 export function SolicitacoesPage() {
   const [solicitacoes, setSolicitacoes] = useState<Solicitacao[]>([]);
   const [adminId, setAdminId] = useState<number | null>(null);
@@ -138,7 +153,17 @@ export function SolicitacoesPage() {
             {
               header: 'Status',
               searchValue: (solicitacao) => solicitacao.status_solicitacao,
-              render: (solicitacao) => solicitacao.status_solicitacao,
+              render: (solicitacao) => {
+                const status = statusMap[solicitacao.status_solicitacao];
+
+                return (
+                  <span
+                    className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${status.className}`}
+                  >
+                    {status.label}
+                  </span>
+                );
+              },
             },
             {
               header: 'Ações',

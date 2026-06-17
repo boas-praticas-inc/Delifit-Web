@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 
 import { Alert } from '../../../components/common/Alert';
 import { Loading } from '../../../components/common/Loading';
+import { formatarCnpj } from '../../../utils/masks';
 import {
   getUsuarioLogado,
   limparUsuarioLogado,
@@ -90,19 +91,11 @@ export function GestorHomePage() {
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brand-100">
             Painel do gestor
           </p>
-          <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <h1 className="text-3xl font-bold">Solicitações</h1>
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-brand-50">
-                Acompanhe o status da sua solicitação de adesão.
-              </p>
-            </div>
-            <Link
-              to="/solicitar-adesao"
-              className="inline-flex min-h-10 items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-brand-900 transition hover:bg-brand-50"
-            >
-              Solicitar adesão
-            </Link>
+          <div className="mt-3">
+            <h1 className="text-3xl font-bold">Solicitações</h1>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-brand-50">
+              Acompanhe o status da sua solicitação de adesão.
+            </p>
           </div>
         </div>
 
@@ -127,7 +120,7 @@ export function GestorHomePage() {
                       {solicitacao.nome_fantasia}
                     </h2>
                     <p className="mt-1 text-sm text-slate-600">
-                      {solicitacao.razao_social} - CNPJ {solicitacao.cnpj}
+                      {solicitacao.razao_social} - CNPJ {formatarCnpj(solicitacao.cnpj)}
                     </p>
                   </div>
                   <span

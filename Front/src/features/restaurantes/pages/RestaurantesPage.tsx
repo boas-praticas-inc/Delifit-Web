@@ -10,6 +10,21 @@ import { formatarCnpj, formatarTelefone } from '../../../utils/masks';
 import { restauranteService } from '../services/restauranteService';
 import type { Restaurante } from '../types/restauranteTypes';
 
+const statusMap: Record<string, { label: string; className: string }> = {
+  ATIVO: {
+    label: 'Ativo',
+    className: 'border-emerald-200 bg-emerald-50 text-emerald-700',
+  },
+  INATIVO: {
+    label: 'Inativo',
+    className: 'border-slate-200 bg-slate-100 text-slate-700',
+  },
+  BLOQUEADO: {
+    label: 'Bloqueado',
+    className: 'border-red-200 bg-red-50 text-red-700',
+  },
+};
+
 export function RestaurantesPage() {
   const [restaurantes, setRestaurantes] = useState<Restaurante[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -83,7 +98,20 @@ export function RestaurantesPage() {
             {
               header: 'Status',
               searchValue: (restaurante) => restaurante.status,
-              render: (restaurante) => restaurante.status,
+              render: (restaurante) => {
+                const status = statusMap[restaurante.status] ?? {
+                  label: restaurante.status,
+                  className: 'border-slate-200 bg-slate-100 text-slate-700',
+                };
+
+                return (
+                  <span
+                    className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${status.className}`}
+                  >
+                    {status.label}
+                  </span>
+                );
+              },
             },
             {
               header: 'Ações',
