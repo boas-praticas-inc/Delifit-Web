@@ -8,6 +8,7 @@ import { Input } from '../../../components/common/Input';
 import { getApiErrorMessage } from '../../../lib/api';
 import { loginSchema, type LoginFormData } from '../schemas/authSchemas';
 import { authService } from '../services/authService';
+import { salvarUsuarioLogado } from '../utils/session';
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -25,7 +26,7 @@ export function LoginPage() {
 
     try {
       const { usuario } = await authService.login(data);
-      localStorage.setItem('delifit_usuario', JSON.stringify(usuario));
+      salvarUsuarioLogado(usuario);
 
       if (usuario.tipo_usuario === 'ADMIN') {
         navigate('/dashboard');
@@ -85,10 +86,10 @@ export function LoginPage() {
 
         <div className="mt-5 border-t border-slate-200 pt-5">
           <Link
-            to="/cadastro"
+            to="/solicitar-adesao"
             className="inline-flex min-h-10 w-full items-center justify-center rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700"
           >
-            Cadastrar-se
+            Solicitar adesão
           </Link>
         </div>
       </section>

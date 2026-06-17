@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 
 import { Button } from '../../../components/common/Button';
 import { Loading } from '../../../components/common/Loading';
+import { adminService } from '../../admins/services/adminService';
+import { getUsuarioLogado } from '../../auth/utils/session';
 import { getApiErrorMessage } from '../../../lib/api';
 import { formatarTelefone } from '../../../utils/masks';
 import { solicitacaoService } from '../services/solicitacaoService';
@@ -9,12 +11,36 @@ import type { Solicitacao } from '../types/solicitacaoTypes';
 
 export function SolicitacoesPage() {
   const [solicitacoes, setSolicitacoes] = useState<Solicitacao[]>([]);
+  const [adminId, setAdminId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   async function carregarSolicitacoes() {
     try {
-      const data = await solicitacaoService.listarSolicitacoes();
+      setError(null);
+
+      const usuario = getUsuarioLogado();
+      if (!usuario || usuario.tipo_usuario !== 'ADMIN') {
+        setError('Faça login como administrador para analisar as solicitações.');
+        return;
+      }
+
+      const [admins, data] = await Promise.all([
+        adminService.listarAdmins(),
+        solicitacaoService.listarSolicitacoes(),
+      ]);
+
+      let admin = admins.find((item) => item.usuario_id === usuario.id);
+
+      if (!admin) {
+        admin = await adminService.criarAdmin({
+          usuario_id: usuario.id,
+          nome_completo: usuario.email,
+          cargo: null,
+        });
+      }
+
+      setAdminId(admin.id);
       setSolicitacoes(data);
     } catch (requestError) {
       setError(getApiErrorMessage(requestError));
@@ -28,13 +54,13 @@ export function SolicitacoesPage() {
   }, []);
 
   async function handleAprovar(solicitacaoId: number) {
-    const adminId = window.prompt('Informe o ID do admin responsável pela aprovação:');
     if (!adminId) {
+      setError('Administrador logado não encontrado.');
       return;
     }
 
     try {
-      await solicitacaoService.aprovarSolicitacao(solicitacaoId, Number(adminId));
+      await solicitacaoService.aprovarSolicitacao(solicitacaoId, adminId);
       await carregarSolicitacoes();
     } catch (requestError) {
       setError(getApiErrorMessage(requestError));
@@ -42,8 +68,8 @@ export function SolicitacoesPage() {
   }
 
   async function handleRecusar(solicitacaoId: number) {
-    const adminId = window.prompt('Informe o ID do admin responsável pela recusa:');
     if (!adminId) {
+      setError('Administrador logado não encontrado.');
       return;
     }
 
@@ -53,11 +79,7 @@ export function SolicitacoesPage() {
     }
 
     try {
-      await solicitacaoService.recusarSolicitacao(
-        solicitacaoId,
-        Number(adminId),
-        motivo,
-      );
+      await solicitacaoService.recusarSolicitacao(solicitacaoId, adminId, motivo);
       await carregarSolicitacoes();
     } catch (requestError) {
       setError(getApiErrorMessage(requestError));

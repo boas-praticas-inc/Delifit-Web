@@ -3,13 +3,16 @@ import { Link } from 'react-router-dom';
 
 import { Alert } from '../../../components/common/Alert';
 import { Loading } from '../../../components/common/Loading';
+import {
+  getUsuarioLogado,
+  limparUsuarioLogado,
+} from '../../auth/utils/session';
 import { gestorService } from '../../gestores/services/gestorService';
-import type { Usuario } from '../../usuarios/types/usuarioTypes';
 import { solicitacaoService } from '../../solicitacoes/services/solicitacaoService';
 import type { Solicitacao } from '../../solicitacoes/types/solicitacaoTypes';
 
 const statusLabels: Record<Solicitacao['status_solicitacao'], string> = {
-  EM_ANALISE: 'Em analise',
+  EM_ANALISE: 'Em análise',
   APROVADO: 'Aprovado',
   REPROVADO: 'Reprovado',
 };
@@ -33,8 +36,8 @@ export function GestorHomePage() {
       try {
         const usuario = getUsuarioLogado();
 
-        if (!usuario) {
-          setError('Faca login como gestor para visualizar suas solicitacoes.');
+        if (!usuario || usuario.tipo_usuario !== 'GESTOR') {
+          setError('Faça login como gestor para visualizar suas solicitações.');
           return;
         }
 
@@ -53,7 +56,7 @@ export function GestorHomePage() {
           todasSolicitacoes.filter((item) => item.gestor_id === gestor.id),
         );
       } catch {
-        setError('Nao foi possivel carregar as solicitacoes.');
+        setError('Não foi possível carregar as solicitações.');
       } finally {
         setIsLoading(false);
       }
@@ -74,6 +77,7 @@ export function GestorHomePage() {
           </Link>
           <Link
             to="/"
+            onClick={limparUsuarioLogado}
             className="rounded-md px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
           >
             Sair
@@ -88,27 +92,26 @@ export function GestorHomePage() {
           </p>
           <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <h1 className="text-3xl font-bold">Solicitacoes</h1>
+              <h1 className="text-3xl font-bold">Solicitações</h1>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-brand-50">
-                Acompanhe o status da sua solicitacao de adesao conforme
-                registrado no banco.
+                Acompanhe o status da sua solicitação de adesão.
               </p>
             </div>
             <Link
               to="/solicitar-adesao"
               className="inline-flex min-h-10 items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-brand-900 transition hover:bg-brand-50"
             >
-              Solicitar adesao
+              Solicitar adesão
             </Link>
           </div>
         </div>
 
-        {isLoading ? <Loading label="Carregando solicitacoes" /> : null}
+        {isLoading ? <Loading label="Carregando solicitações" /> : null}
 
         {error ? <Alert variant="error">{error}</Alert> : null}
 
         {!isLoading && !error && solicitacoes.length === 0 ? (
-          <Alert>Nenhuma solicitacao vinculada ao seu gestor foi encontrada.</Alert>
+          <Alert>Nenhuma solicitação vinculada ao seu gestor foi encontrada.</Alert>
         ) : null}
 
         {!isLoading && solicitacoes.length > 0 ? (
@@ -136,7 +139,7 @@ export function GestorHomePage() {
 
                 <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
                   <div>
-                    <dt className="font-semibold text-slate-700">Endereco</dt>
+                    <dt className="font-semibold text-slate-700">Endereço</dt>
                     <dd className="mt-1 text-slate-600">
                       {solicitacao.logradouro}, {solicitacao.numero} -{' '}
                       {solicitacao.bairro}, {solicitacao.cidade}/
@@ -167,18 +170,4 @@ export function GestorHomePage() {
       </section>
     </main>
   );
-}
-
-function getUsuarioLogado() {
-  const rawUsuario = localStorage.getItem('delifit_usuario');
-
-  if (!rawUsuario) {
-    return null;
-  }
-
-  try {
-    return JSON.parse(rawUsuario) as Usuario;
-  } catch {
-    return null;
-  }
 }

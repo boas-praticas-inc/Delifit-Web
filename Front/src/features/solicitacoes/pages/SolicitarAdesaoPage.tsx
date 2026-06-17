@@ -9,33 +9,84 @@ import { Input } from '../../../components/common/Input';
 import { Textarea } from '../../../components/common/Textarea';
 import { getApiErrorMessage } from '../../../lib/api';
 import {
-  criarSolicitacaoSchema,
+  dadosEnderecoSchema,
+  dadosGestorSchema,
+  dadosRestauranteSchema,
   type CriarSolicitacaoFormData,
+  type DadosEnderecoFormData,
+  type DadosGestorFormData,
+  type DadosRestauranteFormData,
 } from '../schemas/solicitacaoSchemas';
 import { solicitacaoService } from '../services/solicitacaoService';
 
+type Etapa = 1 | 2 | 3;
+
 export function SolicitarAdesaoPage() {
+  const [etapaAtual, setEtapaAtual] = useState<Etapa>(1);
+  const [dadosFormulario, setDadosFormulario] =
+    useState<Partial<CriarSolicitacaoFormData>>({});
   const [feedback, setFeedback] = useState<{
     message: string;
     variant: 'error' | 'success';
   } | null>(null);
-  const {
-    formState: { errors, isSubmitting },
-    handleSubmit,
-    register,
-    reset,
-  } = useForm<CriarSolicitacaoFormData>({
-    resolver: zodResolver(criarSolicitacaoSchema),
+
+  const gestorForm = useForm<DadosGestorFormData>({
+    resolver: zodResolver(dadosGestorSchema),
+    defaultValues: {
+      email: dadosFormulario.email ?? '',
+      senha: dadosFormulario.senha ?? '',
+      nome_completo: dadosFormulario.nome_completo ?? '',
+      cpf: dadosFormulario.cpf ?? '',
+      telefone_gestor: dadosFormulario.telefone_gestor ?? '',
+    },
   });
 
-  async function onSubmit(data: CriarSolicitacaoFormData) {
+  const enderecoForm = useForm<DadosEnderecoFormData>({
+    resolver: zodResolver(dadosEnderecoSchema),
+    defaultValues: {
+      cep: dadosFormulario.cep ?? '',
+      logradouro: dadosFormulario.logradouro ?? '',
+      numero: dadosFormulario.numero ?? '',
+      bairro: dadosFormulario.bairro ?? '',
+      cidade: dadosFormulario.cidade ?? '',
+      estado: dadosFormulario.estado ?? '',
+      complemento: dadosFormulario.complemento ?? '',
+      referencia: dadosFormulario.referencia ?? '',
+    },
+  });
+
+  const restauranteForm = useForm<DadosRestauranteFormData>({
+    resolver: zodResolver(dadosRestauranteSchema),
+    defaultValues: {
+      nome_fantasia: dadosFormulario.nome_fantasia ?? '',
+      razao_social: dadosFormulario.razao_social ?? '',
+      cnpj: dadosFormulario.cnpj ?? '',
+      telefone_restaurante: dadosFormulario.telefone_restaurante ?? '',
+      descricao: dadosFormulario.descricao ?? '',
+      foto_url: dadosFormulario.foto_url ?? '',
+    },
+  });
+
+  function avancarComDados(data: Partial<CriarSolicitacaoFormData>, proximaEtapa: Etapa) {
     setFeedback(null);
+    setDadosFormulario((current) => ({ ...current, ...data }));
+    setEtapaAtual(proximaEtapa);
+  }
+
+  async function finalizarCadastro(data: DadosRestauranteFormData) {
+    setFeedback(null);
+    const payload = { ...dadosFormulario, ...data } as CriarSolicitacaoFormData;
 
     try {
-      await solicitacaoService.criarSolicitacao(data);
-      reset();
+      await solicitacaoService.solicitarAdesao(payload);
+      setDadosFormulario({});
+      gestorForm.reset();
+      enderecoForm.reset();
+      restauranteForm.reset();
+      setEtapaAtual(1);
       setFeedback({
-        message: 'Solicitacao enviada com sucesso. Aguarde a analise do administrador.',
+        message:
+          'Solicitação enviada com sucesso. Aguarde a análise do administrador.',
         variant: 'success',
       });
     } catch (error) {
@@ -55,10 +106,11 @@ export function SolicitarAdesaoPage() {
               Delifit
             </Link>
             <h1 className="mt-3 text-2xl font-bold text-slate-950">
-              Solicitar adesao
+              Solicitar adesão
             </h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-              Envie os dados do restaurante para analise e liberacao no sistema.
+              Cadastre o usuário gestor, o endereço e os dados do restaurante
+              para enviar sua solicitação.
             </p>
           </div>
           <Link
@@ -69,139 +121,218 @@ export function SolicitarAdesaoPage() {
           </Link>
         </div>
 
-        <form
-          className="grid gap-6 rounded-lg border border-brand-100 bg-white p-6 shadow-soft"
-          onSubmit={handleSubmit(onSubmit)}
-        >
-          {feedback ? (
-            <Alert variant={feedback.variant}>{feedback.message}</Alert>
-          ) : null}
+        <div className="grid gap-3 rounded-lg border border-brand-100 bg-white p-4 shadow-soft sm:grid-cols-3">
+          <EtapaCard numero={1} titulo="Usuário gestor" ativa={etapaAtual === 1} />
+          <EtapaCard numero={2} titulo="Endereço" ativa={etapaAtual === 2} />
+          <EtapaCard numero={3} titulo="Restaurante" ativa={etapaAtual === 3} />
+        </div>
 
-          <fieldset className="grid gap-4">
-            <legend className="text-base font-bold text-slate-950">
-              Responsavel
-            </legend>
-            <Input
-              label="ID do gestor"
-              type="number"
-              min={1}
-              error={errors.gestor_id?.message}
-              {...register('gestor_id')}
-            />
-          </fieldset>
+        {feedback ? <Alert variant={feedback.variant}>{feedback.message}</Alert> : null}
 
-          <fieldset className="grid gap-4">
-            <legend className="text-base font-bold text-slate-950">
-              Dados do restaurante
-            </legend>
-            <div className="grid gap-4 md:grid-cols-2">
-              <Input
-                label="Nome fantasia"
-                error={errors.nome_fantasia?.message}
-                {...register('nome_fantasia')}
-              />
-              <Input
-                label="Razao social"
-                error={errors.razao_social?.message}
-                {...register('razao_social')}
-              />
-              <Input
-                label="CNPJ"
-                inputMode="numeric"
-                placeholder="Somente numeros"
-                error={errors.cnpj?.message}
-                {...register('cnpj')}
-              />
-              <Input
-                label="Telefone"
-                error={errors.telefone?.message}
-                {...register('telefone')}
-              />
+        {etapaAtual === 1 ? (
+          <form
+            className="grid gap-6 rounded-lg border border-brand-100 bg-white p-6 shadow-soft"
+            onSubmit={gestorForm.handleSubmit((data) => avancarComDados(data, 2))}
+          >
+            <fieldset className="grid gap-4">
+              <legend className="text-base font-bold text-slate-950">
+                Dados do gestor
+              </legend>
+              <div className="grid gap-4 md:grid-cols-2">
+                <Input
+                  label="E-mail"
+                  type="email"
+                  error={gestorForm.formState.errors.email?.message}
+                  {...gestorForm.register('email')}
+                />
+                <Input
+                  label="Senha"
+                  type="password"
+                  error={gestorForm.formState.errors.senha?.message}
+                  {...gestorForm.register('senha')}
+                />
+                <Input
+                  label="Nome completo"
+                  error={gestorForm.formState.errors.nome_completo?.message}
+                  {...gestorForm.register('nome_completo')}
+                />
+                <Input
+                  label="CPF"
+                  inputMode="numeric"
+                  placeholder="Somente números"
+                  error={gestorForm.formState.errors.cpf?.message}
+                  {...gestorForm.register('cpf')}
+                />
+                <Input
+                  label="Telefone"
+                  error={gestorForm.formState.errors.telefone_gestor?.message}
+                  {...gestorForm.register('telefone_gestor')}
+                />
+              </div>
+            </fieldset>
+
+            <div className="flex justify-end">
+              <Button type="submit" isLoading={gestorForm.formState.isSubmitting}>
+                Próxima etapa
+              </Button>
             </div>
-          </fieldset>
+          </form>
+        ) : null}
 
-          <fieldset className="grid gap-4">
-            <legend className="text-base font-bold text-slate-950">
-              Endereco
-            </legend>
-            <div className="grid gap-4 md:grid-cols-2">
-              <Input
-                label="CEP"
-                inputMode="numeric"
-                placeholder="Somente numeros"
-                error={errors.cep?.message}
-                {...register('cep')}
-              />
-              <Input
-                label="Logradouro"
-                error={errors.logradouro?.message}
-                {...register('logradouro')}
-              />
-              <Input
-                label="Numero"
-                error={errors.numero?.message}
-                {...register('numero')}
-              />
-              <Input
-                label="Bairro"
-                error={errors.bairro?.message}
-                {...register('bairro')}
-              />
-              <Input
-                label="Cidade"
-                error={errors.cidade?.message}
-                {...register('cidade')}
-              />
-              <Input
-                label="Estado"
-                maxLength={2}
-                placeholder="SE"
-                error={errors.estado?.message}
-                {...register('estado')}
-              />
-              <Input
-                label="Complemento"
-                error={errors.complemento?.message}
-                {...register('complemento')}
-              />
-              <Input
-                label="Referencia"
-                error={errors.referencia?.message}
-                {...register('referencia')}
-              />
+        {etapaAtual === 2 ? (
+          <form
+            className="grid gap-6 rounded-lg border border-brand-100 bg-white p-6 shadow-soft"
+            onSubmit={enderecoForm.handleSubmit((data) => avancarComDados(data, 3))}
+          >
+            <fieldset className="grid gap-4">
+              <legend className="text-base font-bold text-slate-950">
+                Endereço do restaurante
+              </legend>
+              <div className="grid gap-4 md:grid-cols-2">
+                <Input
+                  label="CEP"
+                  inputMode="numeric"
+                  placeholder="Somente números"
+                  error={enderecoForm.formState.errors.cep?.message}
+                  {...enderecoForm.register('cep')}
+                />
+                <Input
+                  label="Logradouro"
+                  error={enderecoForm.formState.errors.logradouro?.message}
+                  {...enderecoForm.register('logradouro')}
+                />
+                <Input
+                  label="Número"
+                  error={enderecoForm.formState.errors.numero?.message}
+                  {...enderecoForm.register('numero')}
+                />
+                <Input
+                  label="Bairro"
+                  error={enderecoForm.formState.errors.bairro?.message}
+                  {...enderecoForm.register('bairro')}
+                />
+                <Input
+                  label="Cidade"
+                  error={enderecoForm.formState.errors.cidade?.message}
+                  {...enderecoForm.register('cidade')}
+                />
+                <Input
+                  label="Estado"
+                  maxLength={2}
+                  placeholder="SE"
+                  error={enderecoForm.formState.errors.estado?.message}
+                  {...enderecoForm.register('estado')}
+                />
+                <Input
+                  label="Complemento"
+                  error={enderecoForm.formState.errors.complemento?.message}
+                  {...enderecoForm.register('complemento')}
+                />
+                <Input
+                  label="Referência"
+                  error={enderecoForm.formState.errors.referencia?.message}
+                  {...enderecoForm.register('referencia')}
+                />
+              </div>
+            </fieldset>
+
+            <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+              <Button type="button" variant="secondary" onClick={() => setEtapaAtual(1)}>
+                Voltar
+              </Button>
+              <Button type="submit" isLoading={enderecoForm.formState.isSubmitting}>
+                Próxima etapa
+              </Button>
             </div>
-          </fieldset>
+          </form>
+        ) : null}
 
-          <fieldset className="grid gap-4">
-            <legend className="text-base font-bold text-slate-950">
-              Informacoes adicionais
-            </legend>
-            <Textarea
-              label="Descricao"
-              error={errors.descricao?.message}
-              {...register('descricao')}
-            />
-            <Input
-              label="URL da foto"
-              type="url"
-              error={errors.foto_url?.message}
-              {...register('foto_url')}
-            />
-          </fieldset>
+        {etapaAtual === 3 ? (
+          <form
+            className="grid gap-6 rounded-lg border border-brand-100 bg-white p-6 shadow-soft"
+            onSubmit={restauranteForm.handleSubmit(finalizarCadastro)}
+          >
+            <fieldset className="grid gap-4">
+              <legend className="text-base font-bold text-slate-950">
+                Dados do restaurante
+              </legend>
+              <div className="grid gap-4 md:grid-cols-2">
+                <Input
+                  label="Nome fantasia"
+                  error={restauranteForm.formState.errors.nome_fantasia?.message}
+                  {...restauranteForm.register('nome_fantasia')}
+                />
+                <Input
+                  label="Razão social"
+                  error={restauranteForm.formState.errors.razao_social?.message}
+                  {...restauranteForm.register('razao_social')}
+                />
+                <Input
+                  label="CNPJ"
+                  inputMode="numeric"
+                  placeholder="Somente números"
+                  error={restauranteForm.formState.errors.cnpj?.message}
+                  {...restauranteForm.register('cnpj')}
+                />
+                <Input
+                  label="Telefone"
+                  error={restauranteForm.formState.errors.telefone_restaurante?.message}
+                  {...restauranteForm.register('telefone_restaurante')}
+                />
+              </div>
+            </fieldset>
 
-          <div className="flex flex-col gap-3 border-t border-slate-200 pt-5 sm:flex-row sm:justify-end">
-            <Link
-              to="/"
-              className="inline-flex min-h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
-            >
-              Cancelar
-            </Link>
-            <Button type="submit" isLoading={isSubmitting}>
-              Enviar solicitacao
-            </Button>
-          </div>
-        </form>
+            <fieldset className="grid gap-4">
+              <legend className="text-base font-bold text-slate-950">
+                Informações adicionais
+              </legend>
+              <Textarea
+                label="Descrição"
+                error={restauranteForm.formState.errors.descricao?.message}
+                {...restauranteForm.register('descricao')}
+              />
+              <Input
+                label="URL da foto"
+                type="url"
+                error={restauranteForm.formState.errors.foto_url?.message}
+                {...restauranteForm.register('foto_url')}
+              />
+            </fieldset>
+
+            <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+              <Button type="button" variant="secondary" onClick={() => setEtapaAtual(2)}>
+                Voltar
+              </Button>
+              <Button type="submit" isLoading={restauranteForm.formState.isSubmitting}>
+                Enviar solicitação
+              </Button>
+            </div>
+          </form>
+        ) : null}
       </section>
     </main>
+  );
+}
+
+type EtapaCardProps = {
+  numero: number;
+  titulo: string;
+  ativa: boolean;
+};
+
+function EtapaCard({ numero, titulo, ativa }: EtapaCardProps) {
+  return (
+    <div
+      className={`rounded-lg border px-4 py-3 ${
+        ativa
+          ? 'border-brand-300 bg-brand-50 text-brand-900'
+          : 'border-slate-200 bg-slate-50 text-slate-500'
+      }`}
+    >
+      <p className="text-xs font-semibold uppercase tracking-[0.2em]">
+        Etapa {numero}
+      </p>
+      <p className="mt-2 text-sm font-bold">{titulo}</p>
+    </div>
   );
 }
