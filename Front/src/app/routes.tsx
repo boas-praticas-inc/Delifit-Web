@@ -15,7 +15,6 @@ import { RestauranteDetalhePage } from '../features/restaurantes/pages/Restauran
 import { RestaurantesPage } from '../features/restaurantes/pages/RestaurantesPage';
 import { SolicitarAdesaoPage } from '../features/solicitacoes/pages/SolicitarAdesaoPage';
 import { SolicitacoesPage } from '../features/solicitacoes/pages/SolicitacoesPage';
-import { CriarUsuarioPage } from '../features/usuarios/pages/CriarUsuarioPage';
 import { HomePage } from '../pages/HomePage';
 import { NotFoundPage } from '../pages/NotFoundPage';
 
@@ -32,7 +31,6 @@ export function AppRoutes() {
         <Route element={<MainLayout />}>
           <Route path="/dashboard" element={<HomePage />} />
           <Route path="/solicitacoes" element={<SolicitacoesPage />} />
-          <Route path="/usuarios/novo" element={<CriarUsuarioPage />} />
           <Route path="/clientes" element={<ClientesListPage />} />
           <Route path="/clientes/novo" element={<CriarClientePage />} />
           <Route path="/clientes/:clienteId" element={<ClienteDetalhePage />} />

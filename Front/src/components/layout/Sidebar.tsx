@@ -5,7 +5,6 @@ import { cn } from '../../utils/cn';
 const links = [
   { to: '/dashboard', label: 'Início' },
   { to: '/solicitacoes', label: 'Solicitações' },
-  { to: '/usuarios/novo', label: 'Adicionar usuário' },
   { to: '/clientes', label: 'Listar clientes' },
   { to: '/restaurantes', label: 'Listar restaurantes' },
 ];
