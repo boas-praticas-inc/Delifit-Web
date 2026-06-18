@@ -33,14 +33,14 @@ export function EditarClientePage() {
   }, [clienteId]);
 
   async function onSubmit(data: AtualizarClienteFormData) {
-    if (!clienteId) {
+    if (!clienteId || !cliente) {
       return;
     }
 
     setError(null);
     try {
       await clienteService.atualizarCliente(Number(clienteId), {
-        usuario_id: data.usuario_id,
+        usuario_id: cliente.usuario_id,
         nome_completo: data.nome_completo,
         cpf: data.cpf,
         telefone: data.telefone,
@@ -63,10 +63,15 @@ export function EditarClientePage() {
   return (
     <section className="mx-auto grid max-w-2xl gap-6">
       <div>
-        <Link to={`/clientes/${cliente.id}`} className="text-sm font-semibold text-brand-700">
+        <Link
+          to={`/clientes/${cliente.id}`}
+          className="text-sm font-semibold text-brand-700"
+        >
           Voltar para detalhes
         </Link>
-        <h1 className="mt-3 text-2xl font-bold text-slate-950">Editar cliente</h1>
+        <h1 className="mt-3 text-2xl font-bold text-slate-950">
+          Editar cliente
+        </h1>
       </div>
 
       <ClienteForm
@@ -74,7 +79,6 @@ export function EditarClientePage() {
         submitLabel="Salvar alterações"
         formError={error}
         defaultValues={{
-          usuario_id: cliente.usuario_id,
           nome_completo: cliente.nome_completo,
           cpf: cliente.cpf,
           telefone: cliente.telefone,

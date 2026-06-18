@@ -77,14 +77,7 @@ export function ClienteForm(props: Props) {
             {...register('senha')}
           />
         </>
-      ) : (
-        <Input
-          label="ID do usuário"
-          inputMode="numeric"
-          error={getErrorMessage(errors.usuario_id?.message)}
-          {...register('usuario_id')}
-        />
-      )}
+      ) : null}
 
       <Input
         label="Nome completo"
@@ -138,7 +131,11 @@ export function ClienteForm(props: Props) {
         <Button type="submit" isLoading={isSubmitting}>
           {props.submitLabel}
         </Button>
-        <Button type="button" variant="secondary" onClick={() => reset(props.defaultValues)}>
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={() => reset(props.defaultValues)}
+        >
           Limpar
         </Button>
       </div>

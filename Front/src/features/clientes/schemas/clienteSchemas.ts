@@ -25,7 +25,6 @@ export const criarClienteSchema = z.object({
 });
 
 export const atualizarClienteSchema = z.object({
-  usuario_id: z.coerce.number().int().positive('Informe o ID do usuário.'),
   nome_completo: z.string().trim().min(3, 'Informe o nome completo.'),
   cpf: z.preprocess(
     (value) => (typeof value === 'string' ? somenteDigitos(value) : value),
