@@ -53,6 +53,10 @@ export function formatarTelefone(valor: string) {
   return aplicarMascara(digitos, ['(', 2, ') ', 5, '-', 4]);
 }
 
+export function formatarCep(valor: string) {
+  return aplicarMascara(valor, [5, '-', 3]);
+}
+
 export function formatarData(valor: string | null | undefined) {
   if (!valor) {
     return 'Não informado';

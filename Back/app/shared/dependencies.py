@@ -30,6 +30,9 @@ from app.application.use_cases.solicitacao_adesao_restaurante.criar_solicitacao_
 from app.application.use_cases.solicitacao_adesao_restaurante.listar_solicitacoes_adesao_restaurante import (
     ListarSolicitacoesAdesaoRestauranteUseCase,
 )
+from app.application.use_cases.solicitacao_adesao_restaurante.solicitar_nova_analise_solicitacao_adesao_restaurante import (
+    SolicitarNovaAnaliseSolicitacaoAdesaoRestauranteUseCase,
+)
 from app.application.use_cases.endereco.buscar_endereco_por_id import BuscarEnderecoPorIdUseCase
 from app.application.use_cases.endereco.criar_endereco import CriarEnderecoUseCase
 from app.application.use_cases.endereco.listar_enderecos import ListarEnderecosUseCase
@@ -166,7 +169,20 @@ def get_analisar_solicitacao_adesao_restaurante_use_case(
     session: Annotated[Session, Depends(get_session)],
 ) -> AnalisarSolicitacaoAdesaoRestauranteUseCase:
     repository = SQLAlchemySolicitacaoAdesaoRestauranteRepository(session)
-    return AnalisarSolicitacaoAdesaoRestauranteUseCase(repository=repository)
+    endereco_repository = SQLAlchemyEnderecoRepository(session)
+    restaurante_repository = SQLAlchemyRestauranteRepository(session)
+    return AnalisarSolicitacaoAdesaoRestauranteUseCase(
+        repository=repository,
+        endereco_repository=endereco_repository,
+        restaurante_repository=restaurante_repository,
+    )
+
+
+def get_solicitar_nova_analise_solicitacao_adesao_restaurante_use_case(
+    session: Annotated[Session, Depends(get_session)],
+) -> SolicitarNovaAnaliseSolicitacaoAdesaoRestauranteUseCase:
+    repository = SQLAlchemySolicitacaoAdesaoRestauranteRepository(session)
+    return SolicitarNovaAnaliseSolicitacaoAdesaoRestauranteUseCase(repository=repository)
 
 
 def get_endereco_repository(session: Session) -> SQLAlchemyEnderecoRepository:

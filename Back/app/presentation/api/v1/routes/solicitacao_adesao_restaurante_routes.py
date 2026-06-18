@@ -18,6 +18,9 @@ from app.application.use_cases.solicitacao_adesao_restaurante.criar_solicitacao_
 from app.application.use_cases.solicitacao_adesao_restaurante.listar_solicitacoes_adesao_restaurante import (
     ListarSolicitacoesAdesaoRestauranteUseCase,
 )
+from app.application.use_cases.solicitacao_adesao_restaurante.solicitar_nova_analise_solicitacao_adesao_restaurante import (
+    SolicitarNovaAnaliseSolicitacaoAdesaoRestauranteUseCase,
+)
 from app.presentation.schemas.solicitacao_adesao_restaurante_schema import (
     AprovarSolicitacaoAdesaoRestauranteRequest,
     RecusarSolicitacaoAdesaoRestauranteRequest,
@@ -29,6 +32,7 @@ from app.shared.dependencies import (
     get_buscar_solicitacao_adesao_restaurante_por_id_use_case,
     get_criar_solicitacao_adesao_restaurante_use_case,
     get_listar_solicitacoes_adesao_restaurante_use_case,
+    get_solicitar_nova_analise_solicitacao_adesao_restaurante_use_case,
 )
 
 router = APIRouter(prefix="/solicitacoes-adesao-restaurante", tags=["solicitacoes_adesao_restaurante"])
@@ -123,5 +127,17 @@ def recusar_solicitacao(
             motivo_reprovacao=payload.motivo_reprovacao,
         ),
     )
+    return SolicitacaoAdesaoRestauranteResponse.model_validate(solicitacao)
+
+
+@router.patch("/{solicitacao_id}/solicitar-nova-analise", response_model=SolicitacaoAdesaoRestauranteResponse)
+def solicitar_nova_analise(
+    solicitacao_id: int,
+    use_case: Annotated[
+        SolicitarNovaAnaliseSolicitacaoAdesaoRestauranteUseCase,
+        Depends(get_solicitar_nova_analise_solicitacao_adesao_restaurante_use_case),
+    ],
+) -> SolicitacaoAdesaoRestauranteResponse:
+    solicitacao = use_case.executar(solicitacao_id)
     return SolicitacaoAdesaoRestauranteResponse.model_validate(solicitacao)
 

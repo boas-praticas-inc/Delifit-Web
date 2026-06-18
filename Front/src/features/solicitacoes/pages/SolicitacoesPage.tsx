@@ -1,20 +1,74 @@
 import { useEffect, useState } from 'react';
 
+import { Alert } from '../../../components/common/Alert';
 import { Button } from '../../../components/common/Button';
+import { DataTable } from '../../../components/common/DataTable';
 import { Loading } from '../../../components/common/Loading';
+import { Textarea } from '../../../components/common/Textarea';
 import { getApiErrorMessage } from '../../../lib/api';
 import { formatarTelefone } from '../../../utils/masks';
+import { adminService } from '../../admins/services/adminService';
+import { getUsuarioLogado } from '../../auth/utils/session';
 import { solicitacaoService } from '../services/solicitacaoService';
 import type { Solicitacao } from '../types/solicitacaoTypes';
 
+const statusMap: Record<
+  Solicitacao['status_solicitacao'],
+  { label: string; className: string; order: number }
+> = {
+  EM_ANALISE: {
+    label: 'Em análise',
+    className: 'border-amber-200 bg-amber-50 text-amber-700',
+    order: 0,
+  },
+  APROVADO: {
+    label: 'Aprovado',
+    className: 'border-emerald-200 bg-emerald-50 text-emerald-700',
+    order: 1,
+  },
+  REPROVADO: {
+    label: 'Reprovado',
+    className: 'border-red-200 bg-red-50 text-red-700',
+    order: 2,
+  },
+};
+
 export function SolicitacoesPage() {
   const [solicitacoes, setSolicitacoes] = useState<Solicitacao[]>([]);
+  const [adminId, setAdminId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [motivoRecusa, setMotivoRecusa] = useState('');
+  const [solicitacaoSelecionada, setSolicitacaoSelecionada] =
+    useState<Solicitacao | null>(null);
+  const [isRecusando, setIsRecusando] = useState(false);
 
   async function carregarSolicitacoes() {
     try {
-      const data = await solicitacaoService.listarSolicitacoes();
+      setError(null);
+
+      const usuario = getUsuarioLogado();
+      if (!usuario || usuario.tipo_usuario !== 'ADMIN') {
+        setError('Faça login como administrador para analisar as solicitações.');
+        return;
+      }
+
+      const [admins, data] = await Promise.all([
+        adminService.listarAdmins(),
+        solicitacaoService.listarSolicitacoes(),
+      ]);
+
+      let admin = admins.find((item) => item.usuario_id === usuario.id);
+
+      if (!admin) {
+        admin = await adminService.criarAdmin({
+          usuario_id: usuario.id,
+          nome_completo: usuario.email,
+          cargo: null,
+        });
+      }
+
+      setAdminId(admin.id);
       setSolicitacoes(data);
     } catch (requestError) {
       setError(getApiErrorMessage(requestError));
@@ -28,39 +82,55 @@ export function SolicitacoesPage() {
   }, []);
 
   async function handleAprovar(solicitacaoId: number) {
-    const adminId = window.prompt('Informe o ID do admin responsável pela aprovação:');
     if (!adminId) {
+      setError('Administrador logado não encontrado.');
       return;
     }
 
     try {
-      await solicitacaoService.aprovarSolicitacao(solicitacaoId, Number(adminId));
+      await solicitacaoService.aprovarSolicitacao(solicitacaoId, adminId);
       await carregarSolicitacoes();
     } catch (requestError) {
       setError(getApiErrorMessage(requestError));
     }
   }
 
-  async function handleRecusar(solicitacaoId: number) {
-    const adminId = window.prompt('Informe o ID do admin responsável pela recusa:');
-    if (!adminId) {
+  function abrirModalRecusa(solicitacao: Solicitacao) {
+    setError(null);
+    setMotivoRecusa('');
+    setSolicitacaoSelecionada(solicitacao);
+  }
+
+  function fecharModalRecusa() {
+    setMotivoRecusa('');
+    setSolicitacaoSelecionada(null);
+    setIsRecusando(false);
+  }
+
+  async function confirmarRecusa() {
+    if (!adminId || !solicitacaoSelecionada) {
+      setError('Administrador logado não encontrado.');
       return;
     }
 
-    const motivo = window.prompt('Informe o motivo da recusa:');
+    const motivo = motivoRecusa.trim();
     if (!motivo) {
+      setError('Informe um motivo válido para recusar a solicitação.');
       return;
     }
 
     try {
+      setIsRecusando(true);
       await solicitacaoService.recusarSolicitacao(
-        solicitacaoId,
-        Number(adminId),
+        solicitacaoSelecionada.id,
+        adminId,
         motivo,
       );
+      fecharModalRecusa();
       await carregarSolicitacoes();
     } catch (requestError) {
       setError(getApiErrorMessage(requestError));
+      setIsRecusando(false);
     }
   }
 
@@ -75,75 +145,128 @@ export function SolicitacoesPage() {
         </h1>
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-slate-200 bg-white">
-        {isLoading ? (
-          <div className="p-6">
-            <Loading />
+      {isLoading ? <Loading /> : null}
+      {error ? <Alert variant="error">{error}</Alert> : null}
+
+      {!isLoading && !error ? (
+        <DataTable
+          items={solicitacoes}
+          emptyMessage="Nenhuma solicitação encontrada."
+          initialSortBy="status"
+          initialSortDirection="asc"
+          searchPlaceholder="Buscar por restaurante, cidade ou status"
+          columns={[
+            {
+              id: 'restaurante',
+              header: 'Restaurante',
+              searchValue: (solicitacao) =>
+                `${solicitacao.nome_fantasia} ${solicitacao.razao_social} ${solicitacao.cidade} ${solicitacao.status_solicitacao}`,
+              sortValue: (solicitacao) => solicitacao.nome_fantasia,
+              render: (solicitacao) => (
+                <div>
+                  <div className="font-medium text-slate-950">
+                    {solicitacao.nome_fantasia}
+                  </div>
+                  <div className="text-xs text-slate-500">
+                    {solicitacao.razao_social}
+                  </div>
+                </div>
+              ),
+            },
+            {
+              id: 'contato',
+              header: 'Contato',
+              searchValue: (solicitacao) => solicitacao.telefone,
+              sortValue: (solicitacao) => solicitacao.telefone,
+              render: (solicitacao) => formatarTelefone(solicitacao.telefone),
+            },
+            {
+              id: 'local',
+              header: 'Local',
+              searchValue: (solicitacao) =>
+                `${solicitacao.cidade} ${solicitacao.estado}`,
+              sortValue: (solicitacao) =>
+                `${solicitacao.estado}-${solicitacao.cidade}`,
+              render: (solicitacao) =>
+                `${solicitacao.cidade}/${solicitacao.estado}`,
+            },
+            {
+              id: 'status',
+              header: 'Status',
+              searchValue: (solicitacao) => solicitacao.status_solicitacao,
+              sortValue: (solicitacao) =>
+                statusMap[solicitacao.status_solicitacao].order,
+              render: (solicitacao) => {
+                const status = statusMap[solicitacao.status_solicitacao];
+
+                return (
+                  <span
+                    className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${status.className}`}
+                  >
+                    {status.label}
+                  </span>
+                );
+              },
+            },
+            {
+              header: 'Ações',
+              render: (solicitacao) => (
+                <div className="flex gap-2">
+                  <Button
+                    variant="secondary"
+                    disabled={solicitacao.status_solicitacao !== 'EM_ANALISE'}
+                    onClick={() => void handleAprovar(solicitacao.id)}
+                  >
+                    Aprovar
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    disabled={solicitacao.status_solicitacao !== 'EM_ANALISE'}
+                    onClick={() => abrirModalRecusa(solicitacao)}
+                  >
+                    Recusar
+                  </Button>
+                </div>
+              ),
+              className: 'w-52',
+            },
+          ]}
+        />
+      ) : null}
+
+      {solicitacaoSelecionada ? (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/40 px-4">
+          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
+            <h2 className="text-xl font-bold text-slate-950">
+              Recusar solicitação
+            </h2>
+            <p className="mt-2 text-sm text-slate-600">
+              Informe o motivo da recusa para o restaurante{' '}
+              <span className="font-semibold text-slate-900">
+                {solicitacaoSelecionada.nome_fantasia}
+              </span>
+              .
+            </p>
+
+            <div className="mt-5">
+              <Textarea
+                label="Motivo da recusa"
+                value={motivoRecusa}
+                onChange={(event) => setMotivoRecusa(event.target.value)}
+              />
+            </div>
+
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
+              <Button variant="secondary" onClick={fecharModalRecusa}>
+                Cancelar
+              </Button>
+              <Button isLoading={isRecusando} onClick={() => void confirmarRecusa()}>
+                Confirmar recusa
+              </Button>
+            </div>
           </div>
-        ) : null}
-        {error ? <div className="p-6 text-sm text-red-700">{error}</div> : null}
-        {!isLoading && !error && solicitacoes.length === 0 ? (
-          <div className="p-6 text-sm text-slate-600">
-            Nenhuma solicitação encontrada.
-          </div>
-        ) : null}
-        {!isLoading && !error && solicitacoes.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[1120px] text-left text-sm">
-              <thead className="bg-slate-50 text-xs uppercase text-slate-500">
-                <tr>
-                  <th className="px-4 py-3">Restaurante</th>
-                  <th className="px-4 py-3">Gestor</th>
-                  <th className="px-4 py-3">Telefone</th>
-                  <th className="px-4 py-3">Cidade</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3">Ações</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {solicitacoes.map((solicitacao) => (
-                  <tr key={solicitacao.id}>
-                    <td className="px-4 py-3">
-                      <div className="font-medium text-slate-950">
-                        {solicitacao.nome_fantasia}
-                      </div>
-                      <div className="text-xs text-slate-500">
-                        {solicitacao.razao_social}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">{solicitacao.gestor_id}</td>
-                    <td className="px-4 py-3">
-                      {formatarTelefone(solicitacao.telefone)}
-                    </td>
-                    <td className="px-4 py-3">
-                      {solicitacao.cidade}/{solicitacao.estado}
-                    </td>
-                    <td className="px-4 py-3">{solicitacao.status_solicitacao}</td>
-                    <td className="px-4 py-3">
-                      <div className="flex gap-2">
-                        <Button
-                          variant="secondary"
-                          disabled={solicitacao.status_solicitacao !== 'EM_ANALISE'}
-                          onClick={() => void handleAprovar(solicitacao.id)}
-                        >
-                          Aprovar
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          disabled={solicitacao.status_solicitacao !== 'EM_ANALISE'}
-                          onClick={() => void handleRecusar(solicitacao.id)}
-                        >
-                          Recusar
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : null}
-      </div>
+        </div>
+      ) : null}
     </section>
   );
 }

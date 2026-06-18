@@ -29,9 +29,7 @@ type Props =
       onSubmit: (data: AtualizarClienteFormData) => Promise<void>;
     };
 
-type ClienteFormValues = Partial<
-  CriarClienteFormData & AtualizarClienteFormData
->;
+type ClienteFormValues = Partial<CriarClienteFormData & AtualizarClienteFormData>;
 
 export function ClienteForm(props: Props) {
   const schema =
@@ -81,7 +79,7 @@ export function ClienteForm(props: Props) {
         </>
       ) : (
         <Input
-          label="ID do Usuário"
+          label="ID do usuário"
           inputMode="numeric"
           error={getErrorMessage(errors.usuario_id?.message)}
           {...register('usuario_id')}

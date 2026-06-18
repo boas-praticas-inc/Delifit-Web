@@ -39,3 +39,25 @@ export interface CriarSolicitacaoPayload {
   descricao?: string | null;
   foto_url?: string | null;
 }
+
+export interface SolicitarAdesaoPayload {
+  email: string;
+  senha: string;
+  nome_completo: string;
+  cpf: string;
+  telefone_gestor: string;
+  nome_fantasia: string;
+  razao_social: string;
+  cnpj: string;
+  telefone_restaurante: string;
+  cep: string;
+  logradouro: string;
+  numero: string;
+  bairro: string;
+  cidade: string;
+  estado: string;
+  complemento?: string | null;
+  referencia?: string | null;
+  descricao?: string | null;
+  foto_url?: string | null;
+}
