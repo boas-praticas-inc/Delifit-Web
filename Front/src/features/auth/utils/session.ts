@@ -31,3 +31,7 @@ export function isAdminPrincipal(usuario: Usuario | null) {
     usuario.email.toLowerCase() === ADMIN_PRINCIPAL_EMAIL
   );
 }
+
+export function isGestor(usuario: Usuario | null) {
+  return usuario?.tipo_usuario === 'GESTOR';
+}
