@@ -4,6 +4,12 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Alert } from '../../../components/common/Alert';
 import { Loading } from '../../../components/common/Loading';
 import { getApiErrorMessage } from '../../../lib/api';
+import { enderecoService } from '../../enderecos/services/enderecoService';
+import type { Endereco } from '../../enderecos/types/enderecoTypes';
+import { gestorService } from '../../gestores/services/gestorService';
+import type { Gestor } from '../../gestores/types/gestorTypes';
+import { solicitacaoService } from '../../solicitacoes/services/solicitacaoService';
+import type { Solicitacao } from '../../solicitacoes/types/solicitacaoTypes';
 import { RestauranteForm } from '../components/RestauranteForm';
 import type { AtualizarRestauranteFormData } from '../schemas/restauranteSchemas';
 import { restauranteService } from '../services/restauranteService';
@@ -13,6 +19,9 @@ export function EditarRestaurantePage() {
   const { restauranteId } = useParams();
   const navigate = useNavigate();
   const [restaurante, setRestaurante] = useState<Restaurante | null>(null);
+  const [gestor, setGestor] = useState<Gestor | null>(null);
+  const [endereco, setEndereco] = useState<Endereco | null>(null);
+  const [solicitacao, setSolicitacao] = useState<Solicitacao | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,6 +36,22 @@ export function EditarRestaurantePage() {
           Number(restauranteId),
         );
         setRestaurante(data);
+
+        const [gestores, enderecos, solicitacoes] = await Promise.all([
+          gestorService.listarGestores(),
+          enderecoService.listarEnderecos(),
+          solicitacaoService.listarSolicitacoes(),
+        ]);
+
+        setGestor(gestores.find((item) => item.id === data.gestor_id) ?? null);
+        setEndereco(
+          enderecos.find((item) => item.id === data.endereco_id) ?? null,
+        );
+        setSolicitacao(
+          solicitacoes.find(
+            (item) => item.id === data.solicitacao_adesao_id,
+          ) ?? null,
+        );
       } catch (requestError) {
         setError(getApiErrorMessage(requestError));
       } finally {
@@ -38,7 +63,7 @@ export function EditarRestaurantePage() {
   }, [restauranteId]);
 
   async function onSubmit(data: AtualizarRestauranteFormData) {
-    if (!restauranteId) {
+    if (!restauranteId || !restaurante) {
       return;
     }
 
@@ -46,7 +71,13 @@ export function EditarRestaurantePage() {
 
     try {
       await restauranteService.atualizarRestaurante(Number(restauranteId), {
-        ...data,
+        gestor_id: restaurante.gestor_id,
+        endereco_id: restaurante.endereco_id,
+        solicitacao_adesao_id: restaurante.solicitacao_adesao_id,
+        nome_fantasia: data.nome_fantasia,
+        razao_social: data.razao_social,
+        cnpj: data.cnpj,
+        telefone: data.telefone,
         descricao: data.descricao || null,
         foto_url: data.foto_url || null,
       });
@@ -67,7 +98,10 @@ export function EditarRestaurantePage() {
   if (!restaurante) {
     return (
       <section className="grid gap-4">
-        <Link to="/restaurantes" className="text-sm font-semibold text-brand-700">
+        <Link
+          to="/restaurantes"
+          className="text-sm font-semibold text-brand-700"
+        >
           Voltar para restaurantes
         </Link>
         {error ? <Alert variant="error">{error}</Alert> : null}
@@ -78,11 +112,14 @@ export function EditarRestaurantePage() {
   return (
     <section className="mx-auto grid max-w-2xl gap-6">
       <div>
-        <Link to={`/restaurantes/${restaurante.id}`} className="text-sm font-semibold text-brand-700">
+        <Link
+          to={`/restaurantes/${restaurante.id}`}
+          className="text-sm font-semibold text-brand-700"
+        >
           Voltar para detalhes
         </Link>
         <h1 className="mt-3 text-2xl font-bold text-slate-950">
-          Editar Restaurante
+          Editar restaurante
         </h1>
       </div>
 
@@ -91,15 +128,21 @@ export function EditarRestaurantePage() {
         submitLabel="Salvar alterações"
         formError={error}
         defaultValues={{
-          gestor_id: restaurante.gestor_id,
-          endereco_id: restaurante.endereco_id,
-          solicitacao_adesao_id: restaurante.solicitacao_adesao_id ?? null,
           nome_fantasia: restaurante.nome_fantasia,
           razao_social: restaurante.razao_social,
           cnpj: restaurante.cnpj,
           telefone: restaurante.telefone,
           descricao: restaurante.descricao ?? '',
           foto_url: restaurante.foto_url ?? '',
+        }}
+        relationLabels={{
+          gestor: gestor?.nome_completo ?? 'Gestor não encontrado',
+          endereco: endereco
+            ? `${endereco.logradouro}, ${endereco.numero} - ${endereco.bairro}, ${endereco.cidade}/${endereco.estado}`
+            : 'Endereço não encontrado',
+          solicitacao: solicitacao
+            ? `${solicitacao.nome_fantasia} - ${solicitacao.status_solicitacao}`
+            : 'Sem vinculação',
         }}
         onSubmit={onSubmit}
       />

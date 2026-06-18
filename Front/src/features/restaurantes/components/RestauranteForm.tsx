@@ -38,6 +38,11 @@ type Props =
       submitLabel: string;
       onSubmit: (data: AtualizarRestauranteFormData) => Promise<void>;
       onReset?: () => void;
+      relationLabels: {
+        gestor: string;
+        endereco: string;
+        solicitacao: string;
+      };
     };
 
 type RestauranteFormValues = Partial<
@@ -48,7 +53,7 @@ export function RestauranteForm(props: Props) {
   const [gestores, setGestores] = useState<Gestor[]>([]);
   const [enderecos, setEnderecos] = useState<Endereco[]>([]);
   const [solicitacoes, setSolicitacoes] = useState<Solicitacao[]>([]);
-  const [isLoadingOptions, setIsLoadingOptions] = useState(true);
+  const [isLoadingOptions, setIsLoadingOptions] = useState(props.mode === 'create');
   const [optionsError, setOptionsError] = useState<string | null>(null);
 
   const schema =
@@ -72,6 +77,10 @@ export function RestauranteForm(props: Props) {
   }, [props.defaultValues, reset]);
 
   useEffect(() => {
+    if (props.mode !== 'create') {
+      return;
+    }
+
     async function carregarOpcoes() {
       try {
         const [gestoresData, enderecosData, solicitacoesData] =
@@ -92,7 +101,7 @@ export function RestauranteForm(props: Props) {
     }
 
     void carregarOpcoes();
-  }, []);
+  }, [props.mode]);
 
   function getErrorMessage(value: unknown) {
     return typeof value === 'string' ? value : undefined;
@@ -107,47 +116,69 @@ export function RestauranteForm(props: Props) {
           : props.onSubmit(data as AtualizarRestauranteFormData),
       )}
     >
-      <Select
-        label="Gestor"
-        disabled={isLoadingOptions}
-        error={getErrorMessage(errors.gestor_id?.message)}
-        {...register('gestor_id')}
-      >
-        <option value="">Selecione um gestor</option>
-        {gestores.map((gestor) => (
-          <option key={gestor.id} value={gestor.id}>
-            {gestor.nome_completo} - ID {gestor.id}
-          </option>
-        ))}
-      </Select>
+      {props.mode === 'create' ? (
+        <>
+          <Select
+            label="Gestor"
+            disabled={isLoadingOptions}
+            error={getErrorMessage(errors.gestor_id?.message)}
+            {...register('gestor_id')}
+          >
+            <option value="">Selecione um gestor</option>
+            {gestores.map((gestor) => (
+              <option key={gestor.id} value={gestor.id}>
+                {gestor.nome_completo}
+              </option>
+            ))}
+          </Select>
 
-      <Select
-        label="Endereço"
-        disabled={isLoadingOptions}
-        error={getErrorMessage(errors.endereco_id?.message)}
-        {...register('endereco_id')}
-      >
-        <option value="">Selecione um endereço</option>
-        {enderecos.map((endereco) => (
-          <option key={endereco.id} value={endereco.id}>
-            {endereco.logradouro}, {endereco.numero} - {endereco.bairro}
-          </option>
-        ))}
-      </Select>
+          <Select
+            label="Endereço"
+            disabled={isLoadingOptions}
+            error={getErrorMessage(errors.endereco_id?.message)}
+            {...register('endereco_id')}
+          >
+            <option value="">Selecione um endereço</option>
+            {enderecos.map((endereco) => (
+              <option key={endereco.id} value={endereco.id}>
+                {endereco.logradouro}, {endereco.numero} - {endereco.bairro}
+              </option>
+            ))}
+          </Select>
 
-      <Select
-        label="Solicitação de adesão"
-        disabled={isLoadingOptions}
-        error={getErrorMessage(errors.solicitacao_adesao_id?.message)}
-        {...register('solicitacao_adesao_id')}
-      >
-        <option value="">Sem vinculação</option>
-        {solicitacoes.map((solicitacao) => (
-          <option key={solicitacao.id} value={solicitacao.id}>
-            {solicitacao.nome_fantasia} - {solicitacao.status_solicitacao}
-          </option>
-        ))}
-      </Select>
+          <Select
+            label="Solicitação de adesão"
+            disabled={isLoadingOptions}
+            error={getErrorMessage(errors.solicitacao_adesao_id?.message)}
+            {...register('solicitacao_adesao_id')}
+          >
+            <option value="">Sem vinculação</option>
+            {solicitacoes.map((solicitacao) => (
+              <option key={solicitacao.id} value={solicitacao.id}>
+                {solicitacao.nome_fantasia} - {solicitacao.status_solicitacao}
+              </option>
+            ))}
+          </Select>
+        </>
+      ) : (
+        <div className="grid gap-4 rounded-md border border-slate-200 bg-slate-50 p-4">
+          <Input
+            label="Gestor vinculado"
+            value={props.relationLabels.gestor}
+            readOnly
+          />
+          <Input
+            label="Endereço vinculado"
+            value={props.relationLabels.endereco}
+            readOnly
+          />
+          <Input
+            label="Solicitação vinculada"
+            value={props.relationLabels.solicitacao}
+            readOnly
+          />
+        </div>
+      )}
 
       {optionsError ? <Alert variant="error">{optionsError}</Alert> : null}
 
