@@ -11,7 +11,11 @@ export interface ItemCardapio {
   nome: string;
   descricao: string | null;
   preco: number;
-  tamanho: TamanhoItem | null;
+  carboidratos: number;
+  gorduras: number;
+  proteina: number;
+  caloria: number;
+  tamanho: TamanhoItem;
   status_item: StatusItemCardapio;
   foto_url: string | null;
   criado_em: string;
@@ -23,7 +27,11 @@ export interface CriarItemCardapioPayload {
   nome: string;
   descricao: string | null;
   preco: number;
-  tamanho: TamanhoItem | null;
+  carboidratos: number;
+  gorduras: number;
+  proteina: number;
+  caloria: number;
+  tamanho: TamanhoItem;
   status_item: StatusItemCardapio;
   foto_url: string | null;
 }

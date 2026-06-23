@@ -9,8 +9,12 @@ class ItemCardapio:
     restaurante_id: int
     nome: str
     preco: Decimal
+    carboidratos: Decimal
+    gorduras: Decimal
+    proteina: Decimal
+    caloria: Decimal
     descricao: str | None = None
-    tamanho: str | None = None
+    tamanho: str = "MEDIO"
     status_item: str = "ATIVO"
     foto_url: str | None = None
     criado_em: datetime | None = None

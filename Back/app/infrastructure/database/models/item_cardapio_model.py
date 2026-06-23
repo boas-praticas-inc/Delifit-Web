@@ -38,7 +38,11 @@ class ItemCardapioModel(Base):
     nome: Mapped[str] = mapped_column(String(150), nullable=False)
     descricao: Mapped[str | None] = mapped_column(Text)
     preco: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
-    tamanho: Mapped[str | None] = mapped_column(tamanho_item_pg_enum)
+    carboidratos: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
+    gorduras: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
+    proteina: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
+    caloria: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
+    tamanho: Mapped[str] = mapped_column(tamanho_item_pg_enum, nullable=False)
     status_item: Mapped[str] = mapped_column(
         status_item_pg_enum,
         nullable=False,

@@ -8,7 +8,11 @@ class ItemCardapioCreate(BaseModel):
     nome: str = Field(min_length=1, max_length=150)
     descricao: str | None = None
     preco: float = Field(ge=0)
-    tamanho: str | None = Field(default=None, pattern=r"^(PEQUENO|MEDIO|GRANDE)$")
+    carboidratos: float = Field(ge=0)
+    gorduras: float = Field(ge=0)
+    proteina: float = Field(ge=0)
+    caloria: float = Field(ge=0)
+    tamanho: str = Field(pattern=r"^(PEQUENO|MEDIO|GRANDE)$")
     status_item: str = Field(pattern=r"^(ATIVO|INDISPONIVEL|INATIVO|ARQUIVADO)$")
     foto_url: str | None = None
 
@@ -18,7 +22,11 @@ class ItemCardapioUpdate(BaseModel):
     nome: str = Field(min_length=1, max_length=150)
     descricao: str | None = None
     preco: float = Field(ge=0)
-    tamanho: str | None = Field(default=None, pattern=r"^(PEQUENO|MEDIO|GRANDE)$")
+    carboidratos: float = Field(ge=0)
+    gorduras: float = Field(ge=0)
+    proteina: float = Field(ge=0)
+    caloria: float = Field(ge=0)
+    tamanho: str = Field(pattern=r"^(PEQUENO|MEDIO|GRANDE)$")
     status_item: str = Field(pattern=r"^(ATIVO|INDISPONIVEL|INATIVO|ARQUIVADO)$")
     foto_url: str | None = None
 
@@ -29,7 +37,11 @@ class ItemCardapioResponse(BaseModel):
     nome: str
     descricao: str | None
     preco: float
-    tamanho: str | None
+    carboidratos: float
+    gorduras: float
+    proteina: float
+    caloria: float
+    tamanho: str
     status_item: str
     foto_url: str | None
     criado_em: datetime

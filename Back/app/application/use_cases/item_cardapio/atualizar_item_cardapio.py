@@ -16,6 +16,10 @@ class AtualizarItemCardapioUseCase:
         item.nome = dto.nome
         item.descricao = dto.descricao
         item.preco = dto.preco
+        item.carboidratos = dto.carboidratos
+        item.gorduras = dto.gorduras
+        item.proteina = dto.proteina
+        item.caloria = dto.caloria
         item.tamanho = dto.tamanho
         item.status_item = dto.status_item
         item.foto_url = dto.foto_url

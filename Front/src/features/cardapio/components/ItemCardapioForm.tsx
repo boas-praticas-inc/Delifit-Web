@@ -65,12 +65,43 @@ export function ItemCardapioForm({
         error={errors.preco?.message}
         {...register('preco')}
       />
+      <Input
+        label="Carboidratos (g)"
+        type="number"
+        min="0"
+        step="0.01"
+        error={errors.carboidratos?.message}
+        {...register('carboidratos')}
+      />
+      <Input
+        label="Gorduras (g)"
+        type="number"
+        min="0"
+        step="0.01"
+        error={errors.gorduras?.message}
+        {...register('gorduras')}
+      />
+      <Input
+        label="Proteína (g)"
+        type="number"
+        min="0"
+        step="0.01"
+        error={errors.proteina?.message}
+        {...register('proteina')}
+      />
+      <Input
+        label="Caloria"
+        type="number"
+        min="0"
+        step="0.01"
+        error={errors.caloria?.message}
+        {...register('caloria')}
+      />
       <Select
         label="Tamanho"
         error={errors.tamanho?.message}
         {...register('tamanho')}
       >
-        <option value="">Sem tamanho</option>
         <option value="PEQUENO">Pequeno</option>
         <option value="MEDIO">Médio</option>
         <option value="GRANDE">Grande</option>

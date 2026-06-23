@@ -24,6 +24,10 @@ class FakeItemCardapioRepository(ItemCardapioRepository):
             nome=item.nome,
             descricao=item.descricao,
             preco=item.preco,
+            carboidratos=item.carboidratos,
+            gorduras=item.gorduras,
+            proteina=item.proteina,
+            caloria=item.caloria,
             tamanho=item.tamanho,
             status_item=item.status_item,
             foto_url=item.foto_url,
@@ -58,6 +62,10 @@ def test_criar_item_cardapio_persiste_item() -> None:
             nome="Marmita Fit",
             descricao="Frango com legumes",
             preco=Decimal("29.90"),
+            carboidratos=Decimal("18.50"),
+            gorduras=Decimal("7.20"),
+            proteina=Decimal("25.00"),
+            caloria=Decimal("310.00"),
             tamanho="MEDIO",
             status_item="ATIVO",
             foto_url=None,
@@ -67,6 +75,7 @@ def test_criar_item_cardapio_persiste_item() -> None:
     assert item.id == 1
     assert item.restaurante_id == 3
     assert item.preco == Decimal("29.90")
+    assert item.proteina == Decimal("25.00")
 
 
 def test_atualizar_item_cardapio_lanca_quando_nao_encontra() -> None:
@@ -81,7 +90,11 @@ def test_atualizar_item_cardapio_lanca_quando_nao_encontra() -> None:
                 nome="Novo item",
                 descricao=None,
                 preco=Decimal("10.00"),
-                tamanho=None,
+                carboidratos=Decimal("10.00"),
+                gorduras=Decimal("2.00"),
+                proteina=Decimal("5.00"),
+                caloria=Decimal("120.00"),
+                tamanho="PEQUENO",
                 status_item="ATIVO",
                 foto_url=None,
             ),
@@ -99,7 +112,11 @@ def test_listar_itens_cardapio_filtra_por_restaurante() -> None:
             nome="Item A",
             descricao=None,
             preco=Decimal("11.50"),
-            tamanho=None,
+            carboidratos=Decimal("14.00"),
+            gorduras=Decimal("3.00"),
+            proteina=Decimal("8.00"),
+            caloria=Decimal("160.00"),
+            tamanho="MEDIO",
             status_item="ATIVO",
             foto_url=None,
         )
@@ -110,7 +127,11 @@ def test_listar_itens_cardapio_filtra_por_restaurante() -> None:
             nome="Item B",
             descricao=None,
             preco=Decimal("13.50"),
-            tamanho=None,
+            carboidratos=Decimal("20.00"),
+            gorduras=Decimal("4.00"),
+            proteina=Decimal("10.00"),
+            caloria=Decimal("210.00"),
+            tamanho="GRANDE",
             status_item="ATIVO",
             foto_url=None,
         )

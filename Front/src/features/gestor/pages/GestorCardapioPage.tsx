@@ -80,6 +80,10 @@ export function GestorCardapioPage() {
         nome: data.nome,
         descricao: data.descricao || null,
         preco: Number(data.preco),
+        carboidratos: Number(data.carboidratos),
+        gorduras: Number(data.gorduras),
+        proteina: Number(data.proteina),
+        caloria: Number(data.caloria),
         tamanho: data.tamanho,
         status_item: data.status_item,
         foto_url: data.foto_url || null,
@@ -163,6 +167,10 @@ export function GestorCardapioPage() {
                     nome: itemEmEdicao.nome,
                     descricao: itemEmEdicao.descricao ?? '',
                     preco: itemEmEdicao.preco,
+                    carboidratos: itemEmEdicao.carboidratos,
+                    gorduras: itemEmEdicao.gorduras,
+                    proteina: itemEmEdicao.proteina,
+                    caloria: itemEmEdicao.caloria,
                     tamanho: itemEmEdicao.tamanho,
                     status_item: itemEmEdicao.status_item,
                     foto_url: itemEmEdicao.foto_url ?? '',
@@ -171,7 +179,11 @@ export function GestorCardapioPage() {
                     nome: '',
                     descricao: '',
                     preco: 0,
-                    tamanho: null,
+                    carboidratos: 0,
+                    gorduras: 0,
+                    proteina: 0,
+                    caloria: 0,
+                    tamanho: 'MEDIO',
                     status_item: 'ATIVO',
                     foto_url: '',
                   }
@@ -217,6 +229,9 @@ export function GestorCardapioPage() {
                           style: 'currency',
                           currency: 'BRL',
                         }).format(item.preco)}
+                      </p>
+                      <p className="mt-3 text-sm text-slate-600">
+                        {`${item.caloria} cal • ${item.carboidratos}g carb • ${item.gorduras}g gord • ${item.proteina}g prot`}
                       </p>
                       <p className="mt-3 text-sm leading-6 text-slate-600">
                         {item.descricao ?? 'Sem descrição informada.'}

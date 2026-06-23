@@ -17,6 +17,10 @@ class SQLAlchemyItemCardapioRepository(ItemCardapioRepository):
             nome=item.nome,
             descricao=item.descricao,
             preco=item.preco,
+            carboidratos=item.carboidratos,
+            gorduras=item.gorduras,
+            proteina=item.proteina,
+            caloria=item.caloria,
             tamanho=item.tamanho,
             status_item=item.status_item,
             foto_url=item.foto_url,
@@ -46,6 +50,10 @@ class SQLAlchemyItemCardapioRepository(ItemCardapioRepository):
         model.nome = item.nome
         model.descricao = item.descricao
         model.preco = item.preco
+        model.carboidratos = item.carboidratos
+        model.gorduras = item.gorduras
+        model.proteina = item.proteina
+        model.caloria = item.caloria
         model.tamanho = item.tamanho
         model.status_item = item.status_item
         model.foto_url = item.foto_url
@@ -69,6 +77,10 @@ class SQLAlchemyItemCardapioRepository(ItemCardapioRepository):
             nome=model.nome,
             descricao=model.descricao,
             preco=model.preco,
+            carboidratos=model.carboidratos,
+            gorduras=model.gorduras,
+            proteina=model.proteina,
+            caloria=model.caloria,
             tamanho=model.tamanho,
             status_item=model.status_item,
             foto_url=model.foto_url,
