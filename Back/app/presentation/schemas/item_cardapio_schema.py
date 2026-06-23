@@ -5,6 +5,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 class ItemCardapioCreate(BaseModel):
     restaurante_id: int = Field(gt=0)
+    categoria_id: int = Field(gt=0)
     nome: str = Field(min_length=1, max_length=150)
     descricao: str | None = None
     preco: float = Field(ge=0)
@@ -19,6 +20,7 @@ class ItemCardapioCreate(BaseModel):
 
 class ItemCardapioUpdate(BaseModel):
     restaurante_id: int = Field(gt=0)
+    categoria_id: int = Field(gt=0)
     nome: str = Field(min_length=1, max_length=150)
     descricao: str | None = None
     preco: float = Field(ge=0)
@@ -34,6 +36,7 @@ class ItemCardapioUpdate(BaseModel):
 class ItemCardapioResponse(BaseModel):
     id: int
     restaurante_id: int
+    categoria_id: int
     nome: str
     descricao: str | None
     preco: float

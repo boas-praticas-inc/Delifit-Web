@@ -14,6 +14,7 @@ class SQLAlchemyItemCardapioRepository(ItemCardapioRepository):
     def criar(self, item: ItemCardapio) -> ItemCardapio:
         model = ItemCardapioModel(
             restaurante_id=item.restaurante_id,
+            categoria_id=item.categoria_id,
             nome=item.nome,
             descricao=item.descricao,
             preco=item.preco,
@@ -47,6 +48,7 @@ class SQLAlchemyItemCardapioRepository(ItemCardapioRepository):
             raise ValueError("Item do cardapio nao encontrado.")
 
         model.restaurante_id = item.restaurante_id
+        model.categoria_id = item.categoria_id
         model.nome = item.nome
         model.descricao = item.descricao
         model.preco = item.preco
@@ -74,6 +76,7 @@ class SQLAlchemyItemCardapioRepository(ItemCardapioRepository):
         return ItemCardapio(
             id=model.id,
             restaurante_id=model.restaurante_id,
+            categoria_id=model.categoria_id,
             nome=model.nome,
             descricao=model.descricao,
             preco=model.preco,

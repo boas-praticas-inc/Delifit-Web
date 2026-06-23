@@ -7,6 +7,7 @@ from decimal import Decimal
 class ItemCardapio:
     id: int | None
     restaurante_id: int
+    categoria_id: int
     nome: str
     preco: Decimal
     carboidratos: Decimal

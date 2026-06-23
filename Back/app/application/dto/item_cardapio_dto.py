@@ -5,6 +5,7 @@ from decimal import Decimal
 @dataclass(slots=True)
 class CriarItemCardapioDTO:
     restaurante_id: int
+    categoria_id: int
     nome: str
     preco: Decimal
     carboidratos: Decimal
@@ -20,6 +21,7 @@ class CriarItemCardapioDTO:
 @dataclass(slots=True)
 class AtualizarItemCardapioDTO:
     restaurante_id: int
+    categoria_id: int
     nome: str
     preco: Decimal
     carboidratos: Decimal

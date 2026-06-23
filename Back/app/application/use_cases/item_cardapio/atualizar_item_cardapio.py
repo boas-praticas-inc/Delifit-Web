@@ -13,6 +13,7 @@ class AtualizarItemCardapioUseCase:
             raise ItemCardapioNaoEncontradoError()
 
         item.restaurante_id = dto.restaurante_id
+        item.categoria_id = dto.categoria_id
         item.nome = dto.nome
         item.descricao = dto.descricao
         item.preco = dto.preco

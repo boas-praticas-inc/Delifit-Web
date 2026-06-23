@@ -11,6 +11,7 @@ class CriarItemCardapioUseCase:
         item = ItemCardapio(
             id=None,
             restaurante_id=dto.restaurante_id,
+            categoria_id=dto.categoria_id,
             nome=dto.nome,
             descricao=dto.descricao,
             preco=dto.preco,

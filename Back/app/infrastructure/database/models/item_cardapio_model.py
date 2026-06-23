@@ -35,6 +35,12 @@ class ItemCardapioModel(Base):
         nullable=False,
         index=True,
     )
+    categoria_id: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey("categorias_cardapio.id", ondelete="RESTRICT"),
+        nullable=False,
+        index=True,
+    )
     nome: Mapped[str] = mapped_column(String(150), nullable=False)
     descricao: Mapped[str | None] = mapped_column(Text)
     preco: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)

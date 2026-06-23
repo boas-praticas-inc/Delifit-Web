@@ -21,6 +21,7 @@ class FakeItemCardapioRepository(ItemCardapioRepository):
         item_criado = ItemCardapio(
             id=len(self.itens) + 1,
             restaurante_id=item.restaurante_id,
+            categoria_id=item.categoria_id,
             nome=item.nome,
             descricao=item.descricao,
             preco=item.preco,
@@ -59,6 +60,7 @@ def test_criar_item_cardapio_persiste_item() -> None:
     item = use_case.executar(
         CriarItemCardapioDTO(
             restaurante_id=3,
+            categoria_id=2,
             nome="Marmita Fit",
             descricao="Frango com legumes",
             preco=Decimal("29.90"),
@@ -74,6 +76,7 @@ def test_criar_item_cardapio_persiste_item() -> None:
 
     assert item.id == 1
     assert item.restaurante_id == 3
+    assert item.categoria_id == 2
     assert item.preco == Decimal("29.90")
     assert item.proteina == Decimal("25.00")
 
@@ -87,6 +90,7 @@ def test_atualizar_item_cardapio_lanca_quando_nao_encontra() -> None:
             99,
             AtualizarItemCardapioDTO(
                 restaurante_id=1,
+                categoria_id=1,
                 nome="Novo item",
                 descricao=None,
                 preco=Decimal("10.00"),
@@ -109,6 +113,7 @@ def test_listar_itens_cardapio_filtra_por_restaurante() -> None:
     criar_use_case.executar(
         CriarItemCardapioDTO(
             restaurante_id=1,
+            categoria_id=1,
             nome="Item A",
             descricao=None,
             preco=Decimal("11.50"),
@@ -124,6 +129,7 @@ def test_listar_itens_cardapio_filtra_por_restaurante() -> None:
     criar_use_case.executar(
         CriarItemCardapioDTO(
             restaurante_id=2,
+            categoria_id=2,
             nome="Item B",
             descricao=None,
             preco=Decimal("13.50"),

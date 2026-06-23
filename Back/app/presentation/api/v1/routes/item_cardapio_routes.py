@@ -33,6 +33,7 @@ def criar_item_cardapio(
     item = use_case.executar(
         CriarItemCardapioDTO(
             restaurante_id=payload.restaurante_id,
+            categoria_id=payload.categoria_id,
             nome=payload.nome,
             descricao=payload.descricao,
             preco=Decimal(str(payload.preco)),
@@ -79,6 +80,7 @@ def atualizar_item_cardapio(
         item_id,
         AtualizarItemCardapioDTO(
             restaurante_id=payload.restaurante_id,
+            categoria_id=payload.categoria_id,
             nome=payload.nome,
             descricao=payload.descricao,
             preco=Decimal(str(payload.preco)),

@@ -46,6 +46,9 @@ from app.application.use_cases.item_cardapio.buscar_item_cardapio_por_id import 
 from app.application.use_cases.item_cardapio.criar_item_cardapio import CriarItemCardapioUseCase
 from app.application.use_cases.item_cardapio.excluir_item_cardapio import ExcluirItemCardapioUseCase
 from app.application.use_cases.item_cardapio.listar_itens_cardapio import ListarItensCardapioUseCase
+from app.application.use_cases.categoria_cardapio.criar_categoria_cardapio import CriarCategoriaCardapioUseCase
+from app.application.use_cases.categoria_cardapio.excluir_categoria_cardapio import ExcluirCategoriaCardapioUseCase
+from app.application.use_cases.categoria_cardapio.listar_categorias_cardapio import ListarCategoriasCardapioUseCase
 from app.core.database import get_db_session
 from app.core.security import gerar_hash_senha
 from app.infrastructure.database.repositories.sqlalchemy_solicitacao_adesao_restaurante_repository import (
@@ -68,6 +71,9 @@ from app.infrastructure.database.repositories.sqlalchemy_restaurante_repository 
 )
 from app.infrastructure.database.repositories.sqlalchemy_item_cardapio_repository import (
     SQLAlchemyItemCardapioRepository,
+)
+from app.infrastructure.database.repositories.sqlalchemy_categoria_cardapio_repository import (
+    SQLAlchemyCategoriaCardapioRepository,
 )
 from app.infrastructure.database.repositories.sqlalchemy_usuario_repository import (
     SQLAlchemyUsuarioRepository,
@@ -152,6 +158,12 @@ def get_item_cardapio_repository(
     return SQLAlchemyItemCardapioRepository(session)
 
 
+def get_categoria_cardapio_repository(
+    session: Session,
+) -> SQLAlchemyCategoriaCardapioRepository:
+    return SQLAlchemyCategoriaCardapioRepository(session)
+
+
 def get_criar_item_cardapio_use_case(
     session: Annotated[Session, Depends(get_session)],
 ) -> CriarItemCardapioUseCase:
@@ -185,6 +197,27 @@ def get_excluir_item_cardapio_use_case(
 ) -> ExcluirItemCardapioUseCase:
     repository = SQLAlchemyItemCardapioRepository(session)
     return ExcluirItemCardapioUseCase(repository=repository)
+
+
+def get_criar_categoria_cardapio_use_case(
+    session: Annotated[Session, Depends(get_session)],
+) -> CriarCategoriaCardapioUseCase:
+    repository = SQLAlchemyCategoriaCardapioRepository(session)
+    return CriarCategoriaCardapioUseCase(repository=repository)
+
+
+def get_listar_categorias_cardapio_use_case(
+    session: Annotated[Session, Depends(get_session)],
+) -> ListarCategoriasCardapioUseCase:
+    repository = SQLAlchemyCategoriaCardapioRepository(session)
+    return ListarCategoriasCardapioUseCase(repository=repository)
+
+
+def get_excluir_categoria_cardapio_use_case(
+    session: Annotated[Session, Depends(get_session)],
+) -> ExcluirCategoriaCardapioUseCase:
+    repository = SQLAlchemyCategoriaCardapioRepository(session)
+    return ExcluirCategoriaCardapioUseCase(repository=repository)
 
 
 def get_solicitacao_adesao_restaurante_repository(
