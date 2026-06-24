@@ -1,17 +1,21 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, useMemo } from 'react';
-import { useFieldArray, useForm, useWatch } from 'react-hook-form';
+import { useEffect } from 'react';
+import { useFieldArray, useForm } from 'react-hook-form';
 
 import { Alert } from '../../../components/common/Alert';
 import { Button } from '../../../components/common/Button';
 import { Input } from '../../../components/common/Input';
 import { Select } from '../../../components/common/Select';
 import { Textarea } from '../../../components/common/Textarea';
-import type { CategoriaCardapio } from '../types/categoriaCardapioTypes';
 import {
   itemCardapioSchema,
   type ItemCardapioFormData,
 } from '../schemas/itemCardapioSchemas';
+import type { CategoriaCardapio } from '../types/categoriaCardapioTypes';
+import {
+  TAG_ITEM_CARDAPIO_OPTIONS,
+  type UnidadeMedidaVariacao,
+} from '../types/itemCardapioTypes';
 
 interface ItemCardapioFormProps {
   categorias: CategoriaCardapio[];
@@ -23,11 +27,18 @@ interface ItemCardapioFormProps {
   onCancel?: () => void;
 }
 
-const tamanhosDisponiveis = ['PEQUENO', 'MEDIO', 'GRANDE'] as const;
+const unidadesMedidaDisponiveis: UnidadeMedidaVariacao[] = [
+  'G',
+  'KG',
+  'ML',
+  'L',
+  'UNIDADE',
+];
 
-function criarVariacaoPadrao(tamanho: (typeof tamanhosDisponiveis)[number] = 'MEDIO') {
+function criarVariacaoPadrao(unidadeMedida: UnidadeMedidaVariacao = 'G') {
   return {
-    tamanho,
+    quantidade: 0,
+    unidade_medida: unidadeMedida,
     preco: 0,
     carboidratos: 0,
     gorduras: 0,
@@ -47,6 +58,7 @@ function criarValoresPadrao(
       defaultValues?.variacoes && defaultValues.variacoes.length > 0
         ? defaultValues.variacoes
         : [criarVariacaoPadrao()],
+    tags: defaultValues?.tags ?? [],
     status_item: defaultValues?.status_item ?? 'ATIVO',
     foto_url: defaultValues?.foto_url ?? '',
   };
@@ -67,6 +79,7 @@ export function ItemCardapioForm({
     handleSubmit,
     register,
     reset,
+    watch,
   } = useForm<ItemCardapioFormData>({
     resolver: zodResolver(itemCardapioSchema),
     defaultValues: criarValoresPadrao(defaultValues),
@@ -76,24 +89,11 @@ export function ItemCardapioForm({
     control,
     name: 'variacoes',
   });
+  const tagsSelecionadas = watch('tags') ?? [];
 
   useEffect(() => {
     reset(criarValoresPadrao(defaultValues));
   }, [defaultValues, reset]);
-
-  const variacoes = useWatch({
-    control,
-    name: 'variacoes',
-  });
-  const tamanhosSelecionados = (variacoes ?? []).map((variacao) => variacao.tamanho);
-  const proximoTamanhoDisponivel = useMemo(
-    () =>
-      tamanhosDisponiveis.find((tamanho) => !tamanhosSelecionados.includes(tamanho)) ??
-      'MEDIO',
-    [tamanhosSelecionados],
-  );
-
-  const podeAdicionarVariacao = fields.length < tamanhosDisponiveis.length;
 
   return (
     <form
@@ -147,19 +147,52 @@ export function ItemCardapioForm({
         {...register('descricao')}
       />
 
+      <div className="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+        <div>
+          <h2 className="text-lg font-bold text-slate-950">Tags e restrições</h2>
+          <p className="mt-1 text-sm text-slate-600">
+            Marque os atributos que ajudam a identificar o item no cardápio.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          {TAG_ITEM_CARDAPIO_OPTIONS.map((tag) => {
+            const selecionada = tagsSelecionadas.includes(tag.value);
+
+            return (
+              <label
+                key={tag.value}
+                className={`cursor-pointer rounded-full border px-3 py-2 text-sm font-semibold transition ${
+                  selecionada
+                    ? 'border-brand-600 bg-brand-600 text-white'
+                    : 'border-slate-300 bg-white text-slate-700 hover:border-brand-300 hover:bg-brand-50'
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  value={tag.value}
+                  className="sr-only"
+                  {...register('tags')}
+                />
+                {tag.label}
+              </label>
+            );
+          })}
+        </div>
+      </div>
+
       <div className="grid gap-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-lg font-bold text-slate-950">Variações de tamanho</h2>
+            <h2 className="text-lg font-bold text-slate-950">Variações de medida</h2>
             <p className="mt-1 text-sm text-slate-600">
-              Configure preço e macros de cada tamanho disponível para o item.
+              Configure quantidade, unidade, preço e macros de cada variação do item.
             </p>
           </div>
           <Button
             type="button"
             variant="secondary"
-            disabled={!podeAdicionarVariacao}
-            onClick={() => append(criarVariacaoPadrao(proximoTamanhoDisponivel))}
+            onClick={() => append(criarVariacaoPadrao())}
           >
             Adicionar variação
           </Button>
@@ -181,7 +214,7 @@ export function ItemCardapioForm({
                     Variação {index + 1}
                   </p>
                   <h3 className="mt-1 text-base font-semibold text-slate-950">
-                    Tamanho e valores nutricionais
+                    Medida e valores nutricionais
                   </h3>
                 </div>
                 {fields.length > 1 ? (
@@ -196,18 +229,24 @@ export function ItemCardapioForm({
               </div>
 
               <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                <Input
+                  label="Quantidade"
+                  type="number"
+                  inputMode="decimal"
+                  min="0"
+                  step="0.01"
+                  error={errors.variacoes?.[index]?.quantidade?.message}
+                  {...register(`variacoes.${index}.quantidade`)}
+                />
+
                 <Select
-                  label="Tamanho"
-                  error={errors.variacoes?.[index]?.tamanho?.message}
-                  {...register(`variacoes.${index}.tamanho`)}
+                  label="Unidade"
+                  error={errors.variacoes?.[index]?.unidade_medida?.message}
+                  {...register(`variacoes.${index}.unidade_medida`)}
                 >
-                  {tamanhosDisponiveis.map((tamanho) => (
-                    <option key={tamanho} value={tamanho}>
-                      {tamanho === 'PEQUENO'
-                        ? 'Pequeno'
-                        : tamanho === 'MEDIO'
-                          ? 'Médio'
-                          : 'Grande'}
+                  {unidadesMedidaDisponiveis.map((unidadeMedida) => (
+                    <option key={unidadeMedida} value={unidadeMedida}>
+                      {unidadeMedida === 'UNIDADE' ? 'Unidade' : unidadeMedida}
                     </option>
                   ))}
                 </Select>

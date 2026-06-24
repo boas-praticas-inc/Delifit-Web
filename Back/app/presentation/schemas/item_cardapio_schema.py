@@ -1,10 +1,22 @@
 from datetime import datetime
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+TagItemCardapio = Literal[
+    "LOW_CARB",
+    "ALTO_EM_PROTEINA",
+    "VEGANO",
+    "VEGETARIANO",
+    "ZERO_LACTOSE",
+    "ZERO_GLUTEN",
+    "SEM_ACUCAR",
+]
+
 
 class VariacaoItemCardapioPayload(BaseModel):
-    tamanho: str = Field(pattern=r"^(PEQUENO|MEDIO|GRANDE)$")
+    quantidade: float = Field(gt=0)
+    unidade_medida: str = Field(pattern=r"^(G|KG|ML|L|UNIDADE)$")
     preco: float = Field(ge=0)
     carboidratos: float = Field(ge=0)
     gorduras: float = Field(ge=0)
@@ -18,6 +30,7 @@ class ItemCardapioCreate(BaseModel):
     nome: str = Field(min_length=1, max_length=150)
     descricao: str | None = None
     variacoes: list[VariacaoItemCardapioPayload] = Field(min_length=1)
+    tags: list[TagItemCardapio] = Field(default_factory=list)
     status_item: str = Field(pattern=r"^(ATIVO|INDISPONIVEL|INATIVO|ARQUIVADO)$")
     foto_url: str | None = None
 
@@ -28,13 +41,16 @@ class ItemCardapioUpdate(BaseModel):
     nome: str = Field(min_length=1, max_length=150)
     descricao: str | None = None
     variacoes: list[VariacaoItemCardapioPayload] = Field(min_length=1)
+    tags: list[TagItemCardapio] = Field(default_factory=list)
     status_item: str = Field(pattern=r"^(ATIVO|INDISPONIVEL|INATIVO|ARQUIVADO)$")
     foto_url: str | None = None
 
 
 class VariacaoItemCardapioResponse(BaseModel):
     id: int | None
-    tamanho: str
+    descricao_variacao: str
+    quantidade: float | None
+    unidade_medida: str | None
     preco: float
     carboidratos: float
     gorduras: float
@@ -51,6 +67,7 @@ class ItemCardapioResponse(BaseModel):
     nome: str
     descricao: str | None
     variacoes: list[VariacaoItemCardapioResponse]
+    tags: list[TagItemCardapio]
     status_item: str
     foto_url: str | None
     criado_em: datetime

@@ -11,6 +11,7 @@ class ItemCardapio:
     categoria_id: int
     nome: str
     variacoes: list[VariacaoItemCardapio]
+    tags: list[str]
     descricao: str | None = None
     status_item: str = "ATIVO"
     foto_url: str | None = None

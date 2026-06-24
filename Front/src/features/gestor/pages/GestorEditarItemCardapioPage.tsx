@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import { Alert } from '../../../components/common/Alert';
 import { Loading } from '../../../components/common/Loading';
@@ -9,10 +9,13 @@ import type { ItemCardapioFormData } from '../../cardapio/schemas/itemCardapioSc
 import { categoriaCardapioService } from '../../cardapio/services/categoriaCardapioService';
 import { itemCardapioService } from '../../cardapio/services/itemCardapioService';
 import type { CategoriaCardapio } from '../../cardapio/types/categoriaCardapioTypes';
+import type { ItemCardapio } from '../../cardapio/types/itemCardapioTypes';
 import { gestorContextoService } from '../services/gestorContextoService';
 
-export function GestorNovoItemCardapioPage() {
+export function GestorEditarItemCardapioPage() {
+  const { itemId } = useParams();
   const navigate = useNavigate();
+  const [item, setItem] = useState<ItemCardapio | null>(null);
   const [categorias, setCategorias] = useState<CategoriaCardapio[]>([]);
   const [restauranteId, setRestauranteId] = useState<number | null>(null);
   const [restauranteNome, setRestauranteNome] = useState<string>('');
@@ -21,10 +24,17 @@ export function GestorNovoItemCardapioPage() {
 
   useEffect(() => {
     async function carregar() {
+      if (!itemId) {
+        setError('Item do cardápio não informado.');
+        setIsLoading(false);
+        return;
+      }
+
       try {
-        const [{ restaurante }, categoriasData] = await Promise.all([
+        const [{ restaurante }, categoriasData, itemData] = await Promise.all([
           gestorContextoService.buscarContextoAtual(),
           categoriaCardapioService.listarCategorias(),
+          itemCardapioService.buscarItemPorId(Number(itemId)),
         ]);
 
         setCategorias(
@@ -32,30 +42,27 @@ export function GestorNovoItemCardapioPage() {
         );
         setRestauranteId(restaurante?.id ?? null);
         setRestauranteNome(restaurante?.nome_fantasia ?? '');
+        setItem(itemData);
       } catch (requestError) {
-        setError(
-          requestError instanceof Error
-            ? requestError.message
-            : getApiErrorMessage(requestError),
-        );
+        setError(getApiErrorMessage(requestError));
       } finally {
         setIsLoading(false);
       }
     }
 
     void carregar();
-  }, []);
+  }, [itemId]);
 
   async function handleSubmit(data: ItemCardapioFormData) {
-    if (!restauranteId) {
-      setError('Nenhum restaurante vinculado ao gestor foi encontrado.');
+    if (!itemId || !item || !restauranteId) {
+      setError('Não foi possível identificar o item e o restaurante para edição.');
       return;
     }
 
     setError(null);
 
     try {
-      await itemCardapioService.criarItem({
+      await itemCardapioService.atualizarItem(Number(itemId), {
         restaurante_id: restauranteId,
         categoria_id: Number(data.categoria_id),
         nome: data.nome,
@@ -81,7 +88,18 @@ export function GestorNovoItemCardapioPage() {
   }
 
   if (isLoading) {
-    return <Loading label="Carregando formulário do cardápio" />;
+    return <Loading label="Carregando item do cardápio" />;
+  }
+
+  if (!item) {
+    return (
+      <section className="grid gap-4">
+        <Link to="/gestor/cardapio" className="text-sm font-semibold text-brand-700">
+          Voltar para Cardápio
+        </Link>
+        {error ? <Alert variant="error">{error}</Alert> : null}
+      </section>
+    );
   }
 
   return (
@@ -93,9 +111,7 @@ export function GestorNovoItemCardapioPage() {
         <p className="mt-4 text-sm font-semibold uppercase text-brand-700">
           Cardápio
         </p>
-        <h1 className="mt-1 text-2xl font-bold text-slate-950">
-          Adicionar novo item
-        </h1>
+        <h1 className="mt-1 text-2xl font-bold text-slate-950">Editar item</h1>
         <p className="mt-2 text-sm text-slate-600">
           {restauranteNome
             ? `Restaurante: ${restauranteNome}`
@@ -112,33 +128,31 @@ export function GestorNovoItemCardapioPage() {
         </Alert>
       ) : categorias.length === 0 ? (
         <Alert>
-          Nenhuma categoria disponível foi encontrada para cadastrar itens no
+          Nenhuma categoria disponível foi encontrada para editar itens no
           cardápio.
         </Alert>
       ) : (
         <ItemCardapioForm
           categorias={categorias}
           defaultValues={{
-            categoria_id: categorias[0]?.id,
-            nome: '',
-            descricao: '',
-            variacoes: [
-              {
-                quantidade: 500,
-                unidade_medida: 'G',
-                preco: 0,
-                carboidratos: 0,
-                gorduras: 0,
-                proteina: 0,
-                caloria: 0,
-              },
-            ],
-            tags: [],
-            status_item: 'ATIVO',
-            foto_url: '',
+            categoria_id: item.categoria_id,
+            nome: item.nome,
+            descricao: item.descricao ?? '',
+            variacoes: item.variacoes.map((variacao) => ({
+              quantidade: variacao.quantidade ?? 0,
+              unidade_medida: variacao.unidade_medida ?? 'G',
+              preco: variacao.preco,
+              carboidratos: variacao.carboidratos,
+              gorduras: variacao.gorduras,
+              proteina: variacao.proteina,
+              caloria: variacao.caloria,
+            })),
+            tags: item.tags,
+            status_item: item.status_item,
+            foto_url: item.foto_url ?? '',
           }}
           formError={error}
-          submitLabel="Salvar item"
+          submitLabel="Salvar alterações"
           onSubmit={handleSubmit}
           onCancel={() => navigate('/gestor/cardapio')}
         />

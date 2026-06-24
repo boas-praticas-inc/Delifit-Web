@@ -28,7 +28,9 @@ class FakeItemCardapioRepository(ItemCardapioRepository):
             variacoes=[
                 VariacaoItemCardapio(
                     id=index + 1,
-                    tamanho=variacao.tamanho,
+                    descricao_variacao=variacao.descricao_variacao,
+                    quantidade=variacao.quantidade,
+                    unidade_medida=variacao.unidade_medida,
                     preco=variacao.preco,
                     carboidratos=variacao.carboidratos,
                     gorduras=variacao.gorduras,
@@ -73,7 +75,8 @@ def test_criar_item_cardapio_persiste_item() -> None:
             descricao="Frango com legumes",
             variacoes=[
                 VariacaoItemCardapioDTO(
-                    tamanho="MEDIO",
+                    quantidade=Decimal("500"),
+                    unidade_medida="G",
                     preco=Decimal("29.90"),
                     carboidratos=Decimal("18.50"),
                     gorduras=Decimal("7.20"),
@@ -106,8 +109,9 @@ def test_atualizar_item_cardapio_lanca_quando_nao_encontra() -> None:
                 nome="Novo item",
                 descricao=None,
                 variacoes=[
-                    VariacaoItemCardapioDTO(
-                        tamanho="PEQUENO",
+                VariacaoItemCardapioDTO(
+                        quantidade=Decimal("300"),
+                        unidade_medida="G",
                         preco=Decimal("10.00"),
                         carboidratos=Decimal("10.00"),
                         gorduras=Decimal("2.00"),
@@ -134,7 +138,8 @@ def test_listar_itens_cardapio_filtra_por_restaurante() -> None:
             descricao=None,
             variacoes=[
                 VariacaoItemCardapioDTO(
-                    tamanho="MEDIO",
+                    quantidade=Decimal("500"),
+                    unidade_medida="G",
                     preco=Decimal("11.50"),
                     carboidratos=Decimal("14.00"),
                     gorduras=Decimal("3.00"),
@@ -154,7 +159,8 @@ def test_listar_itens_cardapio_filtra_por_restaurante() -> None:
             descricao=None,
             variacoes=[
                 VariacaoItemCardapioDTO(
-                    tamanho="GRANDE",
+                    quantidade=Decimal("700"),
+                    unidade_medida="G",
                     preco=Decimal("13.50"),
                     carboidratos=Decimal("20.00"),
                     gorduras=Decimal("4.00"),

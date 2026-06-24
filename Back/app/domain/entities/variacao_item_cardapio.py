@@ -5,7 +5,9 @@ from decimal import Decimal
 @dataclass(slots=True)
 class VariacaoItemCardapio:
     id: int | None
-    tamanho: str
+    descricao_variacao: str
+    quantidade: Decimal | None
+    unidade_medida: str | None
     preco: Decimal
     carboidratos: Decimal
     gorduras: Decimal

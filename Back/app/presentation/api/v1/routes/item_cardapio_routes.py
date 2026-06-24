@@ -42,7 +42,8 @@ def criar_item_cardapio(
             descricao=payload.descricao,
             variacoes=[
                 VariacaoItemCardapioDTO(
-                    tamanho=variacao.tamanho,
+                    quantidade=Decimal(str(variacao.quantidade)),
+                    unidade_medida=variacao.unidade_medida,
                     preco=Decimal(str(variacao.preco)),
                     carboidratos=Decimal(str(variacao.carboidratos)),
                     gorduras=Decimal(str(variacao.gorduras)),
@@ -51,6 +52,7 @@ def criar_item_cardapio(
                 )
                 for variacao in payload.variacoes
             ],
+            tags=payload.tags,
             status_item=payload.status_item,
             foto_url=payload.foto_url,
         )
@@ -94,7 +96,8 @@ def atualizar_item_cardapio(
             descricao=payload.descricao,
             variacoes=[
                 VariacaoItemCardapioDTO(
-                    tamanho=variacao.tamanho,
+                    quantidade=Decimal(str(variacao.quantidade)),
+                    unidade_medida=variacao.unidade_medida,
                     preco=Decimal(str(variacao.preco)),
                     carboidratos=Decimal(str(variacao.carboidratos)),
                     gorduras=Decimal(str(variacao.gorduras)),
@@ -103,6 +106,7 @@ def atualizar_item_cardapio(
                 )
                 for variacao in payload.variacoes
             ],
+            tags=payload.tags,
             status_item=payload.status_item,
             foto_url=payload.foto_url,
         ),

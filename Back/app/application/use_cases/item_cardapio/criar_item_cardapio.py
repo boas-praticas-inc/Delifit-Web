@@ -17,7 +17,12 @@ class CriarItemCardapioUseCase:
             variacoes=[
                 VariacaoItemCardapio(
                     id=None,
-                    tamanho=variacao.tamanho,
+                    descricao_variacao=_montar_descricao_variacao(
+                        variacao.quantidade,
+                        variacao.unidade_medida,
+                    ),
+                    quantidade=variacao.quantidade,
+                    unidade_medida=variacao.unidade_medida,
                     preco=variacao.preco,
                     carboidratos=variacao.carboidratos,
                     gorduras=variacao.gorduras,
@@ -26,8 +31,17 @@ class CriarItemCardapioUseCase:
                 )
                 for variacao in dto.variacoes
             ],
+            tags=dto.tags,
             descricao=dto.descricao,
             status_item=dto.status_item,
             foto_url=dto.foto_url,
         )
         return self.repository.criar(item)
+
+
+def _montar_descricao_variacao(quantidade: object, unidade_medida: str | None) -> str:
+    if quantidade is None or unidade_medida is None:
+        return "Variacao"
+
+    quantidade_formatada = format(quantidade, "f").rstrip("0").rstrip(".")
+    return f"{quantidade_formatada}{unidade_medida.lower()}"

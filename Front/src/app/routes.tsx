@@ -12,6 +12,7 @@ import { CriarClientePage } from '../features/clientes/pages/CriarClientePage';
 import { EditarClientePage } from '../features/clientes/pages/EditarClientePage';
 import { GestorAvaliacoesPage } from '../features/gestor/pages/GestorAvaliacoesPage';
 import { GestorCardapioPage } from '../features/gestor/pages/GestorCardapioPage';
+import { GestorEditarItemCardapioPage } from '../features/gestor/pages/GestorEditarItemCardapioPage';
 import { GestorFaturamentoPage } from '../features/gestor/pages/GestorFaturamentoPage';
 import { GestorInicioPage } from '../features/gestor/pages/GestorInicioPage';
 import { GestorNovoItemCardapioPage } from '../features/gestor/pages/GestorNovoItemCardapioPage';
@@ -45,6 +46,10 @@ export function AppRoutes() {
           <Route
             path="/gestor/cardapio/novo"
             element={<GestorNovoItemCardapioPage />}
+          />
+          <Route
+            path="/gestor/cardapio/:itemId/editar"
+            element={<GestorEditarItemCardapioPage />}
           />
           <Route path="/gestor/perfil" element={<GestorPerfilPage />} />
           <Route

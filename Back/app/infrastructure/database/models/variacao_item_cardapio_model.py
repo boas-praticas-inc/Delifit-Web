@@ -1,19 +1,10 @@
 from datetime import datetime
 from decimal import Decimal
 
-from sqlalchemy import BigInteger, DateTime, ForeignKey, Numeric, func
-from sqlalchemy.dialects.postgresql import ENUM
+from sqlalchemy import BigInteger, DateTime, ForeignKey, Numeric, String, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
-
-tamanho_item_pg_enum = ENUM(
-    "PEQUENO",
-    "MEDIO",
-    "GRANDE",
-    name="tamanho_item_enum",
-    create_type=False,
-)
 
 
 class VariacaoItemCardapioModel(Base):
@@ -26,7 +17,9 @@ class VariacaoItemCardapioModel(Base):
         nullable=False,
         index=True,
     )
-    tamanho: Mapped[str] = mapped_column(tamanho_item_pg_enum, nullable=False)
+    descricao_variacao: Mapped[str] = mapped_column(String(30), nullable=False)
+    quantidade: Mapped[Decimal | None] = mapped_column(Numeric(10, 2))
+    unidade_medida: Mapped[str | None] = mapped_column(String(10))
     preco: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
     carboidratos: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
     gorduras: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)

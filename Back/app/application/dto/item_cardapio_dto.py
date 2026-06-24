@@ -4,7 +4,8 @@ from decimal import Decimal
 
 @dataclass(slots=True)
 class VariacaoItemCardapioDTO:
-    tamanho: str
+    quantidade: Decimal | None
+    unidade_medida: str | None
     preco: Decimal
     carboidratos: Decimal
     gorduras: Decimal
@@ -18,6 +19,7 @@ class CriarItemCardapioDTO:
     categoria_id: int
     nome: str
     variacoes: list[VariacaoItemCardapioDTO]
+    tags: list[str]
     descricao: str | None = None
     status_item: str = "ATIVO"
     foto_url: str | None = None
@@ -29,6 +31,7 @@ class AtualizarItemCardapioDTO:
     categoria_id: int
     nome: str
     variacoes: list[VariacaoItemCardapioDTO]
+    tags: list[str]
     descricao: str | None = None
     status_item: str = "ATIVO"
     foto_url: str | None = None

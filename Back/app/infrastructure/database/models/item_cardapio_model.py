@@ -71,3 +71,9 @@ class ItemCardapioModel(Base):
         lazy="selectin",
         order_by="VariacaoItemCardapioModel.id",
     )
+    tags: Mapped[list["ItemCardapioTagModel"]] = relationship(
+        "ItemCardapioTagModel",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+        order_by="ItemCardapioTagModel.tag",
+    )

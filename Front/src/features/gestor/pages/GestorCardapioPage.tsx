@@ -9,7 +9,11 @@ import { getApiErrorMessage } from '../../../lib/api';
 import { categoriaCardapioService } from '../../cardapio/services/categoriaCardapioService';
 import { itemCardapioService } from '../../cardapio/services/itemCardapioService';
 import type { CategoriaCardapio } from '../../cardapio/types/categoriaCardapioTypes';
-import type { ItemCardapio, VariacaoItemCardapio } from '../../cardapio/types/itemCardapioTypes';
+import {
+  TAG_ITEM_CARDAPIO_OPTIONS,
+  type ItemCardapio,
+  type VariacaoItemCardapio,
+} from '../../cardapio/types/itemCardapioTypes';
 import { gestorContextoService } from '../services/gestorContextoService';
 
 const statusLabel: Record<string, string> = {
@@ -19,17 +23,18 @@ const statusLabel: Record<string, string> = {
   ARQUIVADO: 'Arquivado',
 };
 
-const tamanhoLabel: Record<string, string> = {
-  PEQUENO: 'Pequeno',
-  MEDIO: 'Médio',
-  GRANDE: 'Grande',
-};
+const tagsLabel = Object.fromEntries(
+  TAG_ITEM_CARDAPIO_OPTIONS.map((tag) => [tag.value, tag.label]),
+) as Record<string, string>;
 
 export function GestorCardapioPage() {
   const [restauranteId, setRestauranteId] = useState<number | null>(null);
   const [restauranteNome, setRestauranteNome] = useState<string>('');
   const [itens, setItens] = useState<ItemCardapio[]>([]);
   const [categorias, setCategorias] = useState<CategoriaCardapio[]>([]);
+  const [variacaoSelecionadaPorItem, setVariacaoSelecionadaPorItem] = useState<
+    Record<number, number>
+  >({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -99,6 +104,13 @@ export function GestorCardapioPage() {
     }
   }
 
+  function handleSelecionarVariacao(itemId: number, index: number) {
+    setVariacaoSelecionadaPorItem((estadoAtual) => ({
+      ...estadoAtual,
+      [itemId]: index,
+    }));
+  }
+
   if (isLoading) {
     return <Loading label="Carregando cardápio" />;
   }
@@ -134,7 +146,7 @@ export function GestorCardapioPage() {
         <DataTable
           items={itens}
           emptyMessage="Nenhum item cadastrado no cardápio."
-          searchPlaceholder="Buscar item por nome, categoria, descrição ou tamanho"
+          searchPlaceholder="Buscar item por nome, categoria, descrição ou medida"
           filters={[
             {
               id: 'categoria',
@@ -161,19 +173,66 @@ export function GestorCardapioPage() {
             {
               id: 'item',
               header: 'Item',
+              className: 'min-w-[420px]',
               searchValue: (item) =>
                 `${item.nome} ${item.descricao ?? ''} ${
                   categoriasPorId[item.categoria_id] ?? ''
-                } ${item.variacoes.map((variacao) => variacao.tamanho).join(' ')}`,
+                } ${item.variacoes.map((variacao) => variacao.descricao_variacao).join(' ')}`,
               sortValue: (item) => item.nome,
-              render: (item) => (
-                <div>
-                  <div className="font-semibold text-slate-950">{item.nome}</div>
-                  <div className="mt-1 text-xs text-slate-500">
-                    {item.descricao ?? 'Sem descrição informada.'}
+              render: (item) => {
+                const variacaoSelecionada = getVariacaoSelecionada(
+                  item,
+                  variacaoSelecionadaPorItem,
+                );
+
+                return (
+                  <div className="w-[360px] min-w-[360px]">
+                    <div className="h-[240px] w-[360px] min-w-[360px] overflow-hidden rounded-[20px] border border-slate-200 bg-slate-100 shadow-sm">
+                      {item.foto_url ? (
+                        <img
+                          src={item.foto_url}
+                          alt={item.nome}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="relative h-full w-full overflow-hidden bg-[linear-gradient(135deg,#fff7ed_0%,#fde68a_45%,#fecdd3_100%)]">
+                          <div className="absolute -right-10 -top-8 h-32 w-32 rounded-full bg-white/35 blur-2xl" />
+                          <div className="absolute left-6 top-5 h-14 w-20 rounded-[18px] border border-white/40 bg-white/30 shadow-sm" />
+                          <div className="absolute right-8 top-6 h-20 w-16 rounded-full bg-rose-300/40 blur-sm" />
+                          <div className="absolute bottom-6 left-7 right-7 rounded-[24px] border border-white/60 bg-white/75 p-4 shadow-lg backdrop-blur-sm">
+                            <div className="h-24 rounded-[16px] bg-[linear-gradient(145deg,#f8fafc_0%,#e2e8f0_100%)] p-3 shadow-inner">
+                              <div className="grid h-full grid-cols-[1.1fr,0.9fr] gap-3">
+                                <div className="rounded-[12px] bg-emerald-100/80" />
+                                <div className="grid gap-2">
+                                  <div className="rounded-[10px] bg-amber-100/80" />
+                                  <div className="rounded-[10px] bg-orange-100/80" />
+                                </div>
+                              </div>
+                            </div>
+                            <div className="mt-3 text-center text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                              Imagem padrão
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="mt-3 grid w-[360px] grid-cols-4 gap-1.5">
+                      <MacroResumo label="KCAL" value={variacaoSelecionada.caloria} />
+                      <MacroResumo label="PROT." value={variacaoSelecionada.proteina} />
+                      <MacroResumo label="GORD." value={variacaoSelecionada.gorduras} />
+                      <MacroResumo
+                        label="CARB."
+                        value={variacaoSelecionada.carboidratos}
+                      />
+                    </div>
+
+                    <div className="mt-3 w-[360px] text-center font-semibold text-slate-950">
+                      {item.nome}
+                    </div>
                   </div>
-                </div>
-              ),
+                );
+              },
             },
             {
               id: 'categoria',
@@ -189,49 +248,81 @@ export function GestorCardapioPage() {
             {
               id: 'faixa_preco',
               header: 'Faixa de preço',
+              className: 'min-w-[160px]',
               searchValue: (item) =>
                 item.variacoes.map((variacao) => String(variacao.preco)).join(' '),
               sortValue: (item) =>
                 Math.min(...item.variacoes.map((variacao) => variacao.preco)),
-              render: (item) => formatarFaixaPreco(item.variacoes),
+              render: (item) => {
+                const variacaoSelecionada = getVariacaoSelecionada(
+                  item,
+                  variacaoSelecionadaPorItem,
+                );
+
+                return (
+                  <div>
+                    <div className="text-base font-semibold text-slate-950">
+                      {formatarMoeda(variacaoSelecionada.preco)}
+                    </div>
+                  </div>
+                );
+              },
             },
             {
               id: 'variacoes',
               header: 'Variações',
+              className: 'min-w-[220px]',
               searchValue: (item) =>
                 item.variacoes
                   .map(
                     (variacao) =>
-                      `${variacao.tamanho} ${variacao.preco} ${variacao.caloria}`,
+                      `${variacao.descricao_variacao} ${variacao.preco} ${variacao.caloria}`,
                   )
                   .join(' '),
               render: (item) => (
-                <div className="grid gap-2">
-                  {item.variacoes.map((variacao) => (
-                    <div
-                      key={`${item.id}-${variacao.tamanho}`}
-                      className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600"
+                <div className="flex flex-wrap gap-2">
+                  {item.variacoes.map((variacao, index) => (
+                    <button
+                      key={`${item.id}-${variacao.descricao_variacao}`}
+                      type="button"
+                      onClick={() => handleSelecionarVariacao(item.id, index)}
+                      className={`rounded-full border px-3 py-2 text-xs font-semibold transition ${
+                        (variacaoSelecionadaPorItem[item.id] ?? 0) === index
+                          ? 'border-brand-600 bg-brand-600 text-white'
+                          : 'border-slate-300 bg-white text-slate-700 hover:border-brand-300 hover:bg-brand-50'
+                      }`}
                     >
-                      <div className="font-semibold text-slate-900">
-                        {tamanhoLabel[variacao.tamanho] ?? variacao.tamanho}
-                      </div>
-                      <div className="mt-1">
-                        {new Intl.NumberFormat('pt-BR', {
-                          style: 'currency',
-                          currency: 'BRL',
-                        }).format(variacao.preco)}
-                      </div>
-                      <div className="mt-1">
-                        {`${variacao.caloria} cal • ${variacao.carboidratos}g carb • ${variacao.gorduras}g gord • ${variacao.proteina}g prot`}
-                      </div>
-                    </div>
+                      {variacao.descricao_variacao}
+                    </button>
                   ))}
                 </div>
               ),
             },
             {
+              id: 'tags',
+              header: 'Restrições',
+              className: 'min-w-[180px]',
+              searchValue: (item) => item.tags.join(' '),
+              render: (item) =>
+                item.tags.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {item.tags.map((tag) => (
+                      <span
+                        key={`${item.id}-${tag}`}
+                        className="rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-semibold text-amber-800"
+                      >
+                        {tagsLabel[tag] ?? tag}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <span className="text-xs text-slate-400">Sem restrições</span>
+                ),
+            },
+            {
               id: 'status_item',
               header: 'Status',
+              className: 'min-w-[120px]',
               searchValue: (item) => item.status_item,
               sortValue: (item) => item.status_item,
               render: (item) => (
@@ -242,14 +333,25 @@ export function GestorCardapioPage() {
             },
             {
               header: 'Ações',
-              className: 'w-32',
+              className: 'min-w-[150px]',
               render: (item) => (
-                <Button
-                  variant="secondary"
-                  onClick={() => void handleExcluir(item)}
-                >
-                  Remover
-                </Button>
+                <div className="flex flex-col gap-2">
+                  <LinkButton
+                    to={`/gestor/cardapio/${item.id}/editar`}
+                    variant="secondary"
+                    size="sm"
+                    className="w-full"
+                  >
+                    Editar
+                  </LinkButton>
+                  <Button
+                    variant="secondary"
+                    className="w-full text-sm"
+                    onClick={() => void handleExcluir(item)}
+                  >
+                    Remover
+                  </Button>
+                </div>
               ),
             },
           ]}
@@ -259,23 +361,35 @@ export function GestorCardapioPage() {
   );
 }
 
-function formatarFaixaPreco(variacoes: VariacaoItemCardapio[]) {
-  const precos = variacoes.map((variacao) => variacao.preco);
-  const menorPreco = Math.min(...precos);
-  const maiorPreco = Math.max(...precos);
+function getVariacaoSelecionada(
+  item: ItemCardapio,
+  variacaoSelecionadaPorItem: Record<number, number>,
+) {
+  return item.variacoes[variacaoSelecionadaPorItem[item.id] ?? 0] ?? item.variacoes[0];
+}
 
-  if (menorPreco === maiorPreco) {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    }).format(menorPreco);
-  }
+function MacroResumo({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-md bg-slate-100 px-1 py-1 text-center">
+      <div className="text-[13px] font-bold leading-none text-slate-900">
+        {formatarNumero(value)}
+      </div>
+      <div className="mt-0.5 text-[9px] font-semibold uppercase tracking-[0.04em] text-slate-500">
+        {label}
+      </div>
+    </div>
+  );
+}
 
-  return `${new Intl.NumberFormat('pt-BR', {
+function formatarMoeda(valor: number) {
+  return new Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: 'BRL',
-  }).format(menorPreco)} - ${new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-  }).format(maiorPreco)}`;
+  }).format(valor);
+}
+
+function formatarNumero(valor: number) {
+  return new Intl.NumberFormat('pt-BR', {
+    maximumFractionDigits: 1,
+  }).format(valor);
 }

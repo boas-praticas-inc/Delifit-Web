@@ -3,6 +3,7 @@ from datetime import datetime
 from sqlalchemy.orm import Session, selectinload
 
 from app.domain.entities.variacao_item_cardapio import VariacaoItemCardapio
+from app.infrastructure.database.models.item_cardapio_tag_model import ItemCardapioTagModel
 from app.infrastructure.database.models.variacao_item_cardapio_model import VariacaoItemCardapioModel
 
 from app.domain.entities.item_cardapio import ItemCardapio
@@ -26,12 +27,14 @@ class SQLAlchemyItemCardapioRepository(ItemCardapioRepository):
             gorduras=variacao_principal.gorduras,
             proteina=variacao_principal.proteina,
             caloria=variacao_principal.caloria,
-            tamanho=variacao_principal.tamanho,
+            tamanho="MEDIO",
             status_item=item.status_item,
             foto_url=item.foto_url,
             variacoes=[
                 VariacaoItemCardapioModel(
-                    tamanho=variacao.tamanho,
+                    descricao_variacao=variacao.descricao_variacao,
+                    quantidade=variacao.quantidade,
+                    unidade_medida=variacao.unidade_medida,
                     preco=variacao.preco,
                     carboidratos=variacao.carboidratos,
                     gorduras=variacao.gorduras,
@@ -40,6 +43,7 @@ class SQLAlchemyItemCardapioRepository(ItemCardapioRepository):
                 )
                 for variacao in item.variacoes
             ],
+            tags=[ItemCardapioTagModel(tag=tag) for tag in sorted(set(item.tags))],
         )
         self.session.add(model)
         self.session.commit()
@@ -48,7 +52,8 @@ class SQLAlchemyItemCardapioRepository(ItemCardapioRepository):
 
     def listar(self, restaurante_id: int | None = None) -> list[ItemCardapio]:
         query = self.session.query(ItemCardapioModel).options(
-            selectinload(ItemCardapioModel.variacoes)
+            selectinload(ItemCardapioModel.variacoes),
+            selectinload(ItemCardapioModel.tags),
         )
         if restaurante_id is not None:
             query = query.filter(ItemCardapioModel.restaurante_id == restaurante_id)
@@ -58,7 +63,10 @@ class SQLAlchemyItemCardapioRepository(ItemCardapioRepository):
     def buscar_por_id(self, item_id: int) -> ItemCardapio | None:
         model = (
             self.session.query(ItemCardapioModel)
-            .options(selectinload(ItemCardapioModel.variacoes))
+            .options(
+                selectinload(ItemCardapioModel.variacoes),
+                selectinload(ItemCardapioModel.tags),
+            )
             .filter(ItemCardapioModel.id == item_id)
             .one_or_none()
         )
@@ -79,13 +87,22 @@ class SQLAlchemyItemCardapioRepository(ItemCardapioRepository):
         model.gorduras = variacao_principal.gorduras
         model.proteina = variacao_principal.proteina
         model.caloria = variacao_principal.caloria
-        model.tamanho = variacao_principal.tamanho
+        model.tamanho = "MEDIO"
         model.status_item = item.status_item
         model.foto_url = item.foto_url
         model.atualizado_em = datetime.utcnow()
+
+        # Remove primeiro as variacoes antigas para evitar conflito na constraint
+        # unica quando a mesma descricao_variacao continua existindo no item.
+        model.variacoes.clear()
+        model.tags.clear()
+        self.session.flush()
+
         model.variacoes = [
             VariacaoItemCardapioModel(
-                tamanho=variacao.tamanho,
+                descricao_variacao=variacao.descricao_variacao,
+                quantidade=variacao.quantidade,
+                unidade_medida=variacao.unidade_medida,
                 preco=variacao.preco,
                 carboidratos=variacao.carboidratos,
                 gorduras=variacao.gorduras,
@@ -94,6 +111,7 @@ class SQLAlchemyItemCardapioRepository(ItemCardapioRepository):
             )
             for variacao in item.variacoes
         ]
+        model.tags = [ItemCardapioTagModel(tag=tag) for tag in sorted(set(item.tags))]
         self.session.commit()
         self.session.refresh(model)
         return self._to_entity(model)
@@ -115,7 +133,9 @@ class SQLAlchemyItemCardapioRepository(ItemCardapioRepository):
             variacoes=[
                 VariacaoItemCardapio(
                     id=variacao.id,
-                    tamanho=variacao.tamanho,
+                    descricao_variacao=variacao.descricao_variacao,
+                    quantidade=variacao.quantidade,
+                    unidade_medida=variacao.unidade_medida,
                     preco=variacao.preco,
                     carboidratos=variacao.carboidratos,
                     gorduras=variacao.gorduras,
@@ -124,6 +144,7 @@ class SQLAlchemyItemCardapioRepository(ItemCardapioRepository):
                 )
                 for variacao in model.variacoes
             ],
+            tags=[tag.tag for tag in model.tags],
             descricao=model.descricao,
             status_item=model.status_item,
             foto_url=model.foto_url,

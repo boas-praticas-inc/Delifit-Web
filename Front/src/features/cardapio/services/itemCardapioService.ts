@@ -13,6 +13,11 @@ export const itemCardapioService = {
     return response.data;
   },
 
+  async buscarItemPorId(itemId: number) {
+    const response = await api.get<ItemCardapio>(`/itens-cardapio/${itemId}`);
+    return response.data;
+  },
+
   async criarItem(payload: CriarItemCardapioPayload) {
     const response = await api.post<ItemCardapio>('/itens-cardapio', payload);
     return response.data;

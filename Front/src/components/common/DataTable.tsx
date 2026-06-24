@@ -154,48 +154,69 @@ export function DataTable<T>({
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
       <div className="flex flex-col gap-3 border-b border-slate-200 px-4 py-4">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
           <p className="text-sm font-medium text-slate-600">
             {itensFiltradosOrdenados.length} registro(s)
           </p>
-          <input
-            value={busca}
-            onChange={(event) => {
-              setBusca(event.target.value);
-              setPaginaAtual(1);
-            }}
-            placeholder={searchPlaceholder}
-            className="min-h-10 w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100 sm:max-w-xs"
-          />
-        </div>
 
-        {filters.length > 0 ? (
-          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-            {filters.map((filter) => (
-              <label key={filter.id} className="grid gap-1 text-sm text-slate-600">
-                <span>{filter.label}</span>
-                <select
-                  value={selectedFilters[filter.id] ?? ''}
-                  onChange={(event) => {
-                    setSelectedFilters((current) => ({
-                      ...current,
-                      [filter.id]: event.target.value,
-                    }));
-                    setPaginaAtual(1);
-                  }}
-                  className="min-h-10 rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+          <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-end sm:justify-end xl:max-w-[760px]">
+            {filters.length > 0 ? (
+              <div className="order-2 flex flex-col gap-3 sm:order-2 sm:flex-row sm:flex-nowrap">
+                {filters.map((filter) => (
+                  <label key={filter.id} className="grid gap-1 text-sm text-slate-600">
+                    <span>{filter.label}</span>
+                    <select
+                      value={selectedFilters[filter.id] ?? ''}
+                      onChange={(event) => {
+                        setSelectedFilters((current) => ({
+                          ...current,
+                          [filter.id]: event.target.value,
+                        }));
+                        setPaginaAtual(1);
+                      }}
+                      className="min-h-10 rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+                    >
+                      <option value="">Todos</option>
+                      {filter.options.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                ))}
+              </div>
+            ) : null}
+
+            <div className="relative order-1 w-full sm:order-1 sm:max-w-md">
+              <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  className="h-4 w-4"
                 >
-                  <option value="">Todos</option>
-                  {filter.options.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            ))}
+                  <path
+                    d="M14.1667 14.1667L17.5 17.5M15.8333 9.16667C15.8333 12.8486 12.8486 15.8333 9.16667 15.8333C5.48477 15.8333 2.5 12.8486 2.5 9.16667C2.5 5.48477 5.48477 2.5 9.16667 2.5C12.8486 2.5 15.8333 5.48477 15.8333 9.16667Z"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </span>
+              <input
+                value={busca}
+                onChange={(event) => {
+                  setBusca(event.target.value);
+                  setPaginaAtual(1);
+                }}
+                placeholder={searchPlaceholder}
+                className="min-h-10 w-full rounded-md border border-slate-300 py-2 pl-9 pr-3 text-sm text-slate-900 outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+              />
+            </div>
           </div>
-        ) : null}
+        </div>
       </div>
 
       {itensFiltradosOrdenados.length === 0 ? (
