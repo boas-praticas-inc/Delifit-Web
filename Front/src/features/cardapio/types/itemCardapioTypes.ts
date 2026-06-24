@@ -8,6 +8,7 @@ export type StatusItemCardapio =
 export interface ItemCardapio {
   id: number;
   restaurante_id: number;
+  categoria_id: number;
   nome: string;
   descricao: string | null;
   preco: number;
@@ -24,6 +25,7 @@ export interface ItemCardapio {
 
 export interface CriarItemCardapioPayload {
   restaurante_id: number;
+  categoria_id: number;
   nome: string;
   descricao: string | null;
   preco: number;

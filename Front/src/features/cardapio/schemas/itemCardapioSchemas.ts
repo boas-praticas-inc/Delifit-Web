@@ -1,6 +1,10 @@
 import { z } from 'zod';
 
 export const itemCardapioSchema = z.object({
+  categoria_id: z.coerce
+    .number()
+    .int()
+    .positive('Selecione uma categoria.'),
   nome: z.string().trim().min(2, 'Informe o nome do item.'),
   descricao: z.string().optional(),
   preco: z.coerce.number().min(0, 'Informe um preço válido.'),

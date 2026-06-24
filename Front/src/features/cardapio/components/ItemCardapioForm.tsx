@@ -7,22 +7,27 @@ import { Button } from '../../../components/common/Button';
 import { Input } from '../../../components/common/Input';
 import { Select } from '../../../components/common/Select';
 import { Textarea } from '../../../components/common/Textarea';
+import type { CategoriaCardapio } from '../types/categoriaCardapioTypes';
 import {
   itemCardapioSchema,
   type ItemCardapioFormData,
 } from '../schemas/itemCardapioSchemas';
 
 interface ItemCardapioFormProps {
+  categorias: CategoriaCardapio[];
   defaultValues?: Partial<ItemCardapioFormData>;
   formError?: string | null;
+  isLoadingCategorias?: boolean;
   submitLabel: string;
   onSubmit: (data: ItemCardapioFormData) => Promise<void>;
   onCancel?: () => void;
 }
 
 export function ItemCardapioForm({
+  categorias,
   defaultValues,
   formError,
+  isLoadingCategorias = false,
   submitLabel,
   onSubmit,
   onCancel,
@@ -35,6 +40,7 @@ export function ItemCardapioForm({
   } = useForm<ItemCardapioFormData>({
     resolver: zodResolver(itemCardapioSchema),
     defaultValues: {
+      tamanho: 'MEDIO',
       status_item: 'ATIVO',
       ...defaultValues,
     },
@@ -42,6 +48,7 @@ export function ItemCardapioForm({
 
   useEffect(() => {
     reset({
+      tamanho: 'MEDIO',
       status_item: 'ATIVO',
       ...defaultValues,
     });
@@ -52,6 +59,19 @@ export function ItemCardapioForm({
       className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
       onSubmit={handleSubmit(onSubmit)}
     >
+      <Select
+        label="Categoria"
+        disabled={isLoadingCategorias}
+        error={errors.categoria_id?.message}
+        {...register('categoria_id')}
+      >
+        <option value="">Selecione uma categoria</option>
+        {categorias.map((categoria) => (
+          <option key={categoria.id} value={categoria.id}>
+            {categoria.nome}
+          </option>
+        ))}
+      </Select>
       <Input
         label="Nome do item"
         error={errors.nome?.message}
@@ -139,6 +159,7 @@ export function ItemCardapioForm({
           variant="secondary"
           onClick={() => {
             reset({
+              tamanho: 'MEDIO',
               status_item: 'ATIVO',
               ...defaultValues,
             });

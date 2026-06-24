@@ -14,6 +14,7 @@ import { GestorAvaliacoesPage } from '../features/gestor/pages/GestorAvaliacoesP
 import { GestorCardapioPage } from '../features/gestor/pages/GestorCardapioPage';
 import { GestorFaturamentoPage } from '../features/gestor/pages/GestorFaturamentoPage';
 import { GestorInicioPage } from '../features/gestor/pages/GestorInicioPage';
+import { GestorNovoItemCardapioPage } from '../features/gestor/pages/GestorNovoItemCardapioPage';
 import { GestorPagamentoPage } from '../features/gestor/pages/GestorPagamentoPage';
 import { GestorPerfilPage } from '../features/gestor/pages/GestorPerfilPage';
 import { CriarRestaurantePage } from '../features/restaurantes/pages/CriarRestaurantePage';
@@ -41,6 +42,10 @@ export function AppRoutes() {
           />
           <Route path="/gestor/inicio" element={<GestorInicioPage />} />
           <Route path="/gestor/cardapio" element={<GestorCardapioPage />} />
+          <Route
+            path="/gestor/cardapio/novo"
+            element={<GestorNovoItemCardapioPage />}
+          />
           <Route path="/gestor/perfil" element={<GestorPerfilPage />} />
           <Route
             path="/gestor/faturamento"

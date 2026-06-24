@@ -1,12 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { Alert } from '../../../components/common/Alert';
 import { Button } from '../../../components/common/Button';
+import { DataTable } from '../../../components/common/DataTable';
+import { LinkButton } from '../../../components/common/LinkButton';
 import { Loading } from '../../../components/common/Loading';
 import { getApiErrorMessage } from '../../../lib/api';
-import { ItemCardapioForm } from '../../cardapio/components/ItemCardapioForm';
-import type { ItemCardapioFormData } from '../../cardapio/schemas/itemCardapioSchemas';
+import { categoriaCardapioService } from '../../cardapio/services/categoriaCardapioService';
 import { itemCardapioService } from '../../cardapio/services/itemCardapioService';
+import type { CategoriaCardapio } from '../../cardapio/types/categoriaCardapioTypes';
 import type { ItemCardapio } from '../../cardapio/types/itemCardapioTypes';
 import { gestorContextoService } from '../services/gestorContextoService';
 
@@ -27,82 +29,57 @@ export function GestorCardapioPage() {
   const [restauranteId, setRestauranteId] = useState<number | null>(null);
   const [restauranteNome, setRestauranteNome] = useState<string>('');
   const [itens, setItens] = useState<ItemCardapio[]>([]);
-  const [itemEmEdicao, setItemEmEdicao] = useState<ItemCardapio | null>(null);
+  const [categorias, setCategorias] = useState<CategoriaCardapio[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
 
-  async function carregarPagina() {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const { restaurante } = await gestorContextoService.buscarContextoAtual();
-
-      if (!restaurante) {
-        setRestauranteId(null);
-        setRestauranteNome('');
-        setItens([]);
-        return;
-      }
-
-      setRestauranteId(restaurante.id);
-      setRestauranteNome(restaurante.nome_fantasia);
-      const data = await itemCardapioService.listarItens(restaurante.id);
-      setItens(data);
-    } catch (requestError) {
-      setError(
-        requestError instanceof Error
-          ? requestError.message
-          : getApiErrorMessage(requestError),
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  }
+  const categoriasPorId = useMemo(
+    () =>
+      Object.fromEntries(
+        categorias.map((categoria) => [categoria.id, categoria.nome]),
+      ),
+    [categorias],
+  );
 
   useEffect(() => {
+    async function carregarPagina() {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const [{ restaurante }, categoriasData] = await Promise.all([
+          gestorContextoService.buscarContextoAtual(),
+          categoriaCardapioService.listarCategorias(),
+        ]);
+
+        setCategorias(categoriasData);
+
+        if (!restaurante) {
+          setRestauranteId(null);
+          setRestauranteNome('');
+          setItens([]);
+          return;
+        }
+
+        setRestauranteId(restaurante.id);
+        setRestauranteNome(restaurante.nome_fantasia);
+
+        const itensData = await itemCardapioService.listarItens(restaurante.id);
+        setItens(itensData);
+      } catch (requestError) {
+        setError(
+          requestError instanceof Error
+            ? requestError.message
+            : getApiErrorMessage(requestError),
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
     void carregarPagina();
   }, []);
-
-  async function handleSubmit(data: ItemCardapioFormData) {
-    if (!restauranteId) {
-      setError('Nenhum restaurante vinculado ao gestor foi encontrado.');
-      return;
-    }
-
-    setError(null);
-    setFeedback(null);
-
-    try {
-      const payload = {
-        restaurante_id: restauranteId,
-        nome: data.nome,
-        descricao: data.descricao || null,
-        preco: Number(data.preco),
-        carboidratos: Number(data.carboidratos),
-        gorduras: Number(data.gorduras),
-        proteina: Number(data.proteina),
-        caloria: Number(data.caloria),
-        tamanho: data.tamanho,
-        status_item: data.status_item,
-        foto_url: data.foto_url || null,
-      };
-
-      if (itemEmEdicao) {
-        await itemCardapioService.atualizarItem(itemEmEdicao.id, payload);
-        setFeedback('Item atualizado com sucesso.');
-      } else {
-        await itemCardapioService.criarItem(payload);
-        setFeedback('Item criado com sucesso.');
-      }
-
-      setItemEmEdicao(null);
-      await carregarPagina();
-    } catch (requestError) {
-      setError(getApiErrorMessage(requestError));
-    }
-  }
 
   async function handleExcluir(item: ItemCardapio) {
     if (!window.confirm(`Deseja remover o item "${item.nome}"?`)) {
@@ -113,11 +90,10 @@ export function GestorCardapioPage() {
       setError(null);
       setFeedback(null);
       await itemCardapioService.excluirItem(item.id);
+      setItens((estadoAtual) =>
+        estadoAtual.filter((itemAtual) => itemAtual.id !== item.id),
+      );
       setFeedback('Item removido com sucesso.');
-      if (itemEmEdicao?.id === item.id) {
-        setItemEmEdicao(null);
-      }
-      await carregarPagina();
     } catch (requestError) {
       setError(getApiErrorMessage(requestError));
     }
@@ -135,7 +111,7 @@ export function GestorCardapioPage() {
             Cardápio
           </p>
           <h1 className="mt-1 text-2xl font-bold text-slate-950">
-            Gerenciar itens do cardápio
+            Itens do cardápio
           </h1>
           <p className="mt-2 text-sm text-slate-600">
             {restauranteNome
@@ -143,11 +119,7 @@ export function GestorCardapioPage() {
               : 'Nenhum restaurante vinculado ao gestor.'}
           </p>
         </div>
-        {itemEmEdicao ? (
-          <Button variant="secondary" onClick={() => setItemEmEdicao(null)}>
-            Novo item
-          </Button>
-        ) : null}
+        <LinkButton to="/gestor/cardapio/novo">Adicionar item</LinkButton>
       </div>
 
       {feedback ? <Alert variant="success">{feedback}</Alert> : null}
@@ -159,102 +131,118 @@ export function GestorCardapioPage() {
           cardápio.
         </Alert>
       ) : (
-        <>
-          <ItemCardapioForm
-            defaultValues={
-              itemEmEdicao
-                ? {
-                    nome: itemEmEdicao.nome,
-                    descricao: itemEmEdicao.descricao ?? '',
-                    preco: itemEmEdicao.preco,
-                    carboidratos: itemEmEdicao.carboidratos,
-                    gorduras: itemEmEdicao.gorduras,
-                    proteina: itemEmEdicao.proteina,
-                    caloria: itemEmEdicao.caloria,
-                    tamanho: itemEmEdicao.tamanho,
-                    status_item: itemEmEdicao.status_item,
-                    foto_url: itemEmEdicao.foto_url ?? '',
-                  }
-                : {
-                    nome: '',
-                    descricao: '',
-                    preco: 0,
-                    carboidratos: 0,
-                    gorduras: 0,
-                    proteina: 0,
-                    caloria: 0,
-                    tamanho: 'MEDIO',
-                    status_item: 'ATIVO',
-                    foto_url: '',
-                  }
-            }
-            formError={error}
-            submitLabel={itemEmEdicao ? 'Salvar alterações' : 'Adicionar item'}
-            onSubmit={handleSubmit}
-            onCancel={() => {
-              if (itemEmEdicao) {
-                setItemEmEdicao(null);
-              }
-            }}
-          />
-
-          <div className="grid gap-4">
-            {itens.length === 0 ? (
-              <article className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-5 text-sm text-slate-600">
-                Nenhum item cadastrado no cardápio.
-              </article>
-            ) : (
-              itens.map((item) => (
-                <article
-                  key={item.id}
-                  className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
-                >
-                  <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                    <div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <h2 className="text-lg font-bold text-slate-950">
-                          {item.nome}
-                        </h2>
-                        <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-                          {statusLabel[item.status_item] ?? item.status_item}
-                        </span>
-                        {item.tamanho ? (
-                          <span className="rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-800">
-                            {tamanhoLabel[item.tamanho] ?? item.tamanho}
-                          </span>
-                        ) : null}
-                      </div>
-                      <p className="mt-2 text-xl font-semibold text-slate-950">
-                        {new Intl.NumberFormat('pt-BR', {
-                          style: 'currency',
-                          currency: 'BRL',
-                        }).format(item.preco)}
-                      </p>
-                      <p className="mt-3 text-sm text-slate-600">
-                        {`${item.caloria} cal • ${item.carboidratos}g carb • ${item.gorduras}g gord • ${item.proteina}g prot`}
-                      </p>
-                      <p className="mt-3 text-sm leading-6 text-slate-600">
-                        {item.descricao ?? 'Sem descrição informada.'}
-                      </p>
-                    </div>
-
-                    <div className="flex flex-col gap-3 sm:flex-row">
-                      <Button
-                        variant="secondary"
-                        onClick={() => setItemEmEdicao(item)}
-                      >
-                        Editar
-                      </Button>
-                      <Button onClick={() => void handleExcluir(item)}>
-                        Remover
-                      </Button>
-                    </div>
+        <DataTable
+          items={itens}
+          emptyMessage="Nenhum item cadastrado no cardápio."
+          searchPlaceholder="Buscar item por nome, categoria ou descrição"
+          filters={[
+            {
+              id: 'categoria',
+              label: 'Categoria',
+              options: categorias
+                .filter((categoria) => categoria.nome !== 'SEM_CATEGORIA')
+                .map((categoria) => ({
+                  label: categoria.nome,
+                  value: String(categoria.id),
+                })),
+              predicate: (item, value) => String(item.categoria_id) === value,
+            },
+            {
+              id: 'status',
+              label: 'Status',
+              options: Object.entries(statusLabel).map(([value, label]) => ({
+                label,
+                value,
+              })),
+              predicate: (item, value) => item.status_item === value,
+            },
+          ]}
+          columns={[
+            {
+              id: 'item',
+              header: 'Item',
+              searchValue: (item) =>
+                `${item.nome} ${item.descricao ?? ''} ${
+                  categoriasPorId[item.categoria_id] ?? ''
+                }`,
+              sortValue: (item) => item.nome,
+              render: (item) => (
+                <div>
+                  <div className="font-semibold text-slate-950">{item.nome}</div>
+                  <div className="mt-1 text-xs text-slate-500">
+                    {item.descricao ?? 'Sem descrição informada.'}
                   </div>
-                </article>
-              ))
-            )}
-          </div>
-        </>
+                </div>
+              ),
+            },
+            {
+              id: 'categoria',
+              header: 'Categoria',
+              searchValue: (item) => categoriasPorId[item.categoria_id] ?? '',
+              sortValue: (item) => categoriasPorId[item.categoria_id] ?? '',
+              render: (item) => (
+                <span className="rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-800">
+                  {categoriasPorId[item.categoria_id] ?? 'Sem categoria'}
+                </span>
+              ),
+            },
+            {
+              id: 'preco',
+              header: 'Preço',
+              searchValue: (item) => String(item.preco),
+              sortValue: (item) => item.preco,
+              render: (item) =>
+                new Intl.NumberFormat('pt-BR', {
+                  style: 'currency',
+                  currency: 'BRL',
+                }).format(item.preco),
+            },
+            {
+              id: 'macros',
+              header: 'Macros',
+              searchValue: (item) =>
+                `${item.caloria} ${item.carboidratos} ${item.gorduras} ${item.proteina}`,
+              render: (item) => (
+                <div className="text-xs leading-6 text-slate-600">
+                  <div>{item.caloria} cal</div>
+                  <div>{item.carboidratos}g carb</div>
+                  <div>{item.gorduras}g gord</div>
+                  <div>{item.proteina}g prot</div>
+                </div>
+              ),
+            },
+            {
+              id: 'status_item',
+              header: 'Status',
+              searchValue: (item) => item.status_item,
+              sortValue: (item) => item.status_item,
+              render: (item) => (
+                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                  {statusLabel[item.status_item] ?? item.status_item}
+                </span>
+              ),
+            },
+            {
+              id: 'tamanho',
+              header: 'Tamanho',
+              searchValue: (item) => item.tamanho,
+              sortValue: (item) => item.tamanho,
+              render: (item) => tamanhoLabel[item.tamanho] ?? item.tamanho,
+            },
+            {
+              header: 'Ações',
+              className: 'w-32',
+              render: (item) => (
+                <Button
+                  variant="secondary"
+                  onClick={() => void handleExcluir(item)}
+                >
+                  Remover
+                </Button>
+              ),
+            },
+          ]}
+        />
       )}
     </section>
   );
