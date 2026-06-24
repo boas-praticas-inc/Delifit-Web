@@ -3,7 +3,11 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query, status
 
-from app.application.dto.item_cardapio_dto import AtualizarItemCardapioDTO, CriarItemCardapioDTO
+from app.application.dto.item_cardapio_dto import (
+    AtualizarItemCardapioDTO,
+    CriarItemCardapioDTO,
+    VariacaoItemCardapioDTO,
+)
 from app.application.use_cases.item_cardapio.atualizar_item_cardapio import AtualizarItemCardapioUseCase
 from app.application.use_cases.item_cardapio.buscar_item_cardapio_por_id import BuscarItemCardapioPorIdUseCase
 from app.application.use_cases.item_cardapio.criar_item_cardapio import CriarItemCardapioUseCase
@@ -36,12 +40,17 @@ def criar_item_cardapio(
             categoria_id=payload.categoria_id,
             nome=payload.nome,
             descricao=payload.descricao,
-            preco=Decimal(str(payload.preco)),
-            carboidratos=Decimal(str(payload.carboidratos)),
-            gorduras=Decimal(str(payload.gorduras)),
-            proteina=Decimal(str(payload.proteina)),
-            caloria=Decimal(str(payload.caloria)),
-            tamanho=payload.tamanho,
+            variacoes=[
+                VariacaoItemCardapioDTO(
+                    tamanho=variacao.tamanho,
+                    preco=Decimal(str(variacao.preco)),
+                    carboidratos=Decimal(str(variacao.carboidratos)),
+                    gorduras=Decimal(str(variacao.gorduras)),
+                    proteina=Decimal(str(variacao.proteina)),
+                    caloria=Decimal(str(variacao.caloria)),
+                )
+                for variacao in payload.variacoes
+            ],
             status_item=payload.status_item,
             foto_url=payload.foto_url,
         )
@@ -83,12 +92,17 @@ def atualizar_item_cardapio(
             categoria_id=payload.categoria_id,
             nome=payload.nome,
             descricao=payload.descricao,
-            preco=Decimal(str(payload.preco)),
-            carboidratos=Decimal(str(payload.carboidratos)),
-            gorduras=Decimal(str(payload.gorduras)),
-            proteina=Decimal(str(payload.proteina)),
-            caloria=Decimal(str(payload.caloria)),
-            tamanho=payload.tamanho,
+            variacoes=[
+                VariacaoItemCardapioDTO(
+                    tamanho=variacao.tamanho,
+                    preco=Decimal(str(variacao.preco)),
+                    carboidratos=Decimal(str(variacao.carboidratos)),
+                    gorduras=Decimal(str(variacao.gorduras)),
+                    proteina=Decimal(str(variacao.proteina)),
+                    caloria=Decimal(str(variacao.caloria)),
+                )
+                for variacao in payload.variacoes
+            ],
             status_item=payload.status_item,
             foto_url=payload.foto_url,
         ),

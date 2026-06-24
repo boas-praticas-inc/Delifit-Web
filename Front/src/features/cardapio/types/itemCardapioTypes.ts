@@ -5,22 +5,36 @@ export type StatusItemCardapio =
   | 'INATIVO'
   | 'ARQUIVADO';
 
+export interface VariacaoItemCardapio {
+  id: number | null;
+  tamanho: TamanhoItem;
+  preco: number;
+  carboidratos: number;
+  gorduras: number;
+  proteina: number;
+  caloria: number;
+}
+
 export interface ItemCardapio {
   id: number;
   restaurante_id: number;
   categoria_id: number;
   nome: string;
   descricao: string | null;
+  variacoes: VariacaoItemCardapio[];
+  status_item: StatusItemCardapio;
+  foto_url: string | null;
+  criado_em: string;
+  atualizado_em: string;
+}
+
+export interface VariacaoItemCardapioPayload {
+  tamanho: TamanhoItem;
   preco: number;
   carboidratos: number;
   gorduras: number;
   proteina: number;
   caloria: number;
-  tamanho: TamanhoItem;
-  status_item: StatusItemCardapio;
-  foto_url: string | null;
-  criado_em: string;
-  atualizado_em: string;
 }
 
 export interface CriarItemCardapioPayload {
@@ -28,12 +42,7 @@ export interface CriarItemCardapioPayload {
   categoria_id: number;
   nome: string;
   descricao: string | null;
-  preco: number;
-  carboidratos: number;
-  gorduras: number;
-  proteina: number;
-  caloria: number;
-  tamanho: TamanhoItem;
+  variacoes: VariacaoItemCardapioPayload[];
   status_item: StatusItemCardapio;
   foto_url: string | null;
 }

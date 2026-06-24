@@ -4,6 +4,7 @@ from decimal import Decimal
 import pytest
 
 from app.application.dto.item_cardapio_dto import AtualizarItemCardapioDTO, CriarItemCardapioDTO
+from app.application.dto.item_cardapio_dto import VariacaoItemCardapioDTO
 from app.application.use_cases.item_cardapio.atualizar_item_cardapio import AtualizarItemCardapioUseCase
 from app.application.use_cases.item_cardapio.criar_item_cardapio import CriarItemCardapioUseCase
 from app.application.use_cases.item_cardapio.excluir_item_cardapio import ExcluirItemCardapioUseCase
@@ -11,6 +12,7 @@ from app.application.use_cases.item_cardapio.listar_itens_cardapio import Listar
 from app.core.item_cardapio_exceptions import ItemCardapioNaoEncontradoError
 from app.domain.entities.item_cardapio import ItemCardapio
 from app.domain.repositories.item_cardapio_repository import ItemCardapioRepository
+from app.domain.entities.variacao_item_cardapio import VariacaoItemCardapio
 
 
 class FakeItemCardapioRepository(ItemCardapioRepository):
@@ -23,13 +25,19 @@ class FakeItemCardapioRepository(ItemCardapioRepository):
             restaurante_id=item.restaurante_id,
             categoria_id=item.categoria_id,
             nome=item.nome,
+            variacoes=[
+                VariacaoItemCardapio(
+                    id=index + 1,
+                    tamanho=variacao.tamanho,
+                    preco=variacao.preco,
+                    carboidratos=variacao.carboidratos,
+                    gorduras=variacao.gorduras,
+                    proteina=variacao.proteina,
+                    caloria=variacao.caloria,
+                )
+                for index, variacao in enumerate(item.variacoes)
+            ],
             descricao=item.descricao,
-            preco=item.preco,
-            carboidratos=item.carboidratos,
-            gorduras=item.gorduras,
-            proteina=item.proteina,
-            caloria=item.caloria,
-            tamanho=item.tamanho,
             status_item=item.status_item,
             foto_url=item.foto_url,
             criado_em=datetime(2026, 6, 18, 12, 0, 0),
@@ -63,12 +71,16 @@ def test_criar_item_cardapio_persiste_item() -> None:
             categoria_id=2,
             nome="Marmita Fit",
             descricao="Frango com legumes",
-            preco=Decimal("29.90"),
-            carboidratos=Decimal("18.50"),
-            gorduras=Decimal("7.20"),
-            proteina=Decimal("25.00"),
-            caloria=Decimal("310.00"),
-            tamanho="MEDIO",
+            variacoes=[
+                VariacaoItemCardapioDTO(
+                    tamanho="MEDIO",
+                    preco=Decimal("29.90"),
+                    carboidratos=Decimal("18.50"),
+                    gorduras=Decimal("7.20"),
+                    proteina=Decimal("25.00"),
+                    caloria=Decimal("310.00"),
+                )
+            ],
             status_item="ATIVO",
             foto_url=None,
         )
@@ -77,8 +89,8 @@ def test_criar_item_cardapio_persiste_item() -> None:
     assert item.id == 1
     assert item.restaurante_id == 3
     assert item.categoria_id == 2
-    assert item.preco == Decimal("29.90")
-    assert item.proteina == Decimal("25.00")
+    assert item.variacoes[0].preco == Decimal("29.90")
+    assert item.variacoes[0].proteina == Decimal("25.00")
 
 
 def test_atualizar_item_cardapio_lanca_quando_nao_encontra() -> None:
@@ -93,12 +105,16 @@ def test_atualizar_item_cardapio_lanca_quando_nao_encontra() -> None:
                 categoria_id=1,
                 nome="Novo item",
                 descricao=None,
-                preco=Decimal("10.00"),
-                carboidratos=Decimal("10.00"),
-                gorduras=Decimal("2.00"),
-                proteina=Decimal("5.00"),
-                caloria=Decimal("120.00"),
-                tamanho="PEQUENO",
+                variacoes=[
+                    VariacaoItemCardapioDTO(
+                        tamanho="PEQUENO",
+                        preco=Decimal("10.00"),
+                        carboidratos=Decimal("10.00"),
+                        gorduras=Decimal("2.00"),
+                        proteina=Decimal("5.00"),
+                        caloria=Decimal("120.00"),
+                    )
+                ],
                 status_item="ATIVO",
                 foto_url=None,
             ),
@@ -116,12 +132,16 @@ def test_listar_itens_cardapio_filtra_por_restaurante() -> None:
             categoria_id=1,
             nome="Item A",
             descricao=None,
-            preco=Decimal("11.50"),
-            carboidratos=Decimal("14.00"),
-            gorduras=Decimal("3.00"),
-            proteina=Decimal("8.00"),
-            caloria=Decimal("160.00"),
-            tamanho="MEDIO",
+            variacoes=[
+                VariacaoItemCardapioDTO(
+                    tamanho="MEDIO",
+                    preco=Decimal("11.50"),
+                    carboidratos=Decimal("14.00"),
+                    gorduras=Decimal("3.00"),
+                    proteina=Decimal("8.00"),
+                    caloria=Decimal("160.00"),
+                )
+            ],
             status_item="ATIVO",
             foto_url=None,
         )
@@ -132,12 +152,16 @@ def test_listar_itens_cardapio_filtra_por_restaurante() -> None:
             categoria_id=2,
             nome="Item B",
             descricao=None,
-            preco=Decimal("13.50"),
-            carboidratos=Decimal("20.00"),
-            gorduras=Decimal("4.00"),
-            proteina=Decimal("10.00"),
-            caloria=Decimal("210.00"),
-            tamanho="GRANDE",
+            variacoes=[
+                VariacaoItemCardapioDTO(
+                    tamanho="GRANDE",
+                    preco=Decimal("13.50"),
+                    carboidratos=Decimal("20.00"),
+                    gorduras=Decimal("4.00"),
+                    proteina=Decimal("10.00"),
+                    caloria=Decimal("210.00"),
+                )
+            ],
             status_item="ATIVO",
             foto_url=None,
         )

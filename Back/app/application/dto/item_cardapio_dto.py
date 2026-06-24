@@ -3,16 +3,21 @@ from decimal import Decimal
 
 
 @dataclass(slots=True)
-class CriarItemCardapioDTO:
-    restaurante_id: int
-    categoria_id: int
-    nome: str
+class VariacaoItemCardapioDTO:
+    tamanho: str
     preco: Decimal
     carboidratos: Decimal
     gorduras: Decimal
     proteina: Decimal
     caloria: Decimal
-    tamanho: str
+
+
+@dataclass(slots=True)
+class CriarItemCardapioDTO:
+    restaurante_id: int
+    categoria_id: int
+    nome: str
+    variacoes: list[VariacaoItemCardapioDTO]
     descricao: str | None = None
     status_item: str = "ATIVO"
     foto_url: str | None = None
@@ -23,12 +28,7 @@ class AtualizarItemCardapioDTO:
     restaurante_id: int
     categoria_id: int
     nome: str
-    preco: Decimal
-    carboidratos: Decimal
-    gorduras: Decimal
-    proteina: Decimal
-    caloria: Decimal
-    tamanho: str
+    variacoes: list[VariacaoItemCardapioDTO]
     descricao: str | None = None
     status_item: str = "ATIVO"
     foto_url: str | None = None

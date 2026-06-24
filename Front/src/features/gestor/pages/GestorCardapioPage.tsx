@@ -9,7 +9,7 @@ import { getApiErrorMessage } from '../../../lib/api';
 import { categoriaCardapioService } from '../../cardapio/services/categoriaCardapioService';
 import { itemCardapioService } from '../../cardapio/services/itemCardapioService';
 import type { CategoriaCardapio } from '../../cardapio/types/categoriaCardapioTypes';
-import type { ItemCardapio } from '../../cardapio/types/itemCardapioTypes';
+import type { ItemCardapio, VariacaoItemCardapio } from '../../cardapio/types/itemCardapioTypes';
 import { gestorContextoService } from '../services/gestorContextoService';
 
 const statusLabel: Record<string, string> = {
@@ -134,7 +134,7 @@ export function GestorCardapioPage() {
         <DataTable
           items={itens}
           emptyMessage="Nenhum item cadastrado no cardápio."
-          searchPlaceholder="Buscar item por nome, categoria ou descrição"
+          searchPlaceholder="Buscar item por nome, categoria, descrição ou tamanho"
           filters={[
             {
               id: 'categoria',
@@ -164,7 +164,7 @@ export function GestorCardapioPage() {
               searchValue: (item) =>
                 `${item.nome} ${item.descricao ?? ''} ${
                   categoriasPorId[item.categoria_id] ?? ''
-                }`,
+                } ${item.variacoes.map((variacao) => variacao.tamanho).join(' ')}`,
               sortValue: (item) => item.nome,
               render: (item) => (
                 <div>
@@ -187,27 +187,45 @@ export function GestorCardapioPage() {
               ),
             },
             {
-              id: 'preco',
-              header: 'Preço',
-              searchValue: (item) => String(item.preco),
-              sortValue: (item) => item.preco,
-              render: (item) =>
-                new Intl.NumberFormat('pt-BR', {
-                  style: 'currency',
-                  currency: 'BRL',
-                }).format(item.preco),
+              id: 'faixa_preco',
+              header: 'Faixa de preço',
+              searchValue: (item) =>
+                item.variacoes.map((variacao) => String(variacao.preco)).join(' '),
+              sortValue: (item) =>
+                Math.min(...item.variacoes.map((variacao) => variacao.preco)),
+              render: (item) => formatarFaixaPreco(item.variacoes),
             },
             {
-              id: 'macros',
-              header: 'Macros',
+              id: 'variacoes',
+              header: 'Variações',
               searchValue: (item) =>
-                `${item.caloria} ${item.carboidratos} ${item.gorduras} ${item.proteina}`,
+                item.variacoes
+                  .map(
+                    (variacao) =>
+                      `${variacao.tamanho} ${variacao.preco} ${variacao.caloria}`,
+                  )
+                  .join(' '),
               render: (item) => (
-                <div className="text-xs leading-6 text-slate-600">
-                  <div>{item.caloria} cal</div>
-                  <div>{item.carboidratos}g carb</div>
-                  <div>{item.gorduras}g gord</div>
-                  <div>{item.proteina}g prot</div>
+                <div className="grid gap-2">
+                  {item.variacoes.map((variacao) => (
+                    <div
+                      key={`${item.id}-${variacao.tamanho}`}
+                      className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600"
+                    >
+                      <div className="font-semibold text-slate-900">
+                        {tamanhoLabel[variacao.tamanho] ?? variacao.tamanho}
+                      </div>
+                      <div className="mt-1">
+                        {new Intl.NumberFormat('pt-BR', {
+                          style: 'currency',
+                          currency: 'BRL',
+                        }).format(variacao.preco)}
+                      </div>
+                      <div className="mt-1">
+                        {`${variacao.caloria} cal • ${variacao.carboidratos}g carb • ${variacao.gorduras}g gord • ${variacao.proteina}g prot`}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               ),
             },
@@ -221,13 +239,6 @@ export function GestorCardapioPage() {
                   {statusLabel[item.status_item] ?? item.status_item}
                 </span>
               ),
-            },
-            {
-              id: 'tamanho',
-              header: 'Tamanho',
-              searchValue: (item) => item.tamanho,
-              sortValue: (item) => item.tamanho,
-              render: (item) => tamanhoLabel[item.tamanho] ?? item.tamanho,
             },
             {
               header: 'Ações',
@@ -246,4 +257,25 @@ export function GestorCardapioPage() {
       )}
     </section>
   );
+}
+
+function formatarFaixaPreco(variacoes: VariacaoItemCardapio[]) {
+  const precos = variacoes.map((variacao) => variacao.preco);
+  const menorPreco = Math.min(...precos);
+  const maiorPreco = Math.max(...precos);
+
+  if (menorPreco === maiorPreco) {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+    }).format(menorPreco);
+  }
+
+  return `${new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  }).format(menorPreco)} - ${new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  }).format(maiorPreco)}`;
 }

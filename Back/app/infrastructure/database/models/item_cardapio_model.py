@@ -3,7 +3,7 @@ from decimal import Decimal
 
 from sqlalchemy import BigInteger, DateTime, ForeignKey, Numeric, String, Text, func
 from sqlalchemy.dialects.postgresql import ENUM
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
 
@@ -64,4 +64,10 @@ class ItemCardapioModel(Base):
         DateTime,
         nullable=False,
         server_default=func.current_timestamp(),
+    )
+    variacoes: Mapped[list["VariacaoItemCardapioModel"]] = relationship(
+        "VariacaoItemCardapioModel",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+        order_by="VariacaoItemCardapioModel.id",
     )

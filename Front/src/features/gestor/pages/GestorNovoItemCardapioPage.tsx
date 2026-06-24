@@ -60,12 +60,14 @@ export function GestorNovoItemCardapioPage() {
         categoria_id: Number(data.categoria_id),
         nome: data.nome,
         descricao: data.descricao || null,
-        preco: Number(data.preco),
-        carboidratos: Number(data.carboidratos),
-        gorduras: Number(data.gorduras),
-        proteina: Number(data.proteina),
-        caloria: Number(data.caloria),
-        tamanho: data.tamanho,
+        variacoes: data.variacoes.map((variacao) => ({
+          tamanho: variacao.tamanho,
+          preco: Number(variacao.preco),
+          carboidratos: Number(variacao.carboidratos),
+          gorduras: Number(variacao.gorduras),
+          proteina: Number(variacao.proteina),
+          caloria: Number(variacao.caloria),
+        })),
         status_item: data.status_item,
         foto_url: data.foto_url || null,
       });
@@ -81,7 +83,7 @@ export function GestorNovoItemCardapioPage() {
   }
 
   return (
-    <section className="mx-auto grid max-w-3xl gap-6">
+    <section className="mx-auto grid max-w-4xl gap-6">
       <div>
         <Link to="/gestor/cardapio" className="text-sm font-semibold text-brand-700">
           Voltar para Cardápio
@@ -118,12 +120,16 @@ export function GestorNovoItemCardapioPage() {
             categoria_id: categorias[0]?.id,
             nome: '',
             descricao: '',
-            preco: 0,
-            carboidratos: 0,
-            gorduras: 0,
-            proteina: 0,
-            caloria: 0,
-            tamanho: 'MEDIO',
+            variacoes: [
+              {
+                tamanho: 'MEDIO',
+                preco: 0,
+                carboidratos: 0,
+                gorduras: 0,
+                proteina: 0,
+                caloria: 0,
+              },
+            ],
             status_item: 'ATIVO',
             foto_url: '',
           }}
