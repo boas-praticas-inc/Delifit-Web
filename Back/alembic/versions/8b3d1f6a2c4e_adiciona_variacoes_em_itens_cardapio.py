@@ -9,6 +9,7 @@ from collections.abc import Sequence
 
 import sqlalchemy as sa
 from alembic import op
+from sqlalchemy.dialects import postgresql
 
 revision: str = "8b3d1f6a2c4e"
 down_revision: str | None = "7a1c5e9d3f4b"
@@ -16,16 +17,21 @@ branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 
 
+tamanho_item_pg_enum = postgresql.ENUM(
+    "PEQUENO",
+    "MEDIO",
+    "GRANDE",
+    name="tamanho_item_enum",
+    create_type=False,
+)
+
+
 def upgrade() -> None:
     op.create_table(
         "variacoes_item_cardapio",
         sa.Column("id", sa.BIGINT(), autoincrement=True, nullable=False),
         sa.Column("item_cardapio_id", sa.BIGINT(), nullable=False),
-        sa.Column(
-            "tamanho",
-            sa.Enum("PEQUENO", "MEDIO", "GRANDE", name="tamanho_item_enum"),
-            nullable=False,
-        ),
+        sa.Column("tamanho", tamanho_item_pg_enum, nullable=False),
         sa.Column("preco", sa.Numeric(10, 2), nullable=False),
         sa.Column("carboidratos", sa.Numeric(10, 2), nullable=False),
         sa.Column("gorduras", sa.Numeric(10, 2), nullable=False),
