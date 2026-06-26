@@ -1,7 +1,7 @@
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.core.exceptions import EmailJaCadastradoError
+from app.core.exceptions import EmailJaCadastradoError, TelefoneJaCadastradoError
 from app.domain.entities.usuario import Usuario
 from app.domain.repositories.usuario_repository import UsuarioRepository
 from app.infrastructure.database.models.usuario_model import UsuarioModel
@@ -14,6 +14,7 @@ class SQLAlchemyUsuarioRepository(UsuarioRepository):
     def criar(self, usuario: Usuario) -> Usuario:
         model = UsuarioModel(
             email=usuario.email,
+            telefone=usuario.telefone,
             senha_hash=usuario.senha_hash,
             tipo_usuario=usuario.tipo_usuario,
             status=usuario.status,
@@ -23,6 +24,9 @@ class SQLAlchemyUsuarioRepository(UsuarioRepository):
             self.session.commit()
         except IntegrityError as exc:
             self.session.rollback()
+            mensagem = str(exc.orig).lower() if exc.orig is not None else str(exc).lower()
+            if "telefone" in mensagem:
+                raise TelefoneJaCadastradoError() from exc
             raise EmailJaCadastradoError() from exc
 
         self.session.refresh(model)
@@ -40,11 +44,42 @@ class SQLAlchemyUsuarioRepository(UsuarioRepository):
         model = self.session.query(UsuarioModel).filter(UsuarioModel.email == email).first()
         return self._to_entity(model) if model is not None else None
 
+    def buscar_por_telefone(self, telefone: str) -> Usuario | None:
+        model = self.session.query(UsuarioModel).filter(UsuarioModel.telefone == telefone).first()
+        return self._to_entity(model) if model is not None else None
+
+    def excluir(self, usuario_id: int) -> bool:
+        model = self.session.get(UsuarioModel, usuario_id)
+        if model is None:
+            return False
+
+        self.session.delete(model)
+        self.session.commit()
+        return True
+
+    def atualizar_telefone(self, usuario_id: int, telefone: str) -> Usuario | None:
+        model = self.session.get(UsuarioModel, usuario_id)
+        if model is None:
+            return None
+
+        model.telefone = telefone
+        try:
+            self.session.commit()
+        except IntegrityError as exc:
+            self.session.rollback()
+            mensagem = str(exc.orig).lower() if exc.orig is not None else str(exc).lower()
+            if "telefone" in mensagem:
+                raise TelefoneJaCadastradoError() from exc
+            raise
+        self.session.refresh(model)
+        return self._to_entity(model)
+
     @staticmethod
     def _to_entity(model: UsuarioModel) -> Usuario:
         return Usuario(
             id=model.id,
             email=model.email,
+            telefone=model.telefone,
             senha_hash=model.senha_hash,
             tipo_usuario=model.tipo_usuario,
             status=model.status,

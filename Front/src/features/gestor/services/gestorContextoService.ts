@@ -17,15 +17,12 @@ export const gestorContextoService = {
       throw new Error('Faça login como gestor para acessar esta área.');
     }
 
-    const [gestores, restaurantes] = await Promise.all([
-      gestorService.listarGestores(),
+    const [gestor, restaurantes] = await Promise.all([
+      gestorService.buscarMeuPerfil(),
       restauranteService.listarRestaurantes(),
     ]);
 
-    const gestor = gestores.find((item) => item.usuario_id === usuario.id) ?? null;
-    const restaurante = gestor
-      ? restaurantes.find((item) => item.gestor_id === gestor.id) ?? null
-      : null;
+    const restaurante = restaurantes.find((item) => item.gestor_id === gestor.id) ?? null;
 
     return { gestor, restaurante };
   },

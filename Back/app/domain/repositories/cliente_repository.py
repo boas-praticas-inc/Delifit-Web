@@ -9,6 +9,10 @@ class ClienteRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def buscar_por_usuario_id(self, usuario_id: int) -> Cliente | None:
+        raise NotImplementedError
+
+    @abstractmethod
     def listar(self) -> list[Cliente]:
         raise NotImplementedError
 

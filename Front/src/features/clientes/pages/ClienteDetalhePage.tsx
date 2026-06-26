@@ -78,7 +78,10 @@ export function ClienteDetalhePage() {
 
       <div className="grid gap-4 md:grid-cols-2">
         <InfoCard label="CPF" value={formatarCpf(cliente.cpf)} />
-        <InfoCard label="Telefone" value={formatarTelefone(cliente.telefone)} />
+        <InfoCard
+          label="Telefone"
+          value={cliente.telefone ? formatarTelefone(cliente.telefone) : 'Não informado'}
+        />
         <InfoCard label="Data de nascimento" value={formatarData(cliente.data_nascimento)} />
         <InfoCard label="Categoria" value="Cliente Delifit" />
       </div>

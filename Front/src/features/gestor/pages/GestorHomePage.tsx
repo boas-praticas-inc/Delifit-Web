@@ -6,13 +6,10 @@ import { Button } from '../../../components/common/Button';
 import { Loading } from '../../../components/common/Loading';
 import { getApiErrorMessage } from '../../../lib/api';
 import { formatarCnpj } from '../../../utils/masks';
-import {
-  getUsuarioLogado,
-  limparUsuarioLogado,
-} from '../../auth/utils/session';
-import { gestorService } from '../../gestores/services/gestorService';
+import { limparUsuarioLogado } from '../../auth/utils/session';
 import { solicitacaoService } from '../../solicitacoes/services/solicitacaoService';
 import type { Solicitacao } from '../../solicitacoes/types/solicitacaoTypes';
+import { gestorContextoService } from '../services/gestorContextoService';
 
 const statusLabels: Record<Solicitacao['status_solicitacao'], string> = {
   EM_ANALISE: 'Em análise',
@@ -37,18 +34,10 @@ export function GestorHomePage() {
     setError(null);
 
     try {
-      const usuario = getUsuarioLogado();
-
-      if (!usuario || usuario.tipo_usuario !== 'GESTOR') {
-        setError('Faça login como gestor para visualizar suas solicitações.');
-        return;
-      }
-
-      const [gestores, todasSolicitacoes] = await Promise.all([
-        gestorService.listarGestores(),
+      const [{ gestor }, todasSolicitacoes] = await Promise.all([
+        gestorContextoService.buscarContextoAtual(),
         solicitacaoService.listarSolicitacoes(),
       ]);
-      const gestor = gestores.find((item) => item.usuario_id === usuario.id);
 
       if (!gestor) {
         setSolicitacoes([]);
@@ -58,8 +47,8 @@ export function GestorHomePage() {
       setSolicitacoes(
         todasSolicitacoes.filter((item) => item.gestor_id === gestor.id),
       );
-    } catch {
-      setError('Não foi possível carregar as solicitações.');
+    } catch (requestError) {
+      setError(getApiErrorMessage(requestError));
     } finally {
       setIsLoading(false);
     }

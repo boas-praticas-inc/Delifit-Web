@@ -100,24 +100,26 @@ export function ClienteForm(props: Props) {
           />
         )}
       />
-      <Controller
-        control={control}
-        name="telefone"
-        render={({ field }) => (
-          <Input
-            label="Telefone"
-            inputMode="tel"
-            maxLength={15}
-            placeholder="(00) 00000-0000"
-            error={getErrorMessage(errors.telefone?.message)}
-            {...field}
-            value={formatarTelefone(field.value ?? '')}
-            onChange={(event) =>
-              field.onChange(formatarTelefone(event.target.value))
-            }
-          />
-        )}
-      />
+      {props.mode === 'create' ? (
+        <Controller
+          control={control}
+          name="telefone"
+          render={({ field }) => (
+            <Input
+              label="Telefone"
+              inputMode="tel"
+              maxLength={15}
+              placeholder="(00) 00000-0000"
+              error={getErrorMessage(errors.telefone?.message)}
+              {...field}
+              value={formatarTelefone(field.value ?? '')}
+              onChange={(event) =>
+                field.onChange(formatarTelefone(event.target.value))
+              }
+            />
+          )}
+        />
+      ) : null}
       <Input
         label="Data de nascimento"
         type="date"

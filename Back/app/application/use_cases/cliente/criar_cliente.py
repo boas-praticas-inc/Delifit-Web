@@ -13,7 +13,6 @@ class CriarClienteUseCase:
             usuario_id=dto.usuario_id,
             nome_completo=dto.nome_completo,
             cpf=dto.cpf,
-            telefone=dto.telefone,
             data_nascimento=dto.data_nascimento,
         )
         return self.repository.criar(cliente)

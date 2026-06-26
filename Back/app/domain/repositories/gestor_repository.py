@@ -16,3 +16,7 @@ class GestorRepository(ABC):
     def buscar_por_id(self, gestor_id: int) -> Gestor | None:
         raise NotImplementedError
 
+    @abstractmethod
+    def buscar_por_usuario_id(self, usuario_id: int) -> Gestor | None:
+        raise NotImplementedError
+

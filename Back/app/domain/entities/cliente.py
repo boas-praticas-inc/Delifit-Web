@@ -8,5 +8,4 @@ class Cliente:
     usuario_id: int
     nome_completo: str
     cpf: str
-    telefone: str
     data_nascimento: date | None = None

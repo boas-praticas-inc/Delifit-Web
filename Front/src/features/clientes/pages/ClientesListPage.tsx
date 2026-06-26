@@ -57,7 +57,7 @@ export function ClientesListPage() {
               id: 'cliente',
               header: 'Cliente',
               searchValue: (cliente) =>
-                `${cliente.nome_completo} ${cliente.cpf} ${cliente.telefone}`,
+                `${cliente.nome_completo} ${cliente.cpf} ${cliente.telefone ?? ''}`,
               sortValue: (cliente) => cliente.nome_completo,
               render: (cliente) => (
                 <div>
@@ -73,9 +73,10 @@ export function ClientesListPage() {
             {
               id: 'telefone',
               header: 'Telefone',
-              searchValue: (cliente) => cliente.telefone,
-              sortValue: (cliente) => cliente.telefone,
-              render: (cliente) => formatarTelefone(cliente.telefone),
+              searchValue: (cliente) => cliente.telefone ?? '',
+              sortValue: (cliente) => cliente.telefone ?? '',
+              render: (cliente) =>
+                cliente.telefone ? formatarTelefone(cliente.telefone) : 'Não informado',
             },
             {
               id: 'data_nascimento',

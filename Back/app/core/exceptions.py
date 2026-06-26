@@ -22,7 +22,27 @@ class EmailJaCadastradoError(AppError):
     detail = "Email ja cadastrado."
 
 
+class TelefoneJaCadastradoError(AppError):
+    status_code = status.HTTP_409_CONFLICT
+    detail = "Telefone ja cadastrado."
+
+
+class CpfJaCadastradoError(AppError):
+    status_code = status.HTTP_409_CONFLICT
+    detail = "CPF ja cadastrado."
+
+
 class CredenciaisInvalidasError(AppError):
+    status_code = status.HTTP_401_UNAUTHORIZED
+    detail = "Email ou senha invalidos."
+
+
+class CredenciaisClienteInvalidasError(AppError):
+    status_code = status.HTTP_401_UNAUTHORIZED
+    detail = "Telefone ou senha invalidos."
+
+
+class CredenciaisEquipeInvalidasError(AppError):
     status_code = status.HTTP_401_UNAUTHORIZED
     detail = "Email ou senha invalidos."
 

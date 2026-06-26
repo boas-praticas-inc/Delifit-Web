@@ -6,14 +6,20 @@ from app.application.dto.admin_dto import CriarAdminDTO
 from app.application.use_cases.admin.buscar_admin_por_id import BuscarAdminPorIdUseCase
 from app.application.use_cases.admin.criar_admin import CriarAdminUseCase
 from app.application.use_cases.admin.listar_admins import ListarAdminsUseCase
+from app.domain.enums.usuario_enums import TipoUsuarioEnum
 from app.presentation.schemas.admin_schema import AdminCreate, AdminResponse
 from app.shared.dependencies import (
     get_buscar_admin_por_id_use_case,
     get_criar_admin_use_case,
     get_listar_admins_use_case,
+    require_roles,
 )
 
-router = APIRouter(prefix="/admins", tags=["admins"])
+router = APIRouter(
+    prefix="/admins",
+    tags=["admins"],
+    dependencies=[Depends(require_roles(TipoUsuarioEnum.ADMIN))],
+)
 
 
 @router.post("", response_model=AdminResponse, status_code=status.HTTP_201_CREATED)

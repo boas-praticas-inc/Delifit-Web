@@ -73,7 +73,7 @@ export function UsuarioDonoSelect({ value, onChange, error }: Props) {
             <option value="">Selecione um usuario</option>
             {usuarios.map((usuario) => (
               <option key={usuario.id} value={usuario.id}>
-                {usuario.id} - {usuario.email} - {usuario.tipo_usuario} - {usuario.status}
+                {usuario.id} - {usuario.email ?? usuario.telefone ?? 'Sem identificador'} - {usuario.tipo_usuario} - {usuario.status}
               </option>
             ))}
           </select>
@@ -86,12 +86,10 @@ export function UsuarioDonoSelect({ value, onChange, error }: Props) {
         <div className="rounded-md border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
           <p className="font-semibold text-slate-900">Detalhes do usuario dono</p>
           <p>ID: {selectedUser.id}</p>
-          <p>Email: {selectedUser.email}</p>
+          <p>Email: {selectedUser.email ?? 'Não informado'}</p>
+          <p>Telefone: {selectedUser.telefone ?? 'Não informado'}</p>
           <p>Tipo: {selectedUser.tipo_usuario}</p>
           <p>Status: {selectedUser.status}</p>
-          <p className="text-xs text-slate-500">
-            CPF e telefone nao estao disponiveis no contrato atual do backend.
-          </p>
         </div>
       ) : null}
     </div>

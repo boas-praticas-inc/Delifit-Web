@@ -6,14 +6,20 @@ from app.application.dto.usuario_dto import CriarUsuarioDTO
 from app.application.use_cases.usuario.buscar_usuario_por_id import BuscarUsuarioPorIdUseCase
 from app.application.use_cases.usuario.criar_usuario import CriarUsuarioUseCase
 from app.application.use_cases.usuario.listar_usuarios import ListarUsuariosUseCase
+from app.domain.enums.usuario_enums import TipoUsuarioEnum
 from app.presentation.schemas.usuario_schema import UsuarioCreate, UsuarioResponse
 from app.shared.dependencies import (
     get_buscar_usuario_por_id_use_case,
     get_criar_usuario_use_case,
     get_listar_usuarios_use_case,
+    require_roles,
 )
 
-router = APIRouter(prefix="/usuarios", tags=["usuarios"])
+router = APIRouter(
+    prefix="/usuarios",
+    tags=["usuarios"],
+    dependencies=[Depends(require_roles(TipoUsuarioEnum.ADMIN))],
+)
 
 
 @router.post("", response_model=UsuarioResponse, status_code=status.HTTP_201_CREATED)
@@ -24,6 +30,7 @@ def criar_usuario(
     usuario = use_case.executar(
         CriarUsuarioDTO(
             email=payload.email,
+            telefone=payload.telefone,
             senha=payload.senha,
             tipo_usuario=payload.tipo_usuario,
         )

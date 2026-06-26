@@ -4,7 +4,8 @@ export type StatusUsuario = 'ATIVO' | 'INATIVO' | 'BLOQUEADO';
 
 export interface Usuario {
   id: number;
-  email: string;
+  email: string | null;
+  telefone: string | null;
   tipo_usuario: TipoUsuario;
   status: StatusUsuario;
   criado_em: string;
@@ -14,7 +15,8 @@ export interface Usuario {
 export type UsuarioDetalhado = Usuario;
 
 export interface CriarUsuarioPayload {
-  email: string;
+  email?: string | null;
+  telefone?: string | null;
   senha: string;
   tipo_usuario: TipoUsuario;
 }

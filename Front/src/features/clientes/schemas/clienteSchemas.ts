@@ -30,13 +30,6 @@ export const atualizarClienteSchema = z.object({
     (value) => (typeof value === 'string' ? somenteDigitos(value) : value),
     z.string().length(11, 'O CPF deve conter 11 dígitos.'),
   ),
-  telefone: z.preprocess(
-    (value) => (typeof value === 'string' ? somenteDigitos(value) : value),
-    z
-      .string()
-      .min(10, 'Informe um telefone com DDD.')
-      .max(11, 'Informe um telefone válido com até 11 dígitos.'),
-  ),
   data_nascimento: z.string().optional(),
 });
 

@@ -1,13 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
 
 import { Button } from '../../../components/common/Button';
 import { Input } from '../../../components/common/Input';
-import { Select } from '../../../components/common/Select';
 import { getApiErrorMessage } from '../../../lib/api';
-import { tipoUsuarioValues } from '../../usuarios/schemas/usuarioSchemas';
+import { formatarCpf, formatarTelefone } from '../../../utils/masks';
 import { authService } from '../services/authService';
 import { registerSchema, type RegisterFormData } from '../schemas/authSchemas';
 
@@ -15,15 +14,13 @@ export function RegisterPage() {
   const [feedback, setFeedback] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const {
+    control,
     formState: { errors, isSubmitting },
     handleSubmit,
     register,
     reset,
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
-    defaultValues: {
-      tipo_usuario: 'CLIENTE',
-    },
   });
 
   async function onSubmit(data: RegisterFormData) {
@@ -33,7 +30,13 @@ export function RegisterPage() {
     try {
       await authService.register(data);
       setFeedback('Cadastro criado com sucesso.');
-      reset({ email: '', senha: '', tipo_usuario: 'CLIENTE' });
+      reset({
+        nome_completo: '',
+        cpf: '',
+        telefone: '',
+        senha: '',
+        data_nascimento: '',
+      });
     } catch (requestError) {
       setError(getApiErrorMessage(requestError));
     }
@@ -50,17 +53,49 @@ export function RegisterPage() {
             Criar cadastro
           </h1>
           <p className="mt-2 text-sm text-slate-600">
-            Cadastre um usuário inicial para testar a integração com a API.
+            Cadastre sua conta de cliente com telefone e senha.
           </p>
         </div>
 
         <form className="grid gap-4" onSubmit={handleSubmit(onSubmit)}>
           <Input
-            label="E-mail"
-            type="email"
-            autoComplete="email"
-            error={errors.email?.message}
-            {...register('email')}
+            label="Nome completo"
+            error={errors.nome_completo?.message}
+            {...register('nome_completo')}
+          />
+          <Controller
+            control={control}
+            name="cpf"
+            render={({ field }) => (
+              <Input
+                label="CPF"
+                inputMode="numeric"
+                maxLength={14}
+                placeholder="000.000.000-00"
+                error={errors.cpf?.message}
+                {...field}
+                value={formatarCpf(field.value ?? '')}
+                onChange={(event) => field.onChange(formatarCpf(event.target.value))}
+              />
+            )}
+          />
+          <Controller
+            control={control}
+            name="telefone"
+            render={({ field }) => (
+              <Input
+                label="Telefone"
+                inputMode="tel"
+                maxLength={15}
+                placeholder="(00) 00000-0000"
+                error={errors.telefone?.message}
+                {...field}
+                value={formatarTelefone(field.value ?? '')}
+                onChange={(event) =>
+                  field.onChange(formatarTelefone(event.target.value))
+                }
+              />
+            )}
           />
           <Input
             label="Senha"
@@ -69,18 +104,12 @@ export function RegisterPage() {
             error={errors.senha?.message}
             {...register('senha')}
           />
-
-          <Select
-            label="Tipo de usuário"
-            error={errors.tipo_usuario?.message}
-            {...register('tipo_usuario')}
-          >
-            {tipoUsuarioValues.map((tipo) => (
-              <option key={tipo} value={tipo}>
-                {tipo}
-              </option>
-            ))}
-          </Select>
+          <Input
+            label="Data de nascimento"
+            type="date"
+            error={errors.data_nascimento?.message}
+            {...register('data_nascimento')}
+          />
 
           {feedback ? (
             <p className="rounded-md bg-brand-50 px-3 py-2 text-sm text-brand-900">
