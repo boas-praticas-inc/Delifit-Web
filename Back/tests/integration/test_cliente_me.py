@@ -18,7 +18,8 @@ def override_session() -> Generator[object, None, None]:
 def test_buscar_meu_perfil_cliente(monkeypatch) -> None:
     usuario = Usuario(
         id=10,
-        email="cliente@delifit.com",
+        email=None,
+        telefone="11999999999",
         senha_hash=gerar_hash_senha("senha-segura"),
         tipo_usuario=TipoUsuarioEnum.CLIENTE,
         status=StatusUsuarioEnum.ATIVO,
@@ -33,8 +34,8 @@ def test_buscar_meu_perfil_cliente(monkeypatch) -> None:
         data_nascimento=date(1999, 1, 20),
     )
 
-    def buscar_usuario_por_email(_self, email: str) -> Usuario | None:
-        return usuario if email == usuario.email else None
+    def buscar_usuario_por_telefone(_self, telefone: str) -> Usuario | None:
+        return usuario if telefone == usuario.telefone else None
 
     def buscar_usuario_por_id(_self, usuario_id: int) -> Usuario | None:
         return usuario if usuario_id == usuario.id else None
@@ -44,8 +45,8 @@ def test_buscar_meu_perfil_cliente(monkeypatch) -> None:
 
     monkeypatch.setattr(
         "app.infrastructure.database.repositories.sqlalchemy_usuario_repository."
-        "SQLAlchemyUsuarioRepository.buscar_por_email",
-        buscar_usuario_por_email,
+        "SQLAlchemyUsuarioRepository.buscar_por_telefone",
+        buscar_usuario_por_telefone,
     )
     monkeypatch.setattr(
         "app.infrastructure.database.repositories.sqlalchemy_usuario_repository."
@@ -61,8 +62,8 @@ def test_buscar_meu_perfil_cliente(monkeypatch) -> None:
 
     with TestClient(app) as client:
         login_response = client.post(
-            "/api/v1/auth/login",
-            json={"email": usuario.email, "senha": "senha-segura"},
+            "/api/v1/auth/clientes/login",
+            json={"telefone": usuario.telefone, "senha": "senha-segura"},
         )
         token = login_response.json()["access_token"]
         response = client.get(
@@ -81,7 +82,8 @@ def test_buscar_meu_perfil_cliente(monkeypatch) -> None:
 def test_atualizar_meu_perfil_cliente(monkeypatch) -> None:
     usuario = Usuario(
         id=10,
-        email="cliente@delifit.com",
+        email=None,
+        telefone="11999999999",
         senha_hash=gerar_hash_senha("senha-segura"),
         tipo_usuario=TipoUsuarioEnum.CLIENTE,
         status=StatusUsuarioEnum.ATIVO,
@@ -96,8 +98,8 @@ def test_atualizar_meu_perfil_cliente(monkeypatch) -> None:
         data_nascimento=date(1999, 1, 20),
     )
 
-    def buscar_usuario_por_email(_self, email: str) -> Usuario | None:
-        return usuario if email == usuario.email else None
+    def buscar_usuario_por_telefone(_self, telefone: str) -> Usuario | None:
+        return usuario if telefone == usuario.telefone else None
 
     def buscar_usuario_por_id(_self, usuario_id: int) -> Usuario | None:
         return usuario if usuario_id == usuario.id else None
@@ -112,8 +114,8 @@ def test_atualizar_meu_perfil_cliente(monkeypatch) -> None:
 
     monkeypatch.setattr(
         "app.infrastructure.database.repositories.sqlalchemy_usuario_repository."
-        "SQLAlchemyUsuarioRepository.buscar_por_email",
-        buscar_usuario_por_email,
+        "SQLAlchemyUsuarioRepository.buscar_por_telefone",
+        buscar_usuario_por_telefone,
     )
     monkeypatch.setattr(
         "app.infrastructure.database.repositories.sqlalchemy_usuario_repository."
@@ -134,8 +136,8 @@ def test_atualizar_meu_perfil_cliente(monkeypatch) -> None:
 
     with TestClient(app) as client:
         login_response = client.post(
-            "/api/v1/auth/login",
-            json={"email": usuario.email, "senha": "senha-segura"},
+            "/api/v1/auth/clientes/login",
+            json={"telefone": usuario.telefone, "senha": "senha-segura"},
         )
         token = login_response.json()["access_token"]
         response = client.put(

@@ -7,7 +7,8 @@ from app.domain.enums.usuario_enums import StatusUsuarioEnum, TipoUsuarioEnum
 @dataclass(slots=True)
 class Usuario:
     id: int | None
-    email: str
+    email: str | None
+    telefone: str | None
     senha_hash: str
     tipo_usuario: TipoUsuarioEnum
     status: StatusUsuarioEnum = StatusUsuarioEnum.ATIVO

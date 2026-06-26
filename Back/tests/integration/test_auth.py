@@ -17,9 +17,92 @@ def override_session() -> Generator[object, None, None]:
 def test_login_retorna_token(monkeypatch) -> None:
     usuario = Usuario(
         id=1,
-        email="cliente@delifit.com",
+        email=None,
+        telefone="11999999999",
         senha_hash=gerar_hash_senha("senha-segura"),
         tipo_usuario=TipoUsuarioEnum.CLIENTE,
+        status=StatusUsuarioEnum.ATIVO,
+        criado_em=datetime.now(UTC),
+    )
+
+    def buscar_por_telefone(_self, telefone: str) -> Usuario | None:
+        return usuario if telefone == usuario.telefone else None
+
+    monkeypatch.setattr(
+        "app.infrastructure.database.repositories.sqlalchemy_usuario_repository."
+        "SQLAlchemyUsuarioRepository.buscar_por_telefone",
+        buscar_por_telefone,
+    )
+    app.dependency_overrides[get_session] = override_session
+
+    with TestClient(app) as client:
+        response = client.post(
+            "/api/v1/auth/clientes/login",
+            json={"telefone": usuario.telefone, "senha": "senha-segura"},
+        )
+
+    app.dependency_overrides.clear()
+    assert response.status_code == 200
+    body = response.json()
+    assert body["token_type"] == "bearer"
+    assert isinstance(body["access_token"], str)
+    assert body["usuario"]["id"] == usuario.id
+    assert body["usuario"]["telefone"] == usuario.telefone
+
+
+def test_auth_me_retorna_usuario_autenticado(monkeypatch) -> None:
+    usuario = Usuario(
+        id=7,
+        email=None,
+        telefone="11999999999",
+        senha_hash=gerar_hash_senha("senha-segura"),
+        tipo_usuario=TipoUsuarioEnum.CLIENTE,
+        status=StatusUsuarioEnum.ATIVO,
+        criado_em=datetime.now(UTC),
+    )
+
+    def buscar_por_telefone(_self, telefone: str) -> Usuario | None:
+        return usuario if telefone == usuario.telefone else None
+
+    def buscar_por_id(_self, usuario_id: int) -> Usuario | None:
+        return usuario if usuario_id == usuario.id else None
+
+    monkeypatch.setattr(
+        "app.infrastructure.database.repositories.sqlalchemy_usuario_repository."
+        "SQLAlchemyUsuarioRepository.buscar_por_telefone",
+        buscar_por_telefone,
+    )
+    monkeypatch.setattr(
+        "app.infrastructure.database.repositories.sqlalchemy_usuario_repository."
+        "SQLAlchemyUsuarioRepository.buscar_por_id",
+        buscar_por_id,
+    )
+    app.dependency_overrides[get_session] = override_session
+
+    with TestClient(app) as client:
+        login_response = client.post(
+            "/api/v1/auth/clientes/login",
+            json={"telefone": usuario.telefone, "senha": "senha-segura"},
+        )
+        token = login_response.json()["access_token"]
+        response = client.get(
+            "/api/v1/auth/me",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+
+    app.dependency_overrides.clear()
+    assert response.status_code == 200
+    assert response.json()["id"] == usuario.id
+    assert response.json()["telefone"] == usuario.telefone
+
+
+def test_login_staff_retorna_token(monkeypatch) -> None:
+    usuario = Usuario(
+        id=2,
+        email="admin@delifit.com",
+        telefone=None,
+        senha_hash=gerar_hash_senha("senha-segura"),
+        tipo_usuario=TipoUsuarioEnum.ADMIN,
         status=StatusUsuarioEnum.ATIVO,
         criado_em=datetime.now(UTC),
     )
@@ -36,62 +119,13 @@ def test_login_retorna_token(monkeypatch) -> None:
 
     with TestClient(app) as client:
         response = client.post(
-            "/api/v1/auth/login",
+            "/api/v1/auth/staff/login",
             json={"email": usuario.email, "senha": "senha-segura"},
         )
 
     app.dependency_overrides.clear()
     assert response.status_code == 200
-    body = response.json()
-    assert body["token_type"] == "bearer"
-    assert isinstance(body["access_token"], str)
-    assert body["usuario"]["id"] == usuario.id
-    assert body["usuario"]["email"] == usuario.email
-
-
-def test_auth_me_retorna_usuario_autenticado(monkeypatch) -> None:
-    usuario = Usuario(
-        id=7,
-        email="cliente@delifit.com",
-        senha_hash=gerar_hash_senha("senha-segura"),
-        tipo_usuario=TipoUsuarioEnum.CLIENTE,
-        status=StatusUsuarioEnum.ATIVO,
-        criado_em=datetime.now(UTC),
-    )
-
-    def buscar_por_email(_self, email: str) -> Usuario | None:
-        return usuario if email == usuario.email else None
-
-    def buscar_por_id(_self, usuario_id: int) -> Usuario | None:
-        return usuario if usuario_id == usuario.id else None
-
-    monkeypatch.setattr(
-        "app.infrastructure.database.repositories.sqlalchemy_usuario_repository."
-        "SQLAlchemyUsuarioRepository.buscar_por_email",
-        buscar_por_email,
-    )
-    monkeypatch.setattr(
-        "app.infrastructure.database.repositories.sqlalchemy_usuario_repository."
-        "SQLAlchemyUsuarioRepository.buscar_por_id",
-        buscar_por_id,
-    )
-    app.dependency_overrides[get_session] = override_session
-
-    with TestClient(app) as client:
-        login_response = client.post(
-            "/api/v1/auth/login",
-            json={"email": usuario.email, "senha": "senha-segura"},
-        )
-        token = login_response.json()["access_token"]
-        response = client.get(
-            "/api/v1/auth/me",
-            headers={"Authorization": f"Bearer {token}"},
-        )
-
-    app.dependency_overrides.clear()
-    assert response.status_code == 200
-    assert response.json()["id"] == usuario.id
-    assert response.json()["email"] == usuario.email
+    assert response.json()["usuario"]["email"] == usuario.email
 
 
 def test_auth_me_sem_token_retorna_401() -> None:

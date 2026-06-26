@@ -19,3 +19,7 @@ class UsuarioRepository(ABC):
     @abstractmethod
     def buscar_por_email(self, email: str) -> Usuario | None:
         raise NotImplementedError
+
+    @abstractmethod
+    def buscar_por_telefone(self, telefone: str) -> Usuario | None:
+        raise NotImplementedError

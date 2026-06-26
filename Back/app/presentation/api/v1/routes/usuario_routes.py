@@ -24,6 +24,7 @@ def criar_usuario(
     usuario = use_case.executar(
         CriarUsuarioDTO(
             email=payload.email,
+            telefone=payload.telefone,
             senha=payload.senha,
             tipo_usuario=payload.tipo_usuario,
         )
