@@ -1,12 +1,14 @@
 from collections.abc import Generator
 from typing import Annotated
 
-from fastapi import Depends
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
 from app.application.use_cases.usuario.buscar_usuario_por_id import BuscarUsuarioPorIdUseCase
 from app.application.use_cases.usuario.criar_usuario import CriarUsuarioUseCase
 from app.application.use_cases.usuario.listar_usuarios import ListarUsuariosUseCase
+from app.domain.entities.usuario import Usuario
 from app.application.use_cases.cliente.atualizar_cliente import AtualizarClienteUseCase
 from app.application.use_cases.cliente.buscar_cliente_por_id import BuscarClientePorIdUseCase
 from app.application.use_cases.cliente.criar_cliente import CriarClienteUseCase
@@ -50,7 +52,7 @@ from app.application.use_cases.categoria_cardapio.criar_categoria_cardapio impor
 from app.application.use_cases.categoria_cardapio.excluir_categoria_cardapio import ExcluirCategoriaCardapioUseCase
 from app.application.use_cases.categoria_cardapio.listar_categorias_cardapio import ListarCategoriasCardapioUseCase
 from app.core.database import get_db_session
-from app.core.security import gerar_hash_senha
+from app.core.security import gerar_hash_senha, validar_access_token
 from app.infrastructure.database.repositories.sqlalchemy_solicitacao_adesao_restaurante_repository import (
     SQLAlchemySolicitacaoAdesaoRestauranteRepository,
 )
@@ -79,6 +81,8 @@ from app.infrastructure.database.repositories.sqlalchemy_usuario_repository impo
     SQLAlchemyUsuarioRepository,
 )
 
+bearer_scheme = HTTPBearer(auto_error=False)
+
 
 def get_session() -> Generator[Session, None, None]:
     yield from get_db_session()
@@ -88,6 +92,46 @@ def get_usuario_repository(
     session: Session,
 ) -> SQLAlchemyUsuarioRepository:
     return SQLAlchemyUsuarioRepository(session)
+
+
+def get_current_user(
+    credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(bearer_scheme)],
+    session: Annotated[Session, Depends(get_session)],
+) -> Usuario:
+    if credentials is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Nao autenticado.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    payload = validar_access_token(credentials.credentials)
+    if payload is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token de acesso invalido.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    try:
+        usuario_id = int(payload["sub"])
+    except (KeyError, TypeError, ValueError):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token de acesso invalido.",
+            headers={"WWW-Authenticate": "Bearer"},
+        ) from None
+
+    repository = SQLAlchemyUsuarioRepository(session)
+    usuario = repository.buscar_por_id(usuario_id)
+    if usuario is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Usuario autenticado nao encontrado.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    return usuario
 
 
 def get_criar_usuario_use_case(
