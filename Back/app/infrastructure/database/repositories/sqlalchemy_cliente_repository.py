@@ -22,6 +22,14 @@ class SQLAlchemyClienteRepository(ClienteRepository):
         self.session.refresh(model)
         return self._to_entity(model)
 
+    def buscar_por_usuario_id(self, usuario_id: int) -> Cliente | None:
+        model = (
+            self.session.query(ClienteModel)
+            .filter(ClienteModel.usuario_id == usuario_id)
+            .first()
+        )
+        return self._to_entity(model) if model is not None else None
+
     def listar(self) -> list[Cliente]:
         models = self.session.query(ClienteModel).order_by(ClienteModel.id).all()
         return [self._to_entity(model) for model in models]

@@ -10,7 +10,13 @@ from app.application.use_cases.usuario.criar_usuario import CriarUsuarioUseCase
 from app.application.use_cases.usuario.listar_usuarios import ListarUsuariosUseCase
 from app.domain.entities.usuario import Usuario
 from app.application.use_cases.cliente.atualizar_cliente import AtualizarClienteUseCase
+from app.application.use_cases.cliente.atualizar_meu_perfil_cliente import (
+    AtualizarMeuPerfilClienteUseCase,
+)
 from app.application.use_cases.cliente.buscar_cliente_por_id import BuscarClientePorIdUseCase
+from app.application.use_cases.cliente.buscar_meu_perfil_cliente import (
+    BuscarMeuPerfilClienteUseCase,
+)
 from app.application.use_cases.cliente.criar_cliente import CriarClienteUseCase
 from app.application.use_cases.cliente.excluir_cliente import ExcluirClienteUseCase
 from app.application.use_cases.cliente.listar_clientes import ListarClientesUseCase
@@ -366,6 +372,20 @@ def get_atualizar_cliente_use_case(
 ) -> AtualizarClienteUseCase:
     repository = SQLAlchemyClienteRepository(session)
     return AtualizarClienteUseCase(repository=repository)
+
+
+def get_buscar_meu_perfil_cliente_use_case(
+    session: Annotated[Session, Depends(get_session)],
+) -> BuscarMeuPerfilClienteUseCase:
+    repository = SQLAlchemyClienteRepository(session)
+    return BuscarMeuPerfilClienteUseCase(repository=repository)
+
+
+def get_atualizar_meu_perfil_cliente_use_case(
+    session: Annotated[Session, Depends(get_session)],
+) -> AtualizarMeuPerfilClienteUseCase:
+    repository = SQLAlchemyClienteRepository(session)
+    return AtualizarMeuPerfilClienteUseCase(repository=repository)
 
 
 def get_excluir_cliente_use_case(

@@ -1,4 +1,5 @@
 from collections.abc import Generator
+from datetime import UTC, datetime
 
 from fastapi.testclient import TestClient
 
@@ -20,6 +21,7 @@ def test_login_retorna_token(monkeypatch) -> None:
         senha_hash=gerar_hash_senha("senha-segura"),
         tipo_usuario=TipoUsuarioEnum.CLIENTE,
         status=StatusUsuarioEnum.ATIVO,
+        criado_em=datetime.now(UTC),
     )
 
     def buscar_por_email(_self, email: str) -> Usuario | None:
@@ -54,6 +56,7 @@ def test_auth_me_retorna_usuario_autenticado(monkeypatch) -> None:
         senha_hash=gerar_hash_senha("senha-segura"),
         tipo_usuario=TipoUsuarioEnum.CLIENTE,
         status=StatusUsuarioEnum.ATIVO,
+        criado_em=datetime.now(UTC),
     )
 
     def buscar_por_email(_self, email: str) -> Usuario | None:
