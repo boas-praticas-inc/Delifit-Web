@@ -1,5 +1,7 @@
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from app.core.exceptions import CpfJaCadastradoError
 from app.domain.entities.cliente import Cliente
 from app.domain.repositories.cliente_repository import ClienteRepository
 from app.infrastructure.database.models.cliente_model import ClienteModel
@@ -14,11 +16,17 @@ class SQLAlchemyClienteRepository(ClienteRepository):
             usuario_id=cliente.usuario_id,
             nome_completo=cliente.nome_completo,
             cpf=cliente.cpf,
-            telefone=cliente.telefone,
             data_nascimento=cliente.data_nascimento,
         )
         self.session.add(model)
-        self.session.commit()
+        try:
+            self.session.commit()
+        except IntegrityError as exc:
+            self.session.rollback()
+            mensagem = str(exc.orig).lower() if exc.orig is not None else str(exc).lower()
+            if "cpf" in mensagem:
+                raise CpfJaCadastradoError() from exc
+            raise
         self.session.refresh(model)
         return self._to_entity(model)
 
@@ -46,9 +54,15 @@ class SQLAlchemyClienteRepository(ClienteRepository):
         model.usuario_id = cliente.usuario_id
         model.nome_completo = cliente.nome_completo
         model.cpf = cliente.cpf
-        model.telefone = cliente.telefone
         model.data_nascimento = cliente.data_nascimento
-        self.session.commit()
+        try:
+            self.session.commit()
+        except IntegrityError as exc:
+            self.session.rollback()
+            mensagem = str(exc.orig).lower() if exc.orig is not None else str(exc).lower()
+            if "cpf" in mensagem:
+                raise CpfJaCadastradoError() from exc
+            raise
         self.session.refresh(model)
         return self._to_entity(model)
 
@@ -68,7 +82,6 @@ class SQLAlchemyClienteRepository(ClienteRepository):
             usuario_id=model.usuario_id,
             nome_completo=model.nome_completo,
             cpf=model.cpf,
-            telefone=model.telefone,
             data_nascimento=model.data_nascimento,
         )
 

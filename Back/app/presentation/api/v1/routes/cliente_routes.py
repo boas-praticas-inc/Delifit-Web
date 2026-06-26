@@ -30,8 +30,8 @@ from app.shared.dependencies import (
     get_atualizar_meu_perfil_cliente_use_case,
     get_buscar_cliente_por_id_use_case,
     get_buscar_meu_perfil_cliente_use_case,
-    get_current_user,
     get_criar_cliente_use_case,
+    get_current_user,
     get_excluir_cliente_use_case,
     get_listar_clientes_use_case,
 )
@@ -51,7 +51,16 @@ def buscar_meu_perfil(
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Nao autenticado.")
 
     cliente = use_case.executar(usuario.id)
-    return ClienteResponse.model_validate(cliente)
+    return ClienteResponse.model_validate(
+        {
+            "id": cliente.id,
+            "usuario_id": cliente.usuario_id,
+            "nome_completo": cliente.nome_completo,
+            "cpf": cliente.cpf,
+            "telefone": usuario.telefone,
+            "data_nascimento": cliente.data_nascimento,
+        }
+    )
 
 
 @router.put("/me", response_model=ClienteResponse)
@@ -75,10 +84,29 @@ def atualizar_meu_perfil(
             data_nascimento=payload.data_nascimento,
         ),
     )
-    return ClienteResponse.model_validate(cliente)
+    return ClienteResponse.model_validate(
+        {
+            "id": cliente.id,
+            "usuario_id": cliente.usuario_id,
+            "nome_completo": cliente.nome_completo,
+            "cpf": cliente.cpf,
+            "telefone": payload.telefone,
+            "data_nascimento": cliente.data_nascimento,
+        }
+    )
 
 
-@router.post("", response_model=ClienteResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "",
+    response_model=ClienteResponse,
+    status_code=status.HTTP_201_CREATED,
+    deprecated=True,
+    summary="Criar cliente por CRUD legado",
+    description=(
+        "Endpoint legado de CRUD. Para cadastro do cliente no app, use "
+        "`POST /api/v1/auth/clientes/registro`."
+    ),
+)
 def criar_cliente(
     payload: ClienteCreate,
     use_case: Annotated[CriarClienteUseCase, Depends(get_criar_cliente_use_case)],
@@ -88,7 +116,6 @@ def criar_cliente(
             usuario_id=payload.usuario_id,
             nome_completo=payload.nome_completo,
             cpf=payload.cpf,
-            telefone=payload.telefone,
             data_nascimento=payload.data_nascimento,
         )
     )
@@ -124,7 +151,6 @@ def atualizar_cliente(
             usuario_id=payload.usuario_id,
             nome_completo=payload.nome_completo,
             cpf=payload.cpf,
-            telefone=payload.telefone,
             data_nascimento=payload.data_nascimento,
         ),
     )

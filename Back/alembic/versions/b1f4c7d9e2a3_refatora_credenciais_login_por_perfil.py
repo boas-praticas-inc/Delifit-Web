@@ -37,6 +37,8 @@ def upgrade() -> None:
         nullable=True,
     )
 
+    op.drop_column("clientes", "telefone")
+
     op.create_index(op.f("ix_usuarios_telefone"), "usuarios", ["telefone"], unique=True)
 
     op.drop_constraint(op.f("usuarios_email_nao_vazio"), "usuarios", type_="check")

@@ -17,7 +17,6 @@ class AtualizarClienteUseCase:
             usuario_id=dto.usuario_id,
             nome_completo=dto.nome_completo,
             cpf=dto.cpf,
-            telefone=dto.telefone,
             data_nascimento=dto.data_nascimento,
         )
         cliente_atualizado = self.repository.atualizar(cliente_id, cliente)

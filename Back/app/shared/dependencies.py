@@ -5,10 +5,19 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
-from app.application.use_cases.usuario.buscar_usuario_por_id import BuscarUsuarioPorIdUseCase
-from app.application.use_cases.usuario.criar_usuario import CriarUsuarioUseCase
-from app.application.use_cases.usuario.listar_usuarios import ListarUsuariosUseCase
-from app.domain.entities.usuario import Usuario
+from app.application.use_cases.admin.buscar_admin_por_id import BuscarAdminPorIdUseCase
+from app.application.use_cases.admin.criar_admin import CriarAdminUseCase
+from app.application.use_cases.admin.listar_admins import ListarAdminsUseCase
+from app.application.use_cases.auth.registrar_cliente import RegistrarClienteUseCase
+from app.application.use_cases.categoria_cardapio.criar_categoria_cardapio import (
+    CriarCategoriaCardapioUseCase,
+)
+from app.application.use_cases.categoria_cardapio.excluir_categoria_cardapio import (
+    ExcluirCategoriaCardapioUseCase,
+)
+from app.application.use_cases.categoria_cardapio.listar_categorias_cardapio import (
+    ListarCategoriasCardapioUseCase,
+)
 from app.application.use_cases.cliente.atualizar_cliente import AtualizarClienteUseCase
 from app.application.use_cases.cliente.atualizar_meu_perfil_cliente import (
     AtualizarMeuPerfilClienteUseCase,
@@ -20,68 +29,72 @@ from app.application.use_cases.cliente.buscar_meu_perfil_cliente import (
 from app.application.use_cases.cliente.criar_cliente import CriarClienteUseCase
 from app.application.use_cases.cliente.excluir_cliente import ExcluirClienteUseCase
 from app.application.use_cases.cliente.listar_clientes import ListarClientesUseCase
-from app.application.use_cases.admin.buscar_admin_por_id import BuscarAdminPorIdUseCase
-from app.application.use_cases.admin.criar_admin import CriarAdminUseCase
-from app.application.use_cases.admin.listar_admins import ListarAdminsUseCase
-from app.application.use_cases.gestor.buscar_gestor_por_id import BuscarGestorPorIdUseCase
-from app.application.use_cases.gestor.criar_gestor import CriarGestorUseCase
-from app.application.use_cases.gestor.listar_gestores import ListarGestoresUseCase
-from app.application.use_cases.solicitacao_adesao_restaurante.buscar_solicitacao_adesao_restaurante_por_id import (
-    BuscarSolicitacaoAdesaoRestaurantePorIdUseCase,
-)
-from app.application.use_cases.solicitacao_adesao_restaurante.analisar_solicitacao_adesao_restaurante import (
-    AnalisarSolicitacaoAdesaoRestauranteUseCase,
-)
-from app.application.use_cases.solicitacao_adesao_restaurante.criar_solicitacao_adesao_restaurante import (
-    CriarSolicitacaoAdesaoRestauranteUseCase,
-)
-from app.application.use_cases.solicitacao_adesao_restaurante.listar_solicitacoes_adesao_restaurante import (
-    ListarSolicitacoesAdesaoRestauranteUseCase,
-)
-from app.application.use_cases.solicitacao_adesao_restaurante.solicitar_nova_analise_solicitacao_adesao_restaurante import (
-    SolicitarNovaAnaliseSolicitacaoAdesaoRestauranteUseCase,
-)
 from app.application.use_cases.endereco.buscar_endereco_por_id import BuscarEnderecoPorIdUseCase
 from app.application.use_cases.endereco.criar_endereco import CriarEnderecoUseCase
 from app.application.use_cases.endereco.listar_enderecos import ListarEnderecosUseCase
-from app.application.use_cases.restaurante.atualizar_restaurante import AtualizarRestauranteUseCase
-from app.application.use_cases.restaurante.buscar_restaurante_por_id import BuscarRestaurantePorIdUseCase
-from app.application.use_cases.restaurante.criar_restaurante import CriarRestauranteUseCase
-from app.application.use_cases.restaurante.excluir_restaurante import ExcluirRestauranteUseCase
-from app.application.use_cases.restaurante.listar_restaurantes import ListarRestaurantesUseCase
-from app.application.use_cases.item_cardapio.atualizar_item_cardapio import AtualizarItemCardapioUseCase
-from app.application.use_cases.item_cardapio.buscar_item_cardapio_por_id import BuscarItemCardapioPorIdUseCase
+from app.application.use_cases.gestor.buscar_gestor_por_id import BuscarGestorPorIdUseCase
+from app.application.use_cases.gestor.criar_gestor import CriarGestorUseCase
+from app.application.use_cases.gestor.listar_gestores import ListarGestoresUseCase
+from app.application.use_cases.item_cardapio.atualizar_item_cardapio import (
+    AtualizarItemCardapioUseCase,
+)
+from app.application.use_cases.item_cardapio.buscar_item_cardapio_por_id import (
+    BuscarItemCardapioPorIdUseCase,
+)
 from app.application.use_cases.item_cardapio.criar_item_cardapio import CriarItemCardapioUseCase
 from app.application.use_cases.item_cardapio.excluir_item_cardapio import ExcluirItemCardapioUseCase
 from app.application.use_cases.item_cardapio.listar_itens_cardapio import ListarItensCardapioUseCase
-from app.application.use_cases.categoria_cardapio.criar_categoria_cardapio import CriarCategoriaCardapioUseCase
-from app.application.use_cases.categoria_cardapio.excluir_categoria_cardapio import ExcluirCategoriaCardapioUseCase
-from app.application.use_cases.categoria_cardapio.listar_categorias_cardapio import ListarCategoriasCardapioUseCase
+from app.application.use_cases.restaurante.atualizar_restaurante import AtualizarRestauranteUseCase
+from app.application.use_cases.restaurante.buscar_restaurante_por_id import (
+    BuscarRestaurantePorIdUseCase,
+)
+from app.application.use_cases.restaurante.criar_restaurante import CriarRestauranteUseCase
+from app.application.use_cases.restaurante.excluir_restaurante import ExcluirRestauranteUseCase
+from app.application.use_cases.restaurante.listar_restaurantes import ListarRestaurantesUseCase
+from app.application.use_cases.solicitacao_adesao_restaurante.analisar_solicitacao_adesao_restaurante import (  # noqa: E501
+    AnalisarSolicitacaoAdesaoRestauranteUseCase,
+)
+from app.application.use_cases.solicitacao_adesao_restaurante.buscar_solicitacao_adesao_restaurante_por_id import (  # noqa: E501
+    BuscarSolicitacaoAdesaoRestaurantePorIdUseCase,
+)
+from app.application.use_cases.solicitacao_adesao_restaurante.criar_solicitacao_adesao_restaurante import (  # noqa: E501
+    CriarSolicitacaoAdesaoRestauranteUseCase,
+)
+from app.application.use_cases.solicitacao_adesao_restaurante.listar_solicitacoes_adesao_restaurante import (  # noqa: E501
+    ListarSolicitacoesAdesaoRestauranteUseCase,
+)
+from app.application.use_cases.solicitacao_adesao_restaurante.solicitar_nova_analise_solicitacao_adesao_restaurante import (  # noqa: E501
+    SolicitarNovaAnaliseSolicitacaoAdesaoRestauranteUseCase,
+)
+from app.application.use_cases.usuario.buscar_usuario_por_id import BuscarUsuarioPorIdUseCase
+from app.application.use_cases.usuario.criar_usuario import CriarUsuarioUseCase
+from app.application.use_cases.usuario.listar_usuarios import ListarUsuariosUseCase
 from app.core.database import get_db_session
 from app.core.security import gerar_hash_senha, validar_access_token
-from app.infrastructure.database.repositories.sqlalchemy_solicitacao_adesao_restaurante_repository import (
-    SQLAlchemySolicitacaoAdesaoRestauranteRepository,
+from app.domain.entities.usuario import Usuario
+from app.infrastructure.database.repositories.sqlalchemy_admin_repository import (
+    SQLAlchemyAdminRepository,
+)
+from app.infrastructure.database.repositories.sqlalchemy_categoria_cardapio_repository import (
+    SQLAlchemyCategoriaCardapioRepository,
 )
 from app.infrastructure.database.repositories.sqlalchemy_cliente_repository import (
     SQLAlchemyClienteRepository,
 )
-from app.infrastructure.database.repositories.sqlalchemy_admin_repository import (
-    SQLAlchemyAdminRepository,
+from app.infrastructure.database.repositories.sqlalchemy_endereco_repository import (
+    SQLAlchemyEnderecoRepository,
 )
 from app.infrastructure.database.repositories.sqlalchemy_gestor_repository import (
     SQLAlchemyGestorRepository,
 )
-from app.infrastructure.database.repositories.sqlalchemy_endereco_repository import (
-    SQLAlchemyEnderecoRepository,
+from app.infrastructure.database.repositories.sqlalchemy_item_cardapio_repository import (
+    SQLAlchemyItemCardapioRepository,
 )
 from app.infrastructure.database.repositories.sqlalchemy_restaurante_repository import (
     SQLAlchemyRestauranteRepository,
 )
-from app.infrastructure.database.repositories.sqlalchemy_item_cardapio_repository import (
-    SQLAlchemyItemCardapioRepository,
-)
-from app.infrastructure.database.repositories.sqlalchemy_categoria_cardapio_repository import (
-    SQLAlchemyCategoriaCardapioRepository,
+from app.infrastructure.database.repositories.sqlalchemy_solicitacao_adesao_restaurante_repository import (  # noqa: E501
+    SQLAlchemySolicitacaoAdesaoRestauranteRepository,
 )
 from app.infrastructure.database.repositories.sqlalchemy_usuario_repository import (
     SQLAlchemyUsuarioRepository,
@@ -145,6 +158,18 @@ def get_criar_usuario_use_case(
 ) -> CriarUsuarioUseCase:
     repository = SQLAlchemyUsuarioRepository(session)
     return CriarUsuarioUseCase(repository=repository, gerar_hash=gerar_hash_senha)
+
+
+def get_registrar_cliente_use_case(
+    session: Annotated[Session, Depends(get_session)],
+) -> RegistrarClienteUseCase:
+    usuario_repository = SQLAlchemyUsuarioRepository(session)
+    cliente_repository = SQLAlchemyClienteRepository(session)
+    return RegistrarClienteUseCase(
+        usuario_repository=usuario_repository,
+        cliente_repository=cliente_repository,
+        gerar_hash=gerar_hash_senha,
+    )
 
 
 def get_listar_usuarios_use_case(
@@ -385,7 +410,11 @@ def get_atualizar_meu_perfil_cliente_use_case(
     session: Annotated[Session, Depends(get_session)],
 ) -> AtualizarMeuPerfilClienteUseCase:
     repository = SQLAlchemyClienteRepository(session)
-    return AtualizarMeuPerfilClienteUseCase(repository=repository)
+    usuario_repository = SQLAlchemyUsuarioRepository(session)
+    return AtualizarMeuPerfilClienteUseCase(
+        repository=repository,
+        usuario_repository=usuario_repository,
+    )
 
 
 def get_excluir_cliente_use_case(

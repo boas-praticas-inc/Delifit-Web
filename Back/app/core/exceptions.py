@@ -27,6 +27,11 @@ class TelefoneJaCadastradoError(AppError):
     detail = "Telefone ja cadastrado."
 
 
+class CpfJaCadastradoError(AppError):
+    status_code = status.HTTP_409_CONFLICT
+    detail = "CPF ja cadastrado."
+
+
 class CredenciaisInvalidasError(AppError):
     status_code = status.HTTP_401_UNAUTHORIZED
     detail = "Email ou senha invalidos."

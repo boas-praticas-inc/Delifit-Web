@@ -40,6 +40,20 @@ class FakeUsuarioRepository(UsuarioRepository):
     def buscar_por_telefone(self, telefone: str) -> Usuario | None:
         return next((usuario for usuario in self.usuarios if usuario.telefone == telefone), None)
 
+    def excluir(self, usuario_id: int) -> bool:
+        usuario = self.buscar_por_id(usuario_id)
+        if usuario is None:
+            return False
+        self.usuarios = [item for item in self.usuarios if item.id != usuario_id]
+        return True
+
+    def atualizar_telefone(self, usuario_id: int, telefone: str) -> Usuario | None:
+        usuario = self.buscar_por_id(usuario_id)
+        if usuario is None:
+            return None
+        usuario.telefone = telefone
+        return usuario
+
 
 def test_criar_usuario_gera_hash_e_persiste_usuario() -> None:
     repository = FakeUsuarioRepository()

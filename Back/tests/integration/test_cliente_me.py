@@ -30,7 +30,6 @@ def test_buscar_meu_perfil_cliente(monkeypatch) -> None:
         usuario_id=usuario.id,
         nome_completo="Cliente Teste",
         cpf="12345678901",
-        telefone="11999999999",
         data_nascimento=date(1999, 1, 20),
     )
 
@@ -94,7 +93,6 @@ def test_atualizar_meu_perfil_cliente(monkeypatch) -> None:
         usuario_id=usuario.id,
         nome_completo="Cliente Antigo",
         cpf="12345678901",
-        telefone="11999999999",
         data_nascimento=date(1999, 1, 20),
     )
 
@@ -111,6 +109,12 @@ def test_atualizar_meu_perfil_cliente(monkeypatch) -> None:
         if cliente_id != cliente_atual.id:
             return None
         return cliente
+
+    def atualizar_telefone(_self, usuario_id: int, telefone: str) -> Usuario | None:
+        if usuario_id != usuario.id:
+            return None
+        usuario.telefone = telefone
+        return usuario
 
     monkeypatch.setattr(
         "app.infrastructure.database.repositories.sqlalchemy_usuario_repository."
@@ -131,6 +135,11 @@ def test_atualizar_meu_perfil_cliente(monkeypatch) -> None:
         "app.infrastructure.database.repositories.sqlalchemy_cliente_repository."
         "SQLAlchemyClienteRepository.atualizar",
         atualizar_cliente,
+    )
+    monkeypatch.setattr(
+        "app.infrastructure.database.repositories.sqlalchemy_usuario_repository."
+        "SQLAlchemyUsuarioRepository.atualizar_telefone",
+        atualizar_telefone,
     )
     app.dependency_overrides[get_session] = override_session
 

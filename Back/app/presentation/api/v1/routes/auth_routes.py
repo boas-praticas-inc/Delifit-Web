@@ -3,6 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
+from app.application.use_cases.auth.registrar_cliente import RegistrarClienteUseCase
 from app.core.exceptions import (
     CredenciaisClienteInvalidasError,
     CredenciaisEquipeInvalidasError,
@@ -17,9 +18,16 @@ from app.presentation.schemas.auth_schema import (
     LoginClienteRequest,
     LoginEquipeRequest,
     LoginResponse,
+    RegistrarClienteRequest,
+    RegistroClienteResponse,
 )
+from app.presentation.schemas.cliente_schema import ClienteResponse
 from app.presentation.schemas.usuario_schema import UsuarioResponse
-from app.shared.dependencies import get_current_user, get_session
+from app.shared.dependencies import (
+    get_current_user,
+    get_registrar_cliente_use_case,
+    get_session,
+)
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -31,6 +39,37 @@ def _criar_login_response(usuario: Usuario) -> LoginResponse:
     return LoginResponse(
         access_token=gerar_access_token(usuario.id),
         usuario=UsuarioResponse.model_validate(usuario),
+    )
+
+
+@router.post("/clientes/registro", response_model=RegistroClienteResponse)
+def registrar_cliente(
+    payload: RegistrarClienteRequest,
+    use_case: Annotated[RegistrarClienteUseCase, Depends(get_registrar_cliente_use_case)],
+) -> RegistroClienteResponse:
+    usuario, cliente = use_case.executar(
+        telefone=payload.telefone,
+        senha=payload.senha,
+        nome_completo=payload.nome_completo,
+        cpf=payload.cpf,
+        data_nascimento=payload.data_nascimento,
+    )
+    if usuario.id is None:
+        raise CredenciaisClienteInvalidasError()
+
+    return RegistroClienteResponse(
+        access_token=gerar_access_token(usuario.id),
+        usuario=UsuarioResponse.model_validate(usuario),
+        cliente=ClienteResponse.model_validate(
+            {
+                "id": cliente.id,
+                "usuario_id": cliente.usuario_id,
+                "nome_completo": cliente.nome_completo,
+                "cpf": cliente.cpf,
+                "telefone": usuario.telefone,
+                "data_nascimento": cliente.data_nascimento,
+            }
+        ),
     )
 
 
