@@ -8,7 +8,7 @@ import { Input } from '../../../components/common/Input';
 import { getApiErrorMessage } from '../../../lib/api';
 import { loginSchema, type LoginFormData } from '../schemas/authSchemas';
 import { authService } from '../services/authService';
-import { salvarUsuarioLogado } from '../utils/session';
+import { salvarTokenAcesso, salvarUsuarioLogado } from '../utils/session';
 
 type LoginLocationState = {
   message?: string;
@@ -38,7 +38,8 @@ export function LoginPage() {
     setMessage(null);
 
     try {
-      const { usuario } = await authService.login(data);
+      const { access_token, usuario } = await authService.login(data);
+      salvarTokenAcesso(access_token);
       salvarUsuarioLogado(usuario);
 
       if (usuario.tipo_usuario === 'ADMIN') {

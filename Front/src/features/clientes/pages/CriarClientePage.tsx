@@ -16,7 +16,8 @@ export function CriarClientePage() {
 
     try {
       const usuario = await usuarioService.criarUsuario({
-        email: data.email,
+        email: null,
+        telefone: data.telefone,
         senha: data.senha,
         tipo_usuario: 'CLIENTE',
       });
@@ -25,7 +26,6 @@ export function CriarClientePage() {
         usuario_id: usuario.id,
         nome_completo: data.nome_completo,
         cpf: data.cpf,
-        telefone: data.telefone,
         data_nascimento: data.data_nascimento || null,
       });
 

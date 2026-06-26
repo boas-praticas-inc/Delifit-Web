@@ -43,7 +43,6 @@ export function EditarClientePage() {
         usuario_id: cliente.usuario_id,
         nome_completo: data.nome_completo,
         cpf: data.cpf,
-        telefone: data.telefone,
         data_nascimento: data.data_nascimento || null,
       });
       navigate(`/clientes/${clienteId}`);
@@ -81,7 +80,6 @@ export function EditarClientePage() {
         defaultValues={{
           nome_completo: cliente.nome_completo,
           cpf: cliente.cpf,
-          telefone: cliente.telefone,
           data_nascimento: cliente.data_nascimento ?? '',
         }}
         onSubmit={onSubmit}

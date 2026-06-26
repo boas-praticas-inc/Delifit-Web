@@ -29,6 +29,14 @@ class SQLAlchemyGestorRepository(GestorRepository):
         model = self.session.get(GestorModel, gestor_id)
         return self._to_entity(model) if model is not None else None
 
+    def buscar_por_usuario_id(self, usuario_id: int) -> Gestor | None:
+        model = (
+            self.session.query(GestorModel)
+            .filter(GestorModel.usuario_id == usuario_id)
+            .first()
+        )
+        return self._to_entity(model) if model is not None else None
+
     @staticmethod
     def _to_entity(model: GestorModel) -> Gestor:
         return Gestor(

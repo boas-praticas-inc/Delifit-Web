@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 import { env } from '../config/env';
+import { getTokenAcesso, limparUsuarioLogado } from '../features/auth/utils/session';
 
 export const api = axios.create({
   baseURL: env.apiUrl,
@@ -8,6 +9,27 @@ export const api = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+api.interceptors.request.use((config) => {
+  const token = getTokenAcesso();
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return config;
+});
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      limparUsuarioLogado();
+    }
+
+    return Promise.reject(error);
+  },
+);
 
 export function getApiErrorMessage(error: unknown) {
   if (!axios.isAxiosError(error)) {

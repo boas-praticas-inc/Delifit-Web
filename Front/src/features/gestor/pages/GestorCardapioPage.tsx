@@ -12,7 +12,6 @@ import type { CategoriaCardapio } from '../../cardapio/types/categoriaCardapioTy
 import {
   TAG_ITEM_CARDAPIO_OPTIONS,
   type ItemCardapio,
-  type VariacaoItemCardapio,
 } from '../../cardapio/types/itemCardapioTypes';
 import { gestorContextoService } from '../services/gestorContextoService';
 

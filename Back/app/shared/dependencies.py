@@ -33,6 +33,9 @@ from app.application.use_cases.endereco.buscar_endereco_por_id import BuscarEnde
 from app.application.use_cases.endereco.criar_endereco import CriarEnderecoUseCase
 from app.application.use_cases.endereco.listar_enderecos import ListarEnderecosUseCase
 from app.application.use_cases.gestor.buscar_gestor_por_id import BuscarGestorPorIdUseCase
+from app.application.use_cases.gestor.buscar_meu_perfil_gestor import (
+    BuscarMeuPerfilGestorUseCase,
+)
 from app.application.use_cases.gestor.criar_gestor import CriarGestorUseCase
 from app.application.use_cases.gestor.listar_gestores import ListarGestoresUseCase
 from app.application.use_cases.item_cardapio.atualizar_item_cardapio import (
@@ -462,6 +465,13 @@ def get_buscar_gestor_por_id_use_case(
 ) -> BuscarGestorPorIdUseCase:
     repository = SQLAlchemyGestorRepository(session)
     return BuscarGestorPorIdUseCase(repository=repository)
+
+
+def get_buscar_meu_perfil_gestor_use_case(
+    session: Annotated[Session, Depends(get_session)],
+) -> BuscarMeuPerfilGestorUseCase:
+    repository = SQLAlchemyGestorRepository(session)
+    return BuscarMeuPerfilGestorUseCase(repository=repository)
 
 
 def get_admin_repository(session: Session) -> SQLAlchemyAdminRepository:

@@ -7,6 +7,11 @@ export const gestorService = {
     return response.data;
   },
 
+  async buscarMeuPerfil() {
+    const response = await api.get<Gestor>('/gestores/me');
+    return response.data;
+  },
+
   async criarGestor(payload: CriarGestorPayload) {
     const response = await api.post<Gestor>('/gestores', payload);
     return response.data;

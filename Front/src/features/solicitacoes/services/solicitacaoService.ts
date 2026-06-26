@@ -4,13 +4,14 @@ import type {
   SolicitarAdesaoPayload,
   Solicitacao,
 } from '../types/solicitacaoTypes';
-import { authService } from '../../auth/services/authService';
 import { gestorService } from '../../gestores/services/gestorService';
+import { usuarioService } from '../../usuarios/services/usuarioService';
 
 export const solicitacaoService = {
   async solicitarAdesao(payload: SolicitarAdesaoPayload) {
-    const usuario = await authService.register({
+    const usuario = await usuarioService.criarUsuario({
       email: payload.email,
+      telefone: null,
       senha: payload.senha,
       tipo_usuario: 'GESTOR',
     });

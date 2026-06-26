@@ -63,7 +63,7 @@ export function SolicitacoesPage() {
       if (!admin) {
         admin = await adminService.criarAdmin({
           usuario_id: usuario.id,
-          nome_completo: usuario.email,
+          nome_completo: usuario.email ?? 'Administrador Delifit',
           cargo: null,
         });
       }

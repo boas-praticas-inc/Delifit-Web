@@ -1,11 +1,11 @@
 import { Navigate, Outlet } from 'react-router-dom';
 
-import { getUsuarioLogado, isAdminPrincipal } from '../utils/session';
+import { getUsuarioLogado, isAdmin } from '../utils/session';
 
 export function AdminPrincipalRoute() {
   const usuario = getUsuarioLogado();
 
-  if (!isAdminPrincipal(usuario)) {
+  if (!isAdmin(usuario)) {
     return <Navigate to="/" replace />;
   }
 

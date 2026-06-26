@@ -1,7 +1,7 @@
 import type { Usuario } from '../../usuarios/types/usuarioTypes';
 
 const STORAGE_KEY = 'delifit_usuario';
-export const ADMIN_PRINCIPAL_EMAIL = 'admin@delifit.com';
+const TOKEN_STORAGE_KEY = 'delifit_token';
 
 export function getUsuarioLogado() {
   const rawUsuario = localStorage.getItem(STORAGE_KEY);
@@ -21,15 +21,21 @@ export function salvarUsuarioLogado(usuario: Usuario) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(usuario));
 }
 
-export function limparUsuarioLogado() {
-  localStorage.removeItem(STORAGE_KEY);
+export function getTokenAcesso() {
+  return localStorage.getItem(TOKEN_STORAGE_KEY);
 }
 
-export function isAdminPrincipal(usuario: Usuario | null) {
-  return (
-    usuario?.tipo_usuario === 'ADMIN' &&
-    usuario.email.toLowerCase() === ADMIN_PRINCIPAL_EMAIL
-  );
+export function salvarTokenAcesso(token: string) {
+  localStorage.setItem(TOKEN_STORAGE_KEY, token);
+}
+
+export function limparUsuarioLogado() {
+  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(TOKEN_STORAGE_KEY);
+}
+
+export function isAdmin(usuario: Usuario | null) {
+  return usuario?.tipo_usuario === 'ADMIN';
 }
 
 export function isGestor(usuario: Usuario | null) {
