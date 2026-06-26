@@ -72,6 +72,7 @@ from app.application.use_cases.usuario.listar_usuarios import ListarUsuariosUseC
 from app.core.database import get_db_session
 from app.core.security import gerar_hash_senha, validar_access_token
 from app.domain.entities.usuario import Usuario
+from app.domain.enums.usuario_enums import TipoUsuarioEnum
 from app.infrastructure.database.repositories.sqlalchemy_admin_repository import (
     SQLAlchemyAdminRepository,
 )
@@ -151,6 +152,20 @@ def get_current_user(
         )
 
     return usuario
+
+
+def require_roles(*tipos_permitidos: TipoUsuarioEnum):
+    def dependency(
+        usuario: Annotated[Usuario, Depends(get_current_user)],
+    ) -> Usuario:
+        if usuario.tipo_usuario not in tipos_permitidos:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Usuario sem permissao para acessar este recurso.",
+            )
+        return usuario
+
+    return dependency
 
 
 def get_criar_usuario_use_case(

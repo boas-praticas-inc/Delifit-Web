@@ -19,6 +19,7 @@ from app.application.use_cases.cliente.criar_cliente import CriarClienteUseCase
 from app.application.use_cases.cliente.excluir_cliente import ExcluirClienteUseCase
 from app.application.use_cases.cliente.listar_clientes import ListarClientesUseCase
 from app.domain.entities.usuario import Usuario
+from app.domain.enums.usuario_enums import TipoUsuarioEnum
 from app.presentation.schemas.cliente_schema import (
     ClienteCreate,
     ClienteResponse,
@@ -34,6 +35,7 @@ from app.shared.dependencies import (
     get_current_user,
     get_excluir_cliente_use_case,
     get_listar_clientes_use_case,
+    require_roles,
 )
 
 router = APIRouter(prefix="/clientes", tags=["clientes"])
@@ -42,6 +44,7 @@ router = APIRouter(prefix="/clientes", tags=["clientes"])
 @router.get("/me", response_model=ClienteResponse)
 def buscar_meu_perfil(
     usuario: Annotated[Usuario, Depends(get_current_user)],
+    _cliente: Annotated[Usuario, Depends(require_roles(TipoUsuarioEnum.CLIENTE))],
     use_case: Annotated[
         BuscarMeuPerfilClienteUseCase,
         Depends(get_buscar_meu_perfil_cliente_use_case),
@@ -67,6 +70,7 @@ def buscar_meu_perfil(
 def atualizar_meu_perfil(
     payload: MeuPerfilClienteUpdate,
     usuario: Annotated[Usuario, Depends(get_current_user)],
+    _cliente: Annotated[Usuario, Depends(require_roles(TipoUsuarioEnum.CLIENTE))],
     use_case: Annotated[
         AtualizarMeuPerfilClienteUseCase,
         Depends(get_atualizar_meu_perfil_cliente_use_case),
@@ -109,6 +113,7 @@ def atualizar_meu_perfil(
 )
 def criar_cliente(
     payload: ClienteCreate,
+    _admin: Annotated[Usuario, Depends(require_roles(TipoUsuarioEnum.ADMIN))],
     use_case: Annotated[CriarClienteUseCase, Depends(get_criar_cliente_use_case)],
 ) -> ClienteResponse:
     cliente = use_case.executar(
@@ -124,6 +129,7 @@ def criar_cliente(
 
 @router.get("", response_model=list[ClienteResponse])
 def listar_clientes(
+    _admin: Annotated[Usuario, Depends(require_roles(TipoUsuarioEnum.ADMIN))],
     use_case: Annotated[ListarClientesUseCase, Depends(get_listar_clientes_use_case)],
 ) -> list[ClienteResponse]:
     clientes = use_case.executar()
@@ -133,6 +139,7 @@ def listar_clientes(
 @router.get("/{cliente_id}", response_model=ClienteResponse)
 def buscar_cliente_por_id(
     cliente_id: int,
+    _admin: Annotated[Usuario, Depends(require_roles(TipoUsuarioEnum.ADMIN))],
     use_case: Annotated[BuscarClientePorIdUseCase, Depends(get_buscar_cliente_por_id_use_case)],
 ) -> ClienteResponse:
     cliente = use_case.executar(cliente_id)
@@ -143,6 +150,7 @@ def buscar_cliente_por_id(
 def atualizar_cliente(
     cliente_id: int,
     payload: ClienteUpdate,
+    _admin: Annotated[Usuario, Depends(require_roles(TipoUsuarioEnum.ADMIN))],
     use_case: Annotated[AtualizarClienteUseCase, Depends(get_atualizar_cliente_use_case)],
 ) -> ClienteResponse:
     cliente = use_case.executar(
@@ -160,6 +168,7 @@ def atualizar_cliente(
 @router.delete("/{cliente_id}", status_code=status.HTTP_204_NO_CONTENT)
 def excluir_cliente(
     cliente_id: int,
+    _admin: Annotated[Usuario, Depends(require_roles(TipoUsuarioEnum.ADMIN))],
     use_case: Annotated[ExcluirClienteUseCase, Depends(get_excluir_cliente_use_case)],
 ) -> None:
     use_case.executar(cliente_id)

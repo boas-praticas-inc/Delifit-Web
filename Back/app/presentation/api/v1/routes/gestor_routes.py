@@ -6,14 +6,20 @@ from app.application.dto.gestor_dto import CriarGestorDTO
 from app.application.use_cases.gestor.buscar_gestor_por_id import BuscarGestorPorIdUseCase
 from app.application.use_cases.gestor.criar_gestor import CriarGestorUseCase
 from app.application.use_cases.gestor.listar_gestores import ListarGestoresUseCase
+from app.domain.enums.usuario_enums import TipoUsuarioEnum
 from app.presentation.schemas.gestor_schema import GestorCreate, GestorResponse
 from app.shared.dependencies import (
     get_buscar_gestor_por_id_use_case,
     get_criar_gestor_use_case,
     get_listar_gestores_use_case,
+    require_roles,
 )
 
-router = APIRouter(prefix="/gestores", tags=["gestores"])
+router = APIRouter(
+    prefix="/gestores",
+    tags=["gestores"],
+    dependencies=[Depends(require_roles(TipoUsuarioEnum.ADMIN))],
+)
 
 
 @router.post("", response_model=GestorResponse, status_code=status.HTTP_201_CREATED)

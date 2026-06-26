@@ -4,10 +4,14 @@ from fastapi import APIRouter, Depends, status
 
 from app.application.dto.restaurante_dto import AtualizarRestauranteDTO, CriarRestauranteDTO
 from app.application.use_cases.restaurante.atualizar_restaurante import AtualizarRestauranteUseCase
-from app.application.use_cases.restaurante.buscar_restaurante_por_id import BuscarRestaurantePorIdUseCase
+from app.application.use_cases.restaurante.buscar_restaurante_por_id import (
+    BuscarRestaurantePorIdUseCase,
+)
 from app.application.use_cases.restaurante.criar_restaurante import CriarRestauranteUseCase
 from app.application.use_cases.restaurante.excluir_restaurante import ExcluirRestauranteUseCase
 from app.application.use_cases.restaurante.listar_restaurantes import ListarRestaurantesUseCase
+from app.domain.entities.usuario import Usuario
+from app.domain.enums.usuario_enums import TipoUsuarioEnum
 from app.presentation.schemas.restaurante_schema import (
     RestauranteCreate,
     RestauranteResponse,
@@ -19,6 +23,7 @@ from app.shared.dependencies import (
     get_criar_restaurante_use_case,
     get_excluir_restaurante_use_case,
     get_listar_restaurantes_use_case,
+    require_roles,
 )
 
 router = APIRouter(prefix="/restaurantes", tags=["restaurantes"])
@@ -27,6 +32,7 @@ router = APIRouter(prefix="/restaurantes", tags=["restaurantes"])
 @router.post("", response_model=RestauranteResponse, status_code=status.HTTP_201_CREATED)
 def criar_restaurante(
     payload: RestauranteCreate,
+    _gestor: Annotated[Usuario, Depends(require_roles(TipoUsuarioEnum.GESTOR))],
     use_case: Annotated[CriarRestauranteUseCase, Depends(get_criar_restaurante_use_case)],
 ) -> RestauranteResponse:
     restaurante = use_case.executar(
@@ -56,7 +62,10 @@ def listar_restaurantes(
 @router.get("/{restaurante_id}", response_model=RestauranteResponse)
 def buscar_restaurante_por_id(
     restaurante_id: int,
-    use_case: Annotated[BuscarRestaurantePorIdUseCase, Depends(get_buscar_restaurante_por_id_use_case)],
+    use_case: Annotated[
+        BuscarRestaurantePorIdUseCase,
+        Depends(get_buscar_restaurante_por_id_use_case),
+    ],
 ) -> RestauranteResponse:
     restaurante = use_case.executar(restaurante_id)
     return RestauranteResponse.model_validate(restaurante)
@@ -66,6 +75,7 @@ def buscar_restaurante_por_id(
 def atualizar_restaurante(
     restaurante_id: int,
     payload: RestauranteUpdate,
+    _gestor: Annotated[Usuario, Depends(require_roles(TipoUsuarioEnum.GESTOR))],
     use_case: Annotated[AtualizarRestauranteUseCase, Depends(get_atualizar_restaurante_use_case)],
 ) -> RestauranteResponse:
     restaurante = use_case.executar(
@@ -88,6 +98,7 @@ def atualizar_restaurante(
 @router.delete("/{restaurante_id}", status_code=status.HTTP_204_NO_CONTENT)
 def excluir_restaurante(
     restaurante_id: int,
+    _gestor: Annotated[Usuario, Depends(require_roles(TipoUsuarioEnum.GESTOR))],
     use_case: Annotated[ExcluirRestauranteUseCase, Depends(get_excluir_restaurante_use_case)],
 ) -> None:
     use_case.executar(restaurante_id)
