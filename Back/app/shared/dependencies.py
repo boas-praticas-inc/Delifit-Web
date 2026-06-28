@@ -1,4 +1,4 @@
-from collections.abc import Generator
+﻿from collections.abc import Generator
 from typing import Annotated
 
 from fastapi import Depends, HTTPException, status
@@ -64,6 +64,7 @@ from app.application.use_cases.restaurante.buscar_restaurante_por_id import (
 from app.application.use_cases.restaurante.criar_restaurante import CriarRestauranteUseCase
 from app.application.use_cases.restaurante.excluir_restaurante import ExcluirRestauranteUseCase
 from app.application.use_cases.restaurante.listar_restaurantes import ListarRestaurantesUseCase
+from app.application.use_cases.upload.fazer_upload_imagem import FazerUploadImagemUseCase
 from app.application.use_cases.solicitacao_adesao_restaurante.analisar_solicitacao_adesao_restaurante import (  # noqa: E501
     AnalisarSolicitacaoAdesaoRestauranteUseCase,
 )
@@ -82,6 +83,7 @@ from app.application.use_cases.solicitacao_adesao_restaurante.solicitar_nova_ana
 from app.application.use_cases.usuario.buscar_usuario_por_id import BuscarUsuarioPorIdUseCase
 from app.application.use_cases.usuario.criar_usuario import CriarUsuarioUseCase
 from app.application.use_cases.usuario.listar_usuarios import ListarUsuariosUseCase
+from app.core.config import settings
 from app.core.database import get_db_session
 from app.core.security import gerar_hash_senha, validar_access_token
 from app.domain.entities.usuario import Usuario
@@ -116,6 +118,9 @@ from app.infrastructure.database.repositories.sqlalchemy_solicitacao_adesao_rest
 from app.infrastructure.database.repositories.sqlalchemy_usuario_repository import (
     SQLAlchemyUsuarioRepository,
 )
+from app.infrastructure.storage.minio_armazenamento_arquivo_repository import (
+    MinioArmazenamentoArquivoRepository,
+)
 
 bearer_scheme = HTTPBearer(auto_error=False)
 
@@ -128,6 +133,17 @@ def get_usuario_repository(
     session: Session,
 ) -> SQLAlchemyUsuarioRepository:
     return SQLAlchemyUsuarioRepository(session)
+
+
+def get_armazenamento_arquivo_repository() -> MinioArmazenamentoArquivoRepository:
+    return MinioArmazenamentoArquivoRepository(
+        endpoint=settings.minio_endpoint,
+        access_key=settings.minio_access_key,
+        secret_key=settings.minio_secret_key,
+        bucket=settings.minio_bucket,
+        public_url=settings.minio_public_url,
+        use_ssl=settings.minio_use_ssl,
+    )
 
 
 def get_current_user(
@@ -624,3 +640,8 @@ def get_buscar_admin_por_id_use_case(
 ) -> BuscarAdminPorIdUseCase:
     repository = SQLAlchemyAdminRepository(session)
     return BuscarAdminPorIdUseCase(repository=repository)
+
+
+def get_fazer_upload_imagem_use_case() -> FazerUploadImagemUseCase:
+    repository = get_armazenamento_arquivo_repository()
+    return FazerUploadImagemUseCase(repository=repository)
