@@ -1,4 +1,4 @@
-# Delifit Backend
+﻿# Delifit Backend
 
 Backend do Delifit, um sistema academico de entrega de comidas fitness. Esta base usa FastAPI, PostgreSQL, SQLAlchemy, Alembic e uma organizacao inspirada em Clean Architecture.
 
@@ -19,20 +19,20 @@ Backend do Delifit, um sistema academico de entrega de comidas fitness. Esta bas
 
 ```text
 Back/
-├── app/
-│   ├── main.py
-│   ├── core/
-│   ├── domain/
-│   ├── application/
-│   ├── infrastructure/
-│   ├── presentation/
-│   └── shared/
-├── alembic/
-├── tests/
-├── .env.example
-├── alembic.ini
-├── pyproject.toml
-└── README.md
+|-- app/
+|   |-- main.py
+|   |-- core/
+|   |-- domain/
+|   |-- application/
+|   |-- infrastructure/
+|   |-- presentation/
+|   `-- shared/
+|-- alembic/
+|-- tests/
+|-- .env.example
+|-- alembic.ini
+|-- pyproject.toml
+`-- README.md
 ```
 
 A API fica em `presentation`, os casos de uso em `application`, entidades e contratos em `domain`, e detalhes externos como SQLAlchemy em `infrastructure`. As rotas chamam casos de uso, nao acessam banco diretamente.
@@ -74,6 +74,55 @@ APP_ENV=development
 DEBUG=true
 SECRET_KEY=change-me
 ACCESS_TOKEN_EXPIRE_MINUTES=60
+MINIO_ROOT_USER=minioadmin
+MINIO_ROOT_PASSWORD=minioadmin123
+MINIO_BUCKET=delifit
+```
+
+## Infra local com MinIO
+
+O backend agora possui um `docker-compose.yml` proprio para subir apenas a infraestrutura local do MinIO.
+
+Suba os containers a partir da pasta `Back`:
+
+```bash
+docker compose up -d
+```
+
+Servicos expostos:
+
+- API do MinIO: `http://localhost:9000`
+- Painel do MinIO: `http://localhost:9001`
+
+Credenciais padrao do painel:
+
+- usuario: `minioadmin`
+- senha: `minioadmin123`
+
+O bucket `delifit` e criado automaticamente pelo container `minio-init` e recebe permissao de leitura publica no ambiente local para facilitar testes.
+
+Para verificar os containers:
+
+```bash
+docker compose ps
+```
+
+Para acompanhar logs:
+
+```bash
+docker compose logs -f minio
+```
+
+Para derrubar a infraestrutura:
+
+```bash
+docker compose down
+```
+
+Depois de subir o ambiente, voce pode abrir o painel, enviar um arquivo manualmente para o bucket `delifit` e testa-lo no navegador por uma URL como:
+
+```text
+http://localhost:9000/delifit/nome-do-arquivo.jpg
 ```
 
 ## Banco PostgreSQL
