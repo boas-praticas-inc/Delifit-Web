@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from app.application.use_cases.admin.buscar_admin_por_id import BuscarAdminPorIdUseCase
 from app.application.use_cases.admin.criar_admin import CriarAdminUseCase
 from app.application.use_cases.admin.listar_admins import ListarAdminsUseCase
+from app.application.use_cases.endereco.atualizar_meu_endereco import AtualizarMeuEnderecoUseCase
 from app.application.use_cases.auth.registrar_cliente import RegistrarClienteUseCase
 from app.application.use_cases.categoria_cardapio.criar_categoria_cardapio import (
     CriarCategoriaCardapioUseCase,
@@ -30,8 +31,12 @@ from app.application.use_cases.cliente.criar_cliente import CriarClienteUseCase
 from app.application.use_cases.cliente.excluir_cliente import ExcluirClienteUseCase
 from app.application.use_cases.cliente.listar_clientes import ListarClientesUseCase
 from app.application.use_cases.endereco.buscar_endereco_por_id import BuscarEnderecoPorIdUseCase
+from app.application.use_cases.endereco.buscar_meu_endereco_por_id import BuscarMeuEnderecoPorIdUseCase
 from app.application.use_cases.endereco.criar_endereco import CriarEnderecoUseCase
+from app.application.use_cases.endereco.criar_meu_endereco import CriarMeuEnderecoUseCase
+from app.application.use_cases.endereco.excluir_meu_endereco import ExcluirMeuEnderecoUseCase
 from app.application.use_cases.endereco.listar_enderecos import ListarEnderecosUseCase
+from app.application.use_cases.endereco.listar_meus_enderecos import ListarMeusEnderecosUseCase
 from app.application.use_cases.gestor.buscar_gestor_por_id import BuscarGestorPorIdUseCase
 from app.application.use_cases.gestor.buscar_meu_perfil_gestor import (
     BuscarMeuPerfilGestorUseCase,
@@ -383,6 +388,61 @@ def get_buscar_endereco_por_id_use_case(
 ) -> BuscarEnderecoPorIdUseCase:
     repository = SQLAlchemyEnderecoRepository(session)
     return BuscarEnderecoPorIdUseCase(repository=repository)
+
+
+def get_criar_meu_endereco_use_case(
+    session: Annotated[Session, Depends(get_session)],
+) -> CriarMeuEnderecoUseCase:
+    repository = SQLAlchemyEnderecoRepository(session)
+    cliente_repository = SQLAlchemyClienteRepository(session)
+    return CriarMeuEnderecoUseCase(
+        repository=repository,
+        cliente_repository=cliente_repository,
+    )
+
+
+def get_listar_meus_enderecos_use_case(
+    session: Annotated[Session, Depends(get_session)],
+) -> ListarMeusEnderecosUseCase:
+    repository = SQLAlchemyEnderecoRepository(session)
+    cliente_repository = SQLAlchemyClienteRepository(session)
+    return ListarMeusEnderecosUseCase(
+        repository=repository,
+        cliente_repository=cliente_repository,
+    )
+
+
+def get_buscar_meu_endereco_por_id_use_case(
+    session: Annotated[Session, Depends(get_session)],
+) -> BuscarMeuEnderecoPorIdUseCase:
+    repository = SQLAlchemyEnderecoRepository(session)
+    cliente_repository = SQLAlchemyClienteRepository(session)
+    return BuscarMeuEnderecoPorIdUseCase(
+        repository=repository,
+        cliente_repository=cliente_repository,
+    )
+
+
+def get_atualizar_meu_endereco_use_case(
+    session: Annotated[Session, Depends(get_session)],
+) -> AtualizarMeuEnderecoUseCase:
+    repository = SQLAlchemyEnderecoRepository(session)
+    cliente_repository = SQLAlchemyClienteRepository(session)
+    return AtualizarMeuEnderecoUseCase(
+        repository=repository,
+        cliente_repository=cliente_repository,
+    )
+
+
+def get_excluir_meu_endereco_use_case(
+    session: Annotated[Session, Depends(get_session)],
+) -> ExcluirMeuEnderecoUseCase:
+    repository = SQLAlchemyEnderecoRepository(session)
+    cliente_repository = SQLAlchemyClienteRepository(session)
+    return ExcluirMeuEnderecoUseCase(
+        repository=repository,
+        cliente_repository=cliente_repository,
+    )
 
 
 def get_cliente_repository(session: Session) -> SQLAlchemyClienteRepository:

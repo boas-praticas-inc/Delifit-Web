@@ -1,4 +1,4 @@
-from sqlalchemy import BigInteger, CheckConstraint, String
+from sqlalchemy import BigInteger, CheckConstraint, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
@@ -21,5 +21,9 @@ class EnderecoModel(Base):
     complemento: Mapped[str | None] = mapped_column(String(100))
     referencia: Mapped[str | None] = mapped_column(String(150))
     label: Mapped[str | None] = mapped_column(String(50))
-    cliente_id: Mapped[int | None] = mapped_column(BigInteger)
+    cliente_id: Mapped[int | None] = mapped_column(
+        BigInteger,
+        ForeignKey("clientes.id", ondelete="CASCADE"),
+        index=True,
+    )
 
