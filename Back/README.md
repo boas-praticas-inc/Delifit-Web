@@ -74,6 +74,9 @@ APP_ENV=development
 DEBUG=true
 SECRET_KEY=change-me
 ACCESS_TOKEN_EXPIRE_MINUTES=60
+MINIO_ENDPOINT=localhost:9000
+MINIO_PUBLIC_URL=http://localhost:9000
+MINIO_USE_SSL=false
 MINIO_ROOT_USER=minioadmin
 MINIO_ROOT_PASSWORD=minioadmin123
 MINIO_BUCKET=delifit
@@ -218,3 +221,4 @@ ruff check .
 - Implementar autenticacao e JWT.
 - Adicionar use cases de perfis de cliente, restaurante e entregador.
 - Criar testes de integracao com banco local de teste.
+
