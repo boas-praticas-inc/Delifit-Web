@@ -10,6 +10,11 @@ from app.application.use_cases.admin.criar_admin import CriarAdminUseCase
 from app.application.use_cases.admin.listar_admins import ListarAdminsUseCase
 from app.application.use_cases.endereco.atualizar_meu_endereco import AtualizarMeuEnderecoUseCase
 from app.application.use_cases.auth.registrar_cliente import RegistrarClienteUseCase
+from app.application.use_cases.cartao.atualizar_meu_cartao import AtualizarMeuCartaoUseCase
+from app.application.use_cases.cartao.buscar_meu_cartao_por_id import BuscarMeuCartaoPorIdUseCase
+from app.application.use_cases.cartao.criar_meu_cartao import CriarMeuCartaoUseCase
+from app.application.use_cases.cartao.excluir_meu_cartao import ExcluirMeuCartaoUseCase
+from app.application.use_cases.cartao.listar_meus_cartoes import ListarMeusCartoesUseCase
 from app.application.use_cases.categoria_cardapio.criar_categoria_cardapio import (
     CriarCategoriaCardapioUseCase,
 )
@@ -86,6 +91,9 @@ from app.infrastructure.database.repositories.sqlalchemy_admin_repository import
 )
 from app.infrastructure.database.repositories.sqlalchemy_categoria_cardapio_repository import (
     SQLAlchemyCategoriaCardapioRepository,
+)
+from app.infrastructure.database.repositories.sqlalchemy_cartao_repository import (
+    SQLAlchemyCartaoRepository,
 )
 from app.infrastructure.database.repositories.sqlalchemy_cliente_repository import (
     SQLAlchemyClienteRepository,
@@ -440,6 +448,65 @@ def get_excluir_meu_endereco_use_case(
     repository = SQLAlchemyEnderecoRepository(session)
     cliente_repository = SQLAlchemyClienteRepository(session)
     return ExcluirMeuEnderecoUseCase(
+        repository=repository,
+        cliente_repository=cliente_repository,
+    )
+
+
+def get_cartao_repository(session: Session) -> SQLAlchemyCartaoRepository:
+    return SQLAlchemyCartaoRepository(session)
+
+
+def get_criar_meu_cartao_use_case(
+    session: Annotated[Session, Depends(get_session)],
+) -> CriarMeuCartaoUseCase:
+    repository = SQLAlchemyCartaoRepository(session)
+    cliente_repository = SQLAlchemyClienteRepository(session)
+    return CriarMeuCartaoUseCase(
+        repository=repository,
+        cliente_repository=cliente_repository,
+    )
+
+
+def get_listar_meus_cartoes_use_case(
+    session: Annotated[Session, Depends(get_session)],
+) -> ListarMeusCartoesUseCase:
+    repository = SQLAlchemyCartaoRepository(session)
+    cliente_repository = SQLAlchemyClienteRepository(session)
+    return ListarMeusCartoesUseCase(
+        repository=repository,
+        cliente_repository=cliente_repository,
+    )
+
+
+def get_buscar_meu_cartao_por_id_use_case(
+    session: Annotated[Session, Depends(get_session)],
+) -> BuscarMeuCartaoPorIdUseCase:
+    repository = SQLAlchemyCartaoRepository(session)
+    cliente_repository = SQLAlchemyClienteRepository(session)
+    return BuscarMeuCartaoPorIdUseCase(
+        repository=repository,
+        cliente_repository=cliente_repository,
+    )
+
+
+def get_atualizar_meu_cartao_use_case(
+    session: Annotated[Session, Depends(get_session)],
+) -> AtualizarMeuCartaoUseCase:
+    repository = SQLAlchemyCartaoRepository(session)
+    cliente_repository = SQLAlchemyClienteRepository(session)
+    return AtualizarMeuCartaoUseCase(
+        repository=repository,
+        cliente_repository=cliente_repository,
+    )
+
+
+def get_excluir_meu_cartao_use_case(
+    session: Annotated[Session, Depends(get_session)],
+) -> ExcluirMeuCartaoUseCase:
+    repository = SQLAlchemyCartaoRepository(session)
+    cliente_repository = SQLAlchemyClienteRepository(session)
+    return ExcluirMeuCartaoUseCase(
         repository=repository,
         cliente_repository=cliente_repository,
     )
