@@ -1,36 +1,36 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 
 import { Alert } from '../../../components/common/Alert';
 import { Loading } from '../../../components/common/Loading';
 import { getApiErrorMessage } from '../../../lib/api';
-import { formatarCpf, formatarTelefone } from '../../../utils/masks';
+import { restauranteService } from '../../restaurantes/services/restauranteService';
+import type { AtualizarRestauranteFormData } from '../../restaurantes/schemas/restauranteSchemas';
+import type { Restaurante } from '../../restaurantes/types/restauranteTypes';
+import { uploadService } from '../../uploads/services/uploadService';
+import { PerfilRestauranteForm } from '../components/PerfilRestauranteForm';
 import { gestorContextoService } from '../services/gestorContextoService';
 
-type PerfilState = {
-  nome: string;
-  cpf: string;
-  telefone: string;
-  restaurante: string;
-  cnpj: string;
-};
+const ENDERECO_INDISPONIVEL =
+  'Endereço vinculado disponível no cadastro interno.';
 
 export function GestorPerfilPage() {
-  const [perfil, setPerfil] = useState<PerfilState | null>(null);
+  const [restaurante, setRestaurante] = useState<Restaurante | null>(null);
+  const [gestorNome, setGestorNome] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<string | null>(null);
 
   useEffect(() => {
     async function carregar() {
+      setIsLoading(true);
+      setError(null);
+
       try {
-        const { gestor, restaurante } =
+        const { gestor, restaurante: restauranteAtual } =
           await gestorContextoService.buscarContextoAtual();
-        setPerfil({
-          nome: gestor?.nome_completo ?? 'Gestor não encontrado',
-          cpf: gestor?.cpf ?? '',
-          telefone: gestor?.telefone ?? '',
-          restaurante: restaurante?.nome_fantasia ?? 'Nenhum restaurante vinculado',
-          cnpj: restaurante?.cnpj ?? '',
-        });
+
+        setGestorNome(gestor?.nome_completo ?? 'Gestor não encontrado');
+        setRestaurante(restauranteAtual ?? null);
       } catch (requestError) {
         setError(
           requestError instanceof Error
@@ -45,52 +45,83 @@ export function GestorPerfilPage() {
     void carregar();
   }, []);
 
-  if (isLoading) {
-    return <Loading label="Carregando perfil" />;
+  async function handleSubmit(
+    data: AtualizarRestauranteFormData,
+    fotoArquivo: File | null,
+  ) {
+    if (!restaurante) {
+      return;
+    }
+
+    setError(null);
+    setFeedback(null);
+
+    try {
+      let fotoUrl = data.foto_url ?? null;
+
+      if (fotoArquivo) {
+        const upload = await uploadService.enviarImagem(fotoArquivo, 'restaurantes');
+        fotoUrl = upload.url;
+      }
+
+      const restauranteAtualizado = await restauranteService.atualizarRestaurante(
+        restaurante.id,
+        {
+          gestor_id: restaurante.gestor_id,
+          endereco_id: restaurante.endereco_id,
+          solicitacao_adesao_id: restaurante.solicitacao_adesao_id,
+          nome_fantasia: data.nome_fantasia,
+          razao_social: data.razao_social,
+          cnpj: data.cnpj,
+          telefone: data.telefone,
+          descricao: data.descricao || null,
+          foto_url: fotoUrl,
+        },
+      );
+
+      setRestaurante(restauranteAtualizado);
+      setFeedback('Perfil do restaurante atualizado com sucesso.');
+    } catch (requestError) {
+      setError(getApiErrorMessage(requestError));
+    }
   }
 
-  if (error) {
+  if (isLoading) {
+    return <Loading label="Carregando perfil do restaurante" />;
+  }
+
+  if (error && !restaurante) {
     return <Alert variant="error">{error}</Alert>;
+  }
+
+  if (!restaurante) {
+    return (
+      <section className="grid gap-4">
+        <div>
+          <p className="text-sm font-semibold uppercase text-brand-700">Perfil</p>
+          <h1 className="mt-1 text-2xl font-bold text-slate-950">
+            Perfil do restaurante
+          </h1>
+        </div>
+
+        <Alert>
+          O gestor ainda não possui restaurante aprovado vinculado para gerenciar o
+          perfil.
+        </Alert>
+      </section>
+    );
   }
 
   return (
     <section className="grid gap-6">
-      <div>
-        <p className="text-sm font-semibold uppercase text-brand-700">Perfil</p>
-        <h1 className="mt-1 text-2xl font-bold text-slate-950">
-          Dados do gestor
-        </h1>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <PerfilCard label="Nome completo" value={perfil?.nome ?? 'Não informado'} />
-        <PerfilCard
-          label="CPF"
-          value={perfil?.cpf ? formatarCpf(perfil.cpf) : 'Não informado'}
-        />
-        <PerfilCard
-          label="Telefone"
-          value={
-            perfil?.telefone ? formatarTelefone(perfil.telefone) : 'Não informado'
-          }
-        />
-        <PerfilCard
-          label="Restaurante"
-          value={perfil?.restaurante ?? 'Não informado'}
-        />
-        <PerfilCard label="CNPJ" value={perfil?.cnpj ?? 'Não informado'} />
-      </div>
+      <PerfilRestauranteForm
+        enderecoFormatado={ENDERECO_INDISPONIVEL}
+        feedback={feedback}
+        formError={error}
+        gestorNome={gestorNome}
+        onSubmit={handleSubmit}
+        restaurante={restaurante}
+      />
     </section>
-  );
-}
-
-function PerfilCard(props: { label: string; value: string }) {
-  return (
-    <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-        {props.label}
-      </p>
-      <p className="mt-3 text-base font-semibold text-slate-950">{props.value}</p>
-    </article>
   );
 }
