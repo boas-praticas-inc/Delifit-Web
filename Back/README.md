@@ -221,4 +221,36 @@ ruff check .
 - Implementar autenticacao e JWT.
 - Adicionar use cases de perfis de cliente, restaurante e entregador.
 - Criar testes de integracao com banco local de teste.
+## Padrao de pastas de upload
+
+Para manter consistencia no projeto, o endpoint `POST /api/v1/uploads/imagens` aceita apenas as pastas abaixo:
+
+- `restaurantes`
+- `itens-cardapio`
+- `clientes`
+- `gestores`
+
+Se nenhuma pasta for enviada, o valor padrao atual e `restaurantes`.
+
+## Fluxo recomendado para restaurante
+
+Para cadastrar ou atualizar a foto de um restaurante, use este fluxo:
+
+1. Faca upload da imagem em `POST /api/v1/uploads/imagens` com `pasta=restaurantes`.
+2. Copie a `url` retornada pelo upload.
+3. Envie essa `url` no campo `foto_url` ao criar ou atualizar o restaurante.
+
+Exemplo de resposta do upload:
+
+```json
+{
+  "bucket": "delifit",
+  "chave": "restaurantes/10/abc123-logo.png",
+  "url": "http://localhost:9000/delifit/restaurantes/10/abc123-logo.png",
+  "content_type": "image/png"
+}
+```
+
+Depois use a `url` em `POST /api/v1/restaurantes` ou `PUT /api/v1/restaurantes/{restaurante_id}`.
+
 

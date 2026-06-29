@@ -1,7 +1,8 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { getApiErrorMessage } from '../../../lib/api';
+import { uploadService } from '../../uploads/services/uploadService';
 import { RestauranteForm } from '../components/RestauranteForm';
 import type { CriarRestauranteFormData } from '../schemas/restauranteSchemas';
 import { restauranteService } from '../services/restauranteService';
@@ -10,14 +11,27 @@ export function CriarRestaurantePage() {
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
 
-  async function onSubmit(data: CriarRestauranteFormData) {
+  async function onSubmit(
+    data: CriarRestauranteFormData,
+    fotoArquivo: File | null,
+  ) {
     setError(null);
 
     try {
+      let fotoUrl = data.foto_url || null;
+
+      if (fotoArquivo) {
+        const upload = await uploadService.enviarImagem(
+          fotoArquivo,
+          'restaurantes',
+        );
+        fotoUrl = upload.url;
+      }
+
       await restauranteService.criarRestaurante({
         ...data,
         descricao: data.descricao || null,
-        foto_url: data.foto_url || null,
+        foto_url: fotoUrl,
       });
       navigate('/restaurantes');
     } catch (requestError) {

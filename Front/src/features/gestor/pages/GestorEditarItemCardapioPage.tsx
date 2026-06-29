@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import { Alert } from '../../../components/common/Alert';
@@ -10,6 +10,7 @@ import { categoriaCardapioService } from '../../cardapio/services/categoriaCarda
 import { itemCardapioService } from '../../cardapio/services/itemCardapioService';
 import type { CategoriaCardapio } from '../../cardapio/types/categoriaCardapioTypes';
 import type { ItemCardapio } from '../../cardapio/types/itemCardapioTypes';
+import { uploadService } from '../../uploads/services/uploadService';
 import { gestorContextoService } from '../services/gestorContextoService';
 
 export function GestorEditarItemCardapioPage() {
@@ -53,7 +54,7 @@ export function GestorEditarItemCardapioPage() {
     void carregar();
   }, [itemId]);
 
-  async function handleSubmit(data: ItemCardapioFormData) {
+  async function handleSubmit(data: ItemCardapioFormData, fotoArquivo: File | null) {
     if (!itemId || !item || !restauranteId) {
       setError('Não foi possível identificar o item e o restaurante para edição.');
       return;
@@ -62,6 +63,16 @@ export function GestorEditarItemCardapioPage() {
     setError(null);
 
     try {
+      let fotoUrl = data.foto_url || null;
+
+      if (fotoArquivo) {
+        const upload = await uploadService.enviarImagem(
+          fotoArquivo,
+          'itens-cardapio',
+        );
+        fotoUrl = upload.url;
+      }
+
       await itemCardapioService.atualizarItem(Number(itemId), {
         restaurante_id: restauranteId,
         categoria_id: Number(data.categoria_id),
@@ -78,7 +89,7 @@ export function GestorEditarItemCardapioPage() {
         })),
         tags: data.tags,
         status_item: data.status_item,
-        foto_url: data.foto_url || null,
+        foto_url: fotoUrl,
       });
 
       navigate('/gestor/cardapio');

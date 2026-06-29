@@ -1,5 +1,7 @@
 ﻿from dataclasses import dataclass
 
+from app.domain.enums.pasta_arquivo_enum import PastaArquivoEnum
+
 
 @dataclass(slots=True)
 class UploadArquivoDTO:
@@ -7,4 +9,4 @@ class UploadArquivoDTO:
     content_type: str
     conteudo: bytes
     usuario_id: int
-    pasta: str = "imagens"
+    pasta: PastaArquivoEnum = PastaArquivoEnum.RESTAURANTES

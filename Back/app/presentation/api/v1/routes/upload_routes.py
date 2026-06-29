@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, s
 from app.application.dto.upload_arquivo_dto import UploadArquivoDTO
 from app.application.use_cases.upload.fazer_upload_imagem import FazerUploadImagemUseCase
 from app.domain.entities.usuario import Usuario
+from app.domain.enums.pasta_arquivo_enum import PastaArquivoEnum
 from app.presentation.schemas.upload_schema import ArquivoUploadResponse
 from app.shared.dependencies import get_current_user, get_fazer_upload_imagem_use_case
 
@@ -16,7 +17,7 @@ async def fazer_upload_imagem(
     arquivo: Annotated[UploadFile, File(...)],
     usuario: Annotated[Usuario, Depends(get_current_user)],
     use_case: Annotated[FazerUploadImagemUseCase, Depends(get_fazer_upload_imagem_use_case)],
-    pasta: Annotated[str, Form()] = "imagens",
+    pasta: Annotated[PastaArquivoEnum, Form()] = PastaArquivoEnum.RESTAURANTES,
 ) -> ArquivoUploadResponse:
     if usuario.id is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Nao autenticado.")

@@ -4,6 +4,7 @@ from app.application.dto.upload_arquivo_dto import UploadArquivoDTO
 from app.application.use_cases.upload.fazer_upload_imagem import FazerUploadImagemUseCase
 from app.core.armazenamento_arquivo_exceptions import ArquivoInvalidoError
 from app.domain.entities.arquivo_armazenado import ArquivoArmazenado
+from app.domain.enums.pasta_arquivo_enum import PastaArquivoEnum
 from app.domain.repositories.armazenamento_arquivo_repository import (
     ArmazenamentoArquivoRepository,
 )
@@ -44,7 +45,7 @@ def test_fazer_upload_imagem_salva_arquivo_com_pasta_e_usuario() -> None:
             content_type="image/png",
             conteudo=b"imagem-valida",
             usuario_id=7,
-            pasta="restaurantes",
+            pasta=PastaArquivoEnum.RESTAURANTES,
         )
     )
 
@@ -67,5 +68,22 @@ def test_fazer_upload_imagem_rejeita_tipo_nao_suportado() -> None:
                 content_type="application/pdf",
                 conteudo=b"pdf",
                 usuario_id=4,
+            )
+        )
+
+
+
+def test_fazer_upload_imagem_rejeita_pasta_fora_do_padrao() -> None:
+    repository = FakeArmazenamentoArquivoRepository()
+    use_case = FazerUploadImagemUseCase(repository=repository)
+
+    with pytest.raises(ArquivoInvalidoError, match="Pasta invalida"):
+        use_case.executar(
+            UploadArquivoDTO(
+                nome_arquivo="foto.png",
+                content_type="image/png",
+                conteudo=b"imagem",
+                usuario_id=9,
+                pasta="promocoes",
             )
         )

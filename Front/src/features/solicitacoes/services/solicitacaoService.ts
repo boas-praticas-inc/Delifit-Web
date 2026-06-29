@@ -1,4 +1,4 @@
-import { api } from '../../../lib/api';
+﻿import { api } from '../../../lib/api';
 import type {
   CriarSolicitacaoPayload,
   SolicitarAdesaoPayload,
@@ -38,7 +38,7 @@ export const solicitacaoService = {
       complemento: payload.complemento ?? null,
       referencia: payload.referencia ?? null,
       descricao: payload.descricao ?? null,
-      foto_url: payload.foto_url ?? null,
+      foto_url: null,
     });
   },
 

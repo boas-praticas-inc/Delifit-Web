@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import { Alert } from '../../../components/common/Alert';
@@ -10,6 +10,7 @@ import { gestorService } from '../../gestores/services/gestorService';
 import type { Gestor } from '../../gestores/types/gestorTypes';
 import { solicitacaoService } from '../../solicitacoes/services/solicitacaoService';
 import type { Solicitacao } from '../../solicitacoes/types/solicitacaoTypes';
+import { uploadService } from '../../uploads/services/uploadService';
 import { RestauranteForm } from '../components/RestauranteForm';
 import type { AtualizarRestauranteFormData } from '../schemas/restauranteSchemas';
 import { restauranteService } from '../services/restauranteService';
@@ -48,9 +49,8 @@ export function EditarRestaurantePage() {
           enderecos.find((item) => item.id === data.endereco_id) ?? null,
         );
         setSolicitacao(
-          solicitacoes.find(
-            (item) => item.id === data.solicitacao_adesao_id,
-          ) ?? null,
+          solicitacoes.find((item) => item.id === data.solicitacao_adesao_id) ??
+            null,
         );
       } catch (requestError) {
         setError(getApiErrorMessage(requestError));
@@ -62,7 +62,10 @@ export function EditarRestaurantePage() {
     void carregar();
   }, [restauranteId]);
 
-  async function onSubmit(data: AtualizarRestauranteFormData) {
+  async function onSubmit(
+    data: AtualizarRestauranteFormData,
+    fotoArquivo: File | null,
+  ) {
     if (!restauranteId || !restaurante) {
       return;
     }
@@ -70,6 +73,16 @@ export function EditarRestaurantePage() {
     setError(null);
 
     try {
+      let fotoUrl = data.foto_url || null;
+
+      if (fotoArquivo) {
+        const upload = await uploadService.enviarImagem(
+          fotoArquivo,
+          'restaurantes',
+        );
+        fotoUrl = upload.url;
+      }
+
       await restauranteService.atualizarRestaurante(Number(restauranteId), {
         gestor_id: restaurante.gestor_id,
         endereco_id: restaurante.endereco_id,
@@ -79,7 +92,7 @@ export function EditarRestaurantePage() {
         cnpj: data.cnpj,
         telefone: data.telefone,
         descricao: data.descricao || null,
-        foto_url: data.foto_url || null,
+        foto_url: fotoUrl,
       });
       navigate(`/restaurantes/${restauranteId}`);
     } catch (requestError) {

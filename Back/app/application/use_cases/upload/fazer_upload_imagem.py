@@ -4,6 +4,7 @@ from uuid import uuid4
 from app.application.dto.upload_arquivo_dto import UploadArquivoDTO
 from app.core.armazenamento_arquivo_exceptions import ArquivoInvalidoError
 from app.domain.entities.arquivo_armazenado import ArquivoArmazenado
+from app.domain.enums.pasta_arquivo_enum import PastaArquivoEnum
 from app.domain.repositories.armazenamento_arquivo_repository import (
     ArmazenamentoArquivoRepository,
 )
@@ -14,6 +15,7 @@ TIPOS_IMAGEM_PERMITIDOS = {
     "image/png": ".png",
     "image/webp": ".webp",
 }
+PASTAS_UPLOAD_PERMITIDAS = {pasta.value for pasta in PastaArquivoEnum}
 TAMANHO_MAXIMO_IMAGEM_BYTES = 5 * 1024 * 1024
 
 
@@ -43,15 +45,18 @@ class FazerUploadImagemUseCase:
         )
 
 
-def _normalizar_pasta(pasta: str) -> str:
-    pasta_normalizada = "-".join(pasta.strip().lower().replace("\\", "/").split("/"))
+def _normalizar_pasta(pasta: PastaArquivoEnum | str) -> str:
+    valor_pasta = pasta.value if isinstance(pasta, PastaArquivoEnum) else pasta
+    pasta_normalizada = "-".join(valor_pasta.strip().lower().replace("\\", "/").split("/"))
     pasta_normalizada = "".join(
         caractere
         for caractere in pasta_normalizada
         if caractere.isalnum() or caractere in {"-", "_"}
     )
-    if not pasta_normalizada:
-        return "imagens"
+    if pasta_normalizada not in PASTAS_UPLOAD_PERMITIDAS:
+        raise ArquivoInvalidoError(
+            "Pasta invalida. Utilize: restaurantes, itens-cardapio, clientes ou gestores."
+        )
     return pasta_normalizada
 
 

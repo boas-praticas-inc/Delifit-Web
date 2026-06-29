@@ -1,4 +1,4 @@
-import { z } from 'zod';
+﻿import { z } from 'zod';
 
 import { somenteDigitos } from '../../../utils/masks';
 
@@ -14,9 +14,7 @@ const emailSchema = z
   .min(1, 'Informe o e-mail.')
   .email('Informe um e-mail válido.');
 
-const senhaSchema = z
-  .string()
-  .min(8, 'A senha deve ter pelo menos 8 caracteres.');
+const senhaSchema = z.string().min(8, 'A senha deve ter pelo menos 8 caracteres.');
 
 export const dadosGestorSchema = z.object({
   email: emailSchema,
@@ -92,7 +90,6 @@ export const dadosRestauranteSchema = z.object({
     .min(1, 'Informe o telefone do restaurante.')
     .max(20, 'Use no máximo 20 caracteres.'),
   descricao: optionalText,
-  foto_url: optionalText,
 });
 
 export const criarSolicitacaoSchema = dadosGestorSchema

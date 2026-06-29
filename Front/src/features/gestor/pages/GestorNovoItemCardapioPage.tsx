@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { Alert } from '../../../components/common/Alert';
@@ -9,6 +9,7 @@ import type { ItemCardapioFormData } from '../../cardapio/schemas/itemCardapioSc
 import { categoriaCardapioService } from '../../cardapio/services/categoriaCardapioService';
 import { itemCardapioService } from '../../cardapio/services/itemCardapioService';
 import type { CategoriaCardapio } from '../../cardapio/types/categoriaCardapioTypes';
+import { uploadService } from '../../uploads/services/uploadService';
 import { gestorContextoService } from '../services/gestorContextoService';
 
 export function GestorNovoItemCardapioPage() {
@@ -46,7 +47,7 @@ export function GestorNovoItemCardapioPage() {
     void carregar();
   }, []);
 
-  async function handleSubmit(data: ItemCardapioFormData) {
+  async function handleSubmit(data: ItemCardapioFormData, fotoArquivo: File | null) {
     if (!restauranteId) {
       setError('Nenhum restaurante vinculado ao gestor foi encontrado.');
       return;
@@ -55,6 +56,16 @@ export function GestorNovoItemCardapioPage() {
     setError(null);
 
     try {
+      let fotoUrl = data.foto_url || null;
+
+      if (fotoArquivo) {
+        const upload = await uploadService.enviarImagem(
+          fotoArquivo,
+          'itens-cardapio',
+        );
+        fotoUrl = upload.url;
+      }
+
       await itemCardapioService.criarItem({
         restaurante_id: restauranteId,
         categoria_id: Number(data.categoria_id),
@@ -71,7 +82,7 @@ export function GestorNovoItemCardapioPage() {
         })),
         tags: data.tags,
         status_item: data.status_item,
-        foto_url: data.foto_url || null,
+        foto_url: fotoUrl,
       });
 
       navigate('/gestor/cardapio');
