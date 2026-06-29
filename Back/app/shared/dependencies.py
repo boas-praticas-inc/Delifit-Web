@@ -8,6 +8,9 @@ from sqlalchemy.orm import Session
 from app.application.use_cases.admin.buscar_admin_por_id import BuscarAdminPorIdUseCase
 from app.application.use_cases.admin.criar_admin import CriarAdminUseCase
 from app.application.use_cases.admin.listar_admins import ListarAdminsUseCase
+from app.application.use_cases.endereco.atualizar_endereco_restaurante_do_gestor import (
+    AtualizarEnderecoRestauranteDoGestorUseCase,
+)
 from app.application.use_cases.endereco.atualizar_meu_endereco import AtualizarMeuEnderecoUseCase
 from app.application.use_cases.auth.registrar_cliente import RegistrarClienteUseCase
 from app.application.use_cases.cartao.atualizar_meu_cartao import AtualizarMeuCartaoUseCase
@@ -36,6 +39,9 @@ from app.application.use_cases.cliente.criar_cliente import CriarClienteUseCase
 from app.application.use_cases.cliente.excluir_cliente import ExcluirClienteUseCase
 from app.application.use_cases.cliente.listar_clientes import ListarClientesUseCase
 from app.application.use_cases.endereco.buscar_endereco_por_id import BuscarEnderecoPorIdUseCase
+from app.application.use_cases.endereco.buscar_endereco_restaurante_do_gestor import (
+    BuscarEnderecoRestauranteDoGestorUseCase,
+)
 from app.application.use_cases.endereco.buscar_meu_endereco_por_id import BuscarMeuEnderecoPorIdUseCase
 from app.application.use_cases.endereco.criar_endereco import CriarEnderecoUseCase
 from app.application.use_cases.endereco.criar_meu_endereco import CriarMeuEnderecoUseCase
@@ -645,3 +651,32 @@ def get_buscar_admin_por_id_use_case(
 def get_fazer_upload_imagem_use_case() -> FazerUploadImagemUseCase:
     repository = get_armazenamento_arquivo_repository()
     return FazerUploadImagemUseCase(repository=repository)
+
+
+
+
+
+def get_buscar_endereco_restaurante_do_gestor_use_case(
+    session: Annotated[Session, Depends(get_session)],
+) -> BuscarEnderecoRestauranteDoGestorUseCase:
+    endereco_repository = SQLAlchemyEnderecoRepository(session)
+    gestor_repository = SQLAlchemyGestorRepository(session)
+    restaurante_repository = SQLAlchemyRestauranteRepository(session)
+    return BuscarEnderecoRestauranteDoGestorUseCase(
+        endereco_repository=endereco_repository,
+        gestor_repository=gestor_repository,
+        restaurante_repository=restaurante_repository,
+    )
+
+
+def get_atualizar_endereco_restaurante_do_gestor_use_case(
+    session: Annotated[Session, Depends(get_session)],
+) -> AtualizarEnderecoRestauranteDoGestorUseCase:
+    endereco_repository = SQLAlchemyEnderecoRepository(session)
+    gestor_repository = SQLAlchemyGestorRepository(session)
+    restaurante_repository = SQLAlchemyRestauranteRepository(session)
+    return AtualizarEnderecoRestauranteDoGestorUseCase(
+        endereco_repository=endereco_repository,
+        gestor_repository=gestor_repository,
+        restaurante_repository=restaurante_repository,
+    )

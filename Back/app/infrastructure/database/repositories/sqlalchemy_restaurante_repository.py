@@ -1,4 +1,4 @@
-from sqlalchemy.exc import IntegrityError
+﻿from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.core.restaurante_exceptions import CnpjJaCadastradoError
@@ -39,6 +39,14 @@ class SQLAlchemyRestauranteRepository(RestauranteRepository):
 
     def buscar_por_id(self, restaurante_id: int) -> Restaurante | None:
         model = self.session.get(RestauranteModel, restaurante_id)
+        return self._to_entity(model) if model is not None else None
+
+    def buscar_por_gestor_id(self, gestor_id: int) -> Restaurante | None:
+        model = (
+            self.session.query(RestauranteModel)
+            .filter(RestauranteModel.gestor_id == gestor_id)
+            .first()
+        )
         return self._to_entity(model) if model is not None else None
 
     def atualizar(self, restaurante: Restaurante) -> Restaurante:

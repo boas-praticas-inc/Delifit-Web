@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+﻿from abc import ABC, abstractmethod
 
 from app.domain.entities.restaurante import Restaurante
 
@@ -14,6 +14,10 @@ class RestauranteRepository(ABC):
 
     @abstractmethod
     def buscar_por_id(self, restaurante_id: int) -> Restaurante | None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def buscar_por_gestor_id(self, gestor_id: int) -> Restaurante | None:
         raise NotImplementedError
 
     @abstractmethod
