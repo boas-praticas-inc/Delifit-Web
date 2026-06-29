@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict, Field
+﻿from pydantic import BaseModel, ConfigDict, Field
 
 
 class EnderecoCreate(BaseModel):
@@ -14,6 +14,29 @@ class EnderecoCreate(BaseModel):
     cliente_id: int | None = Field(default=None, gt=0)
 
 
+class EnderecoUpdate(BaseModel):
+    cep: str = Field(pattern=r"^[0-9]{8}$")
+    logradouro: str = Field(min_length=1, max_length=150)
+    numero: str = Field(min_length=1, max_length=20)
+    bairro: str = Field(min_length=1, max_length=100)
+    cidade: str = Field(min_length=1, max_length=100)
+    estado: str = Field(pattern=r"^[A-Z]{2}$")
+    complemento: str | None = Field(default=None, max_length=100)
+    referencia: str | None = Field(default=None, max_length=150)
+    label: str | None = Field(default=None, max_length=50)
+
+
+class EnderecoRestauranteUpdate(BaseModel):
+    cep: str = Field(pattern=r"^[0-9]{8}$")
+    logradouro: str = Field(min_length=1, max_length=150)
+    numero: str = Field(min_length=1, max_length=20)
+    bairro: str = Field(min_length=1, max_length=100)
+    cidade: str = Field(min_length=1, max_length=100)
+    estado: str = Field(pattern=r"^[A-Z]{2}$")
+    complemento: str | None = Field(default=None, max_length=100)
+    referencia: str | None = Field(default=None, max_length=150)
+
+
 class MeuEnderecoCreate(BaseModel):
     cep: str = Field(pattern=r"^[0-9]{8}$")
     logradouro: str = Field(min_length=1, max_length=150)
@@ -26,16 +49,8 @@ class MeuEnderecoCreate(BaseModel):
     label: str | None = Field(default=None, max_length=50)
 
 
-class MeuEnderecoUpdate(BaseModel):
-    cep: str = Field(pattern=r"^[0-9]{8}$")
-    logradouro: str = Field(min_length=1, max_length=150)
-    numero: str = Field(min_length=1, max_length=20)
-    bairro: str = Field(min_length=1, max_length=100)
-    cidade: str = Field(min_length=1, max_length=100)
-    estado: str = Field(pattern=r"^[A-Z]{2}$")
-    complemento: str | None = Field(default=None, max_length=100)
-    referencia: str | None = Field(default=None, max_length=150)
-    label: str | None = Field(default=None, max_length=50)
+class MeuEnderecoUpdate(EnderecoUpdate):
+    pass
 
 
 class EnderecoResponse(BaseModel):
@@ -52,4 +67,3 @@ class EnderecoResponse(BaseModel):
     cliente_id: int | None
 
     model_config = ConfigDict(from_attributes=True)
-

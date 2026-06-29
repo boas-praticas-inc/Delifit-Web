@@ -1,25 +1,26 @@
 ﻿import { zodResolver } from '@hookform/resolvers/zod';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { type ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
 import { Alert } from '../../../components/common/Alert';
 import { Button } from '../../../components/common/Button';
 import { Input } from '../../../components/common/Input';
 import { Textarea } from '../../../components/common/Textarea';
-import { formatarCnpj, formatarData, formatarTelefone } from '../../../utils/masks';
+import { formatarCep, formatarCnpj, formatarData, formatarTelefone } from '../../../utils/masks';
+import type { Endereco } from '../../enderecos/types/enderecoTypes';
 import {
-  atualizarRestauranteSchema,
-  type AtualizarRestauranteFormData,
-} from '../../restaurantes/schemas/restauranteSchemas';
+  atualizarPerfilRestauranteSchema,
+  type AtualizarPerfilRestauranteFormData,
+} from '../schemas/perfilRestauranteSchemas';
 import type { Restaurante } from '../../restaurantes/types/restauranteTypes';
 
 interface PerfilRestauranteFormProps {
-  enderecoFormatado: string;
+  endereco: Endereco;
   feedback?: string | null;
   formError?: string | null;
   gestorNome: string;
   onSubmit: (
-    data: AtualizarRestauranteFormData,
+    data: AtualizarPerfilRestauranteFormData,
     fotoArquivo: File | null,
   ) => Promise<void>;
   restaurante: Restaurante;
@@ -27,7 +28,6 @@ interface PerfilRestauranteFormProps {
 
 const TAMANHO_MAXIMO_IMAGEM_BYTES = 5 * 1024 * 1024;
 const TIPOS_IMAGEM_ACEITOS = ['image/png', 'image/jpeg', 'image/webp'];
-const INPUT_ACCEPT = '.png,.jpg,.jpeg,.webp';
 
 const statusLabel: Record<string, string> = {
   ATIVO: 'Ativo',
@@ -41,7 +41,33 @@ const statusClasses: Record<string, string> = {
   BLOQUEADO: 'border-red-200 bg-red-50 text-red-700',
 };
 
-function montarValoresIniciais(restaurante: Restaurante): AtualizarRestauranteFormData {
+const IMAGEM_PADRAO_RESTAURANTE = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" fill="none">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="800" y2="600" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#14532D"/>
+        <stop offset="0.5" stop-color="#166534"/>
+        <stop offset="1" stop-color="#84CC16"/>
+      </linearGradient>
+    </defs>
+    <rect width="800" height="600" fill="url(#bg)"/>
+    <circle cx="655" cy="108" r="120" fill="#ffffff" opacity="0.10"/>
+    <circle cx="110" cy="505" r="150" fill="#ffffff" opacity="0.08"/>
+    <rect x="120" y="126" width="560" height="348" rx="34" fill="#ffffff" opacity="0.92"/>
+    <rect x="170" y="182" width="460" height="160" rx="24" fill="#DCFCE7"/>
+    <rect x="220" y="230" width="360" height="16" rx="8" fill="#166534" opacity="0.9"/>
+    <rect x="255" y="274" width="290" height="16" rx="8" fill="#16A34A" opacity="0.75"/>
+    <rect x="210" y="372" width="140" height="22" rx="11" fill="#E2E8F0"/>
+    <rect x="374" y="372" width="216" height="22" rx="11" fill="#E2E8F0"/>
+    <path d="M330 150c18 0 33 15 33 33v32h74v-32c0-18 15-33 33-33 18 0 33 15 33 33v46c0 18-15 33-33 33H330c-18 0-33-15-33-33v-46c0-18 15-33 33-33Z" fill="#15803D"/>
+    <text x="400" y="432" text-anchor="middle" fill="#166534" font-family="Arial, sans-serif" font-size="34" font-weight="700">Delifit Restaurante</text>
+  </svg>
+`)}`;
+
+function montarValoresIniciais(
+  restaurante: Restaurante,
+  endereco: Endereco,
+): AtualizarPerfilRestauranteFormData {
   return {
     nome_fantasia: restaurante.nome_fantasia,
     razao_social: restaurante.razao_social,
@@ -49,6 +75,14 @@ function montarValoresIniciais(restaurante: Restaurante): AtualizarRestauranteFo
     telefone: restaurante.telefone,
     descricao: restaurante.descricao ?? '',
     foto_url: restaurante.foto_url ?? null,
+    cep: endereco.cep,
+    logradouro: endereco.logradouro,
+    numero: endereco.numero,
+    bairro: endereco.bairro,
+    cidade: endereco.cidade,
+    estado: endereco.estado,
+    complemento: endereco.complemento ?? '',
+    referencia: endereco.referencia ?? '',
   };
 }
 
@@ -68,9 +102,9 @@ export function PerfilRestauranteForm(props: PerfilRestauranteFormProps) {
     register,
     reset,
     setValue,
-  } = useForm<AtualizarRestauranteFormData>({
-    resolver: zodResolver(atualizarRestauranteSchema),
-    defaultValues: montarValoresIniciais(props.restaurante),
+  } = useForm<AtualizarPerfilRestauranteFormData>({
+    resolver: zodResolver(atualizarPerfilRestauranteSchema),
+    defaultValues: montarValoresIniciais(props.restaurante, props.endereco),
   });
 
   const restaurarEstadoDaImagem = useCallback(
@@ -93,10 +127,9 @@ export function PerfilRestauranteForm(props: PerfilRestauranteFormProps) {
   );
 
   useEffect(() => {
-    const valoresIniciais = montarValoresIniciais(props.restaurante);
-    reset(valoresIniciais);
+    reset(montarValoresIniciais(props.restaurante, props.endereco));
     restaurarEstadoDaImagem(props.restaurante.foto_url ?? null, false);
-  }, [props.restaurante, reset, restaurarEstadoDaImagem]);
+  }, [props.restaurante, props.endereco, reset, restaurarEstadoDaImagem]);
 
   useEffect(() => {
     return () => {
@@ -106,7 +139,15 @@ export function PerfilRestauranteForm(props: PerfilRestauranteFormProps) {
     };
   }, []);
 
-  function processarSelecaoImagem(event: React.ChangeEvent<HTMLInputElement>) {
+  function abrirSeletorImagem() {
+    fileInputRef.current?.click();
+  }
+
+  function removerImagemAtual() {
+    restaurarEstadoDaImagem(null, true);
+  }
+
+  function processarSelecaoImagem(event: ChangeEvent<HTMLInputElement>) {
     const arquivoSelecionado = event.target.files?.[0] ?? null;
 
     if (!arquivoSelecionado) {
@@ -136,25 +177,12 @@ export function PerfilRestauranteForm(props: PerfilRestauranteFormProps) {
     setFotoPreviewUrl(previewUrl);
   }
 
-  function limparImagem() {
-    if (fotoArquivo) {
-      restaurarEstadoDaImagem(props.restaurante.foto_url ?? null, true);
-      return;
-    }
-
-    setFotoErro(null);
-    setFotoPreviewUrl(null);
-    setValue('foto_url', null, { shouldDirty: true });
-
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  }
-
   const statusAtual = props.restaurante.status;
   const statusTexto = statusLabel[statusAtual] ?? statusAtual;
   const statusClasse =
     statusClasses[statusAtual] ?? 'border-slate-200 bg-slate-100 text-slate-700';
+  const imagemExibida = fotoPreviewUrl ?? IMAGEM_PADRAO_RESTAURANTE;
+  const possuiFotoPersonalizada = Boolean(fotoPreviewUrl);
 
   return (
     <form
@@ -162,6 +190,13 @@ export function PerfilRestauranteForm(props: PerfilRestauranteFormProps) {
       onSubmit={handleSubmit((data) => props.onSubmit(data, fotoArquivo))}
     >
       <input type="hidden" {...register('foto_url')} />
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".png,.jpg,.jpeg,.webp"
+        className="sr-only"
+        onChange={processarSelecaoImagem}
+      />
 
       <section className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
         <div className="bg-[linear-gradient(135deg,#14532d_0%,#166534_45%,#1f7a43_100%)] px-6 py-6 text-white">
@@ -190,72 +225,65 @@ export function PerfilRestauranteForm(props: PerfilRestauranteFormProps) {
           </div>
         </div>
 
-        <div className="grid gap-6 px-6 py-6 xl:grid-cols-[320px_minmax(0,1fr)]">
-          <aside className="grid gap-4">
-            <article className="overflow-hidden rounded-3xl border border-slate-200 bg-slate-50">
-              {fotoPreviewUrl ? (
+        <div className="grid gap-6 px-6 py-6 xl:grid-cols-[300px_minmax(0,1fr)]">
+          <aside className="grid auto-rows-max content-start gap-4">
+            <article className="self-start overflow-hidden rounded-3xl border border-slate-200 bg-slate-100 shadow-sm">
+              <div className="relative aspect-[4/5] min-h-[320px] overflow-hidden">
                 <img
-                  src={fotoPreviewUrl}
+                  src={imagemExibida}
                   alt={`Foto do restaurante ${props.restaurante.nome_fantasia}`}
-                  className="aspect-[4/3] w-full object-cover"
+                  className="h-full w-full object-cover"
                 />
-              ) : (
-                <div className="grid aspect-[4/3] place-items-center bg-[linear-gradient(135deg,#dcfce7_0%,#f0fdf4_50%,#ecfccb_100%)] p-8 text-center">
-                  <div>
-                    <div className="mx-auto grid size-20 place-items-center rounded-full border border-emerald-200 bg-white text-3xl text-emerald-700 shadow-sm">
-                      R
-                    </div>
-                    <p className="mt-4 text-sm font-semibold text-slate-900">
-                      Adicione a foto principal do restaurante
-                    </p>
-                    <p className="mt-1 text-xs leading-5 text-slate-500">
-                      A imagem enviada aqui será usada como foto de perfil do
-                      restaurante.
-                    </p>
-                  </div>
+
+                <div className="absolute inset-x-4 bottom-4 flex items-center justify-between gap-3">
+                  {possuiFotoPersonalizada ? (
+                    <button
+                      type="button"
+                      onClick={removerImagemAtual}
+                      className="inline-flex items-center rounded-full bg-white/95 px-4 py-2 text-sm font-semibold text-slate-900 shadow-lg transition hover:bg-white"
+                    >
+                      Remover foto
+                    </button>
+                  ) : <span />}
+
+                  <button
+                    type="button"
+                    onClick={abrirSeletorImagem}
+                    className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-white text-slate-900 shadow-lg transition hover:bg-emerald-50"
+                    aria-label="Alterar foto do restaurante"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      viewBox="0 0 24 24"
+                      className="h-5 w-5"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M12 20h9" />
+                      <path d="M16.5 3.5a2.1 2.1 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5Z" />
+                    </svg>
+                  </button>
                 </div>
-              )}
-
-              <div className="grid gap-3 border-t border-slate-200 bg-white p-4">
-                <label className="grid gap-1.5 text-sm font-medium text-slate-700">
-                  <span>Foto do restaurante</span>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept={INPUT_ACCEPT}
-                    className="min-h-11 rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none transition file:mr-3 file:rounded-md file:border-0 file:bg-brand-600 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-brand-700 focus:border-brand-600 focus:ring-2 focus:ring-brand-100"
-                    onChange={processarSelecaoImagem}
-                  />
-                </label>
-
-                <p className="text-xs leading-5 text-slate-500">
-                  Envie PNG, JPG ou WEBP com até 5 MB. A URL é gerada automaticamente.
-                </p>
-
-                {fotoErro ? <Alert variant="error">{fotoErro}</Alert> : null}
-
-                {fotoPreviewUrl ? (
-                  <Button type="button" variant="secondary" onClick={limparImagem}>
-                    {fotoArquivo ? 'Descartar nova imagem' : 'Remover imagem atual'}
-                  </Button>
-                ) : null}
               </div>
             </article>
 
-            <article className="grid gap-4 rounded-3xl border border-slate-200 bg-slate-50 p-5">
+            <article className="grid gap-3 rounded-3xl border border-slate-200 bg-slate-50 p-4">
               <InfoBloco
                 label="Gestor responsável"
                 value={props.gestorNome || 'Não informado'}
               />
-              <InfoBloco
-                label="Endereço vinculado"
-                value={props.enderecoFormatado || 'Endereço não informado'}
-              />
               <InfoBloco label="CNPJ atual" value={formatarCnpj(props.restaurante.cnpj)} />
+              <InfoBloco
+                label="Telefone atual"
+                value={formatarTelefone(props.restaurante.telefone)}
+              />
             </article>
           </aside>
 
-          <section className="grid gap-5 rounded-3xl border border-slate-200 bg-white p-6">
+          <section className="grid gap-6 rounded-3xl border border-slate-200 bg-white p-6">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-700">
                 Dados editáveis
@@ -267,8 +295,9 @@ export function PerfilRestauranteForm(props: PerfilRestauranteFormProps) {
 
             {props.feedback ? <Alert variant="success">{props.feedback}</Alert> : null}
             {props.formError ? <Alert variant="error">{props.formError}</Alert> : null}
+            {fotoErro ? <Alert variant="error">{fotoErro}</Alert> : null}
 
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 lg:grid-cols-2">
               <Input
                 label="Nome fantasia"
                 error={errors.nome_fantasia?.message}
@@ -277,9 +306,11 @@ export function PerfilRestauranteForm(props: PerfilRestauranteFormProps) {
               <Input
                 label="Razão social"
                 error={errors.razao_social?.message}
-                className="md:col-span-2"
                 {...register('razao_social')}
               />
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
               <Controller
                 control={control}
                 name="cnpj"
@@ -292,9 +323,7 @@ export function PerfilRestauranteForm(props: PerfilRestauranteFormProps) {
                     error={errors.cnpj?.message}
                     {...field}
                     value={formatarCnpj(field.value ?? '')}
-                    onChange={(event) =>
-                      field.onChange(formatarCnpj(event.target.value))
-                    }
+                    onChange={(event) => field.onChange(formatarCnpj(event.target.value))}
                   />
                 )}
               />
@@ -310,26 +339,100 @@ export function PerfilRestauranteForm(props: PerfilRestauranteFormProps) {
                     error={errors.telefone?.message}
                     {...field}
                     value={formatarTelefone(field.value ?? '')}
-                    onChange={(event) =>
-                      field.onChange(formatarTelefone(event.target.value))
-                    }
+                    onChange={(event) => field.onChange(formatarTelefone(event.target.value))}
                   />
                 )}
               />
-              <Input
-                label="Endereço vinculado"
-                value={props.enderecoFormatado}
-                readOnly
-                className="md:col-span-2"
-              />
-              <Textarea
-                label="Descrição"
-                error={errors.descricao?.message}
-                className="min-h-40 md:col-span-2"
-                placeholder="Descreva o conceito, os diferenciais e o estilo do restaurante."
-                {...register('descricao')}
-              />
             </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+              <div className="mb-4">
+                <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-700">
+                  Endereço do restaurante
+                </p>
+                <p className="mt-1 text-sm text-slate-600">
+                  Mantenha o endereço de operação sempre atualizado para o perfil do restaurante.
+                </p>
+              </div>
+
+              <div className="grid gap-4 xl:grid-cols-3">
+                <Input
+                  label="Logradouro"
+                  error={errors.logradouro?.message}
+                  {...register('logradouro')}
+                />
+                <Input
+                  label="Número"
+                  error={errors.numero?.message}
+                  {...register('numero')}
+                />
+                <Input
+                  label="Bairro"
+                  error={errors.bairro?.message}
+                  {...register('bairro')}
+                />
+              </div>
+
+              <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                <Input
+                  label="Cidade"
+                  error={errors.cidade?.message}
+                  {...register('cidade')}
+                />
+                <Controller
+                  control={control}
+                  name="estado"
+                  render={({ field }) => (
+                    <Input
+                      label="Estado"
+                      maxLength={2}
+                      placeholder="SE"
+                      error={errors.estado?.message}
+                      {...field}
+                      value={field.value ?? ''}
+                      onChange={(event) => field.onChange(event.target.value.toUpperCase())}
+                    />
+                  )}
+                />
+                <Controller
+                  control={control}
+                  name="cep"
+                  render={({ field }) => (
+                    <Input
+                      label="CEP"
+                      inputMode="numeric"
+                      maxLength={9}
+                      placeholder="00000-000"
+                      error={errors.cep?.message}
+                      {...field}
+                      value={formatarCep(field.value ?? '')}
+                      onChange={(event) => field.onChange(formatarCep(event.target.value))}
+                    />
+                  )}
+                />
+              </div>
+
+              <div className="mt-4 grid gap-4 md:grid-cols-2">
+                <Input
+                  label="Complemento"
+                  error={errors.complemento?.message}
+                  {...register('complemento')}
+                />
+                <Input
+                  label="Referência"
+                  error={errors.referencia?.message}
+                  {...register('referencia')}
+                />
+              </div>
+            </div>
+
+            <Textarea
+              label="Descrição"
+              error={errors.descricao?.message}
+              className="min-h-36"
+              placeholder="Descreva o conceito, os diferenciais e o estilo do restaurante."
+              {...register('descricao')}
+            />
 
             <div className="flex flex-col gap-3 border-t border-slate-200 pt-5 sm:flex-row">
               <Button type="submit" isLoading={isSubmitting}>
@@ -339,7 +442,7 @@ export function PerfilRestauranteForm(props: PerfilRestauranteFormProps) {
                 type="button"
                 variant="secondary"
                 onClick={() => {
-                  reset(montarValoresIniciais(props.restaurante));
+                  reset(montarValoresIniciais(props.restaurante, props.endereco));
                   restaurarEstadoDaImagem(props.restaurante.foto_url ?? null, false);
                 }}
               >
@@ -359,7 +462,8 @@ function InfoBloco(props: { label: string; value: string }) {
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
         {props.label}
       </p>
-      <p className="mt-2 text-sm font-medium leading-6 text-slate-900">{props.value}</p>
+      <p className="mt-1 text-sm font-medium leading-5 text-slate-900">{props.value}</p>
     </div>
   );
 }
+

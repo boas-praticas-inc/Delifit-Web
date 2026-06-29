@@ -35,6 +35,9 @@ class FakeRestauranteRepository(RestauranteRepository):
     def buscar_por_id(self, restaurante_id: int) -> Restaurante | None:
         return next((item for item in self.restaurantes if item.id == restaurante_id), None)
 
+    def buscar_por_gestor_id(self, gestor_id: int) -> Restaurante | None:
+        return next((item for item in self.restaurantes if item.gestor_id == gestor_id), None)
+
     def atualizar(self, restaurante: Restaurante) -> Restaurante:
         for index, atual in enumerate(self.restaurantes):
             if atual.id == restaurante.id:
