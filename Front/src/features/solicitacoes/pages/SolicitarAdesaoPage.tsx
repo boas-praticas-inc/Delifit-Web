@@ -1,4 +1,4 @@
-import { zodResolver } from '@hookform/resolvers/zod';
+﻿import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
@@ -64,7 +64,6 @@ export function SolicitarAdesaoPage() {
       cnpj: dadosFormulario.cnpj ?? '',
       telefone_restaurante: dadosFormulario.telefone_restaurante ?? '',
       descricao: dadosFormulario.descricao ?? '',
-      foto_url: dadosFormulario.foto_url ?? '',
     },
   });
 
@@ -325,9 +324,7 @@ export function SolicitarAdesaoPage() {
                       inputMode="tel"
                       maxLength={15}
                       placeholder="(00) 00000-0000"
-                      error={
-                        restauranteForm.formState.errors.telefone_restaurante?.message
-                      }
+                      error={restauranteForm.formState.errors.telefone_restaurante?.message}
                       {...field}
                       value={formatarTelefone(field.value ?? '')}
                       onChange={(event) =>
@@ -348,12 +345,10 @@ export function SolicitarAdesaoPage() {
                 error={restauranteForm.formState.errors.descricao?.message}
                 {...restauranteForm.register('descricao')}
               />
-              <Input
-                label="URL da foto"
-                type="url"
-                error={restauranteForm.formState.errors.foto_url?.message}
-                {...restauranteForm.register('foto_url')}
-              />
+              <div className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                A foto do restaurante será adicionada depois que um administrador aprovar a adesão,
+                no campo de perfil do restaurante.
+              </div>
             </fieldset>
 
             <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">

@@ -1,4 +1,4 @@
-from functools import lru_cache
+﻿from functools import lru_cache
 from pathlib import Path
 
 from pydantic import Field
@@ -16,6 +16,12 @@ class Settings(BaseSettings):
     debug: bool = Field(False, alias="DEBUG")
     secret_key: str = Field(..., alias="SECRET_KEY")
     access_token_expire_minutes: int = Field(60, alias="ACCESS_TOKEN_EXPIRE_MINUTES")
+    minio_endpoint: str = Field("localhost:9000", alias="MINIO_ENDPOINT")
+    minio_public_url: str = Field("http://localhost:9000", alias="MINIO_PUBLIC_URL")
+    minio_use_ssl: bool = Field(False, alias="MINIO_USE_SSL")
+    minio_access_key: str = Field("minioadmin", alias="MINIO_ROOT_USER")
+    minio_secret_key: str = Field("minioadmin123", alias="MINIO_ROOT_PASSWORD")
+    minio_bucket: str = Field("delifit", alias="MINIO_BUCKET")
 
     model_config = SettingsConfigDict(env_file=ENV_FILE, env_file_encoding="utf-8")
 
